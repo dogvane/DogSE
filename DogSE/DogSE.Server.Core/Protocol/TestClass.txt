@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Task;
+
+namespace DogSE.Server.Core.Protocol
+{
+    class TestClass
+    {
+        public PacketHandlersBase packetHandlerManager;
+
+        public Module module;
+
+        void Init()
+        {
+            packetHandlerManager.Register(1, Method1);
+        }
+
+        void Method1(NetState netstate, PacketReader reader)
+        {
+            module.f1(netstate, reader);
+        }
+    }
+}
