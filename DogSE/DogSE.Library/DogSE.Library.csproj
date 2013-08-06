@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Common\ObjectPool.cs" />
     <Compile Include="Common\ObjectPoolStateInfo.cs" />
+    <Compile Include="Common\StaticObjectPool.cs" />
     <Compile Include="Common\TInstance.cs" />
     <Compile Include="Serialize\XmlSerializeUtil.cs" />
     <Compile Include="Log\Appender.cs" />

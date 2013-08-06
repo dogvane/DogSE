@@ -86,7 +86,7 @@ namespace DogSE.Server.Core.Protocol
 
             if (att.MethodType == NetMethodType.PacketReader)
             {
-                if (param[1].ParameterType == typeof(PacketReader))
+                if (param[1].ParameterType != typeof(PacketReader))
                 {
                     Logs.Error("{0}.{1} 的第二个参数必须是 PacketReader 对象", classType.Name, methodinfo.Name);
                     return;
@@ -111,7 +111,7 @@ namespace DogSE.Server.Core.Protocol
                     return;
                 }
 
-                if (!param[2].ParameterType.IsClass)
+                if (!param[1].ParameterType.IsClass)
                 {
                     Logs.Error("{0}.{1} 的第二个参数必须是class类型。", classType.Name, methodinfo.Name);
                     return;
@@ -124,21 +124,15 @@ namespace DogSE.Server.Core.Protocol
 
                 callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
                 callCode.AppendLine("{");
-                callCode.AppendFormat(" var package = DogSE.Library.Common.ObjectPool<{0}>.AcquireContent();", methodinfo.ReflectedType.FullName);
+                callCode.AppendFormat(" var package = DogSE.Library.Common.StaticObjectPool<{0}>.AcquireContent();", param[1].ParameterType.FullName);
                 callCode.AppendLine("package.Read(reader);");
                 callCode.AppendFormat("module.{0}(netstate, package);", methodinfo.Name);
-                callCode.AppendLine("DogSE.Library.Common.ObjectPool.ReleaseContent(package);");
+                callCode.AppendFormat("DogSE.Library.Common.StaticObjectPool<{0}>.ReleaseContent(package);", param[1].ParameterType.FullName);
                 callCode.AppendLine("}");
             }
 
             if (att.MethodType == NetMethodType.SimpleMethod)
             {
-                if (param[1].ParameterType.GetInterface(typeof (IPacketReader).FullName) == null)
-                {
-                    Logs.Error("{0}.{1} 的第二个参数必须实现 IPacketReader 接口", classType.Name, methodinfo.Name);
-                    return;
-                }
-
                 string methodName = methodinfo.Name;
                 initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
                                       att.OpCode, methodName);
@@ -243,6 +237,7 @@ namespace DogSE.Server.Core.Protocol
                 compilerParameters.ReferencedAssemblies.Add("mscorlib.dll");
                 compilerParameters.ReferencedAssemblies.Add("System.dll");
                 compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
+                compilerParameters.ReferencedAssemblies.Add("DogSE.Library.dll");
                 compilerParameters.ReferencedAssemblies.Add("DogSE.Server.Core.dll");
                 compilerParameters.ReferencedAssemblies.Add(classType.Assembly.FullName.Split(',')[0] + ".dll");
 
