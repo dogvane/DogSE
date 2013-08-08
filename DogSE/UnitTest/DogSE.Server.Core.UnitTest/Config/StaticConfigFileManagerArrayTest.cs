@@ -116,7 +116,7 @@ namespace DogSE.Server.Core.UnitTest.Config
         }
     }
 
-    [XmlConfigRoot("testArray.config")]
+    [StaticXmlConfigRoot("testArray.config")]
     static class BaseArray
     {
         public static string[] StrData { get; set; }
@@ -137,7 +137,7 @@ namespace DogSE.Server.Core.UnitTest.Config
     /// 如果配置结点使用内部类作为配置节点
     /// 则父类需要为public类型
     /// </remarks>
-    [XmlConfigRoot("testArray.config")]
+    [StaticXmlConfigRoot("testArray.config")]
     public static class ClassArrayProperty
     {
         /// <summary>

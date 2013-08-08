@@ -11,13 +11,13 @@ namespace DogSE.Server.Core.Config
     /// RootName: 当前静态配置类属性在配置文件的根节点名称，如果未配置，则为对象名
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class)]
-    public class XmlConfigRootAttribute : Attribute
+    public class StaticXmlConfigRootAttribute : Attribute
     {
         /// <summary>
         /// 静态配置文件根节点项
         /// </summary>
         /// <param name="fileName">配置文件的文件名</param>
-        public XmlConfigRootAttribute(string fileName)
+        public StaticXmlConfigRootAttribute(string fileName)
         {
             FileName = fileName;
         }
@@ -32,6 +32,35 @@ namespace DogSE.Server.Core.Config
         /// </summary>
         public string RootName { get; set; }
     }
+
+    /// <summary>
+    /// 动态数据的配置节点项
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DynamicXmlConfigRootAttribute : Attribute
+    {
+        /// <summary>
+        /// 动态数据配置文件根节点项
+        /// </summary>
+        /// <param name="fileName">配置文件的文件名</param>
+        /// <param name="componentName">配置名字</param>
+        public DynamicXmlConfigRootAttribute(string fileName, string componentName)
+        {
+            FileName = fileName;
+            ComponentName = componentName;
+        }
+
+        /// <summary>
+        /// 配置文件的文件名
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// 在管理数据里读取的配置名字
+        /// </summary>
+        public string ComponentName { get; set; }
+    }
+
 
     /// <summary>
     /// 配置文件节点项

@@ -20,10 +20,10 @@ namespace DogSE.Server.Core.Config
         /// </summary>
         public static void LoadData()
         {
-            var configTypes = AssemblyUtil.GetTypesByAttribute(typeof (XmlConfigRootAttribute));
+            var configTypes = AssemblyUtil.GetTypesByAttribute(typeof (StaticXmlConfigRootAttribute));
             foreach(var type in configTypes)
             {
-                var rootAttribute = (XmlConfigRootAttribute) type.GetCustomAttributes(typeof (XmlConfigRootAttribute), true)[0];
+                var rootAttribute = (StaticXmlConfigRootAttribute) type.GetCustomAttributes(typeof (StaticXmlConfigRootAttribute), true)[0];
                 if (string.IsNullOrEmpty(rootAttribute.FileName))
                 {
                     Logs.Error("Static config class:'{0}' not define file", type.Name);

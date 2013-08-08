@@ -118,7 +118,7 @@ namespace DogSE.Server.Core.UnitTest.Config
         }
     }
 
-    [XmlConfigRoot("test.config")]
+    [StaticXmlConfigRoot("test.config")]
     static class TestConfigClass1
     {
         public static string StrData { get; set; }
@@ -133,7 +133,7 @@ namespace DogSE.Server.Core.UnitTest.Config
     }
 
 
-    [XmlConfigRoot("test.config")]
+    [StaticXmlConfigRoot("test.config")]
     static class TestConfigClassByDefaultValue
     {
         private static int _intData = 10;
@@ -163,7 +163,7 @@ namespace DogSE.Server.Core.UnitTest.Config
         public static bool BoolData { get; set; }
     }
 
-    [XmlConfigRoot("test.config", RootName="OtherNameNode")]
+    [StaticXmlConfigRoot("test.config", RootName="OtherNameNode")]
     static class OtherName
     {
         [XmlConfig(Name="StrData2")]
@@ -185,7 +185,7 @@ namespace DogSE.Server.Core.UnitTest.Config
     /// 如果配置结点使用内部类作为配置节点
     /// 则父类需要为public类型
     /// </remarks>
-    [XmlConfigRoot("test.config")]
+    [StaticXmlConfigRoot("test.config")]
     public static class ClassProperty
     {
         /// <summary>

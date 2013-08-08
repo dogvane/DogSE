@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Config\StaticConfigFileManagerTest.cs" />
     <Compile Include="Config\StaticConfigFileManagerArrayTest.cs" />
+    <Compile Include="Config\DynamicConfigFileManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\CraetePacketReaderTest.cs" />
     <Compile Include="Serialize\XmlSerializeTest.cs" />

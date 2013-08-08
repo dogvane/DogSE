@@ -8,7 +8,7 @@
     /// 如果属性也是一个对象，而非数值，
     /// 则会创建该对象，对象也将以实例方式存在。
     /// </remarks>
-    [XmlConfigRootAttribute(@"..\Server.Config")]
+    [StaticXmlConfigRootAttribute(@"..\Server.Config")]
     public static class ServerConfig
     {
         /// <summary>
