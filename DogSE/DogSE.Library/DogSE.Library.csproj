@@ -44,6 +44,8 @@
     <Compile Include="Common\ObjectPoolStateInfo.cs" />
     <Compile Include="Common\StaticObjectPool.cs" />
     <Compile Include="Common\TInstance.cs" />
+    <Compile Include="Component\ComponentManager.cs" />
+    <Compile Include="Component\IComponentManager.cs" />
     <Compile Include="Serialize\XmlSerializeUtil.cs" />
     <Compile Include="Log\Appender.cs" />
     <Compile Include="Log\ConsoleAppender.cs" />
