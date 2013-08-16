@@ -54,6 +54,14 @@
     <Content Include="Protocol\TestClass.txt" />
     <Compile Include="ServerState\IServerState.cs" />
     <Compile Include="ServerState\ServerStateManager.cs" />
+    <Compile Include="Timer\DelayCallTimer.cs" />
+    <Compile Include="Timer\DelayStateCallTimer.cs" />
+    <Compile Include="Timer\Delegate.cs" />
+    <Compile Include="Timer\Enum.cs" />
+    <Compile Include="Timer\TimerChangeEntry.cs" />
+    <Compile Include="Timer\TimerProfile.cs" />
+    <Compile Include="Timer\TimerThread.cs" />
+    <Compile Include="Timer\TimeSlice.cs" />
     <Compile Include="Util\AssemblyUtil.cs" />
     <Compile Include="WorldBase.cs" />
     <Compile Include="Net\NetState.cs" />
@@ -70,6 +78,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\NetTask.cs" />
     <Compile Include="Task\TaskManager.cs" />
+    <Content Include="Timer\Timer.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DogSE.Library\DogSE.Library.csproj">

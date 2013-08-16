@@ -92,6 +92,8 @@ namespace DogSE.Server.Core.Task
         void WorkThread()
         {
             isRuning = true;
+            Logs.Info("Logic thread start.");
+
             var watch = Stopwatch.StartNew();
             while(isRuning || taskList.Count > 0)
             {
@@ -117,7 +119,7 @@ namespace DogSE.Server.Core.Task
                 else
                 {
                     //  队列里没任务，则让线程先休息一小会
-                    Thread.Sleep(1);
+                    Thread.Sleep(0);
                 }
             }
 
