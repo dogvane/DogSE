@@ -46,14 +46,13 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 延迟调用的时间有状态类
         /// </summary>
-        /// <param name="processPriority">优先级</param>
         /// <param name="iTimes">调用的次数</param>
         /// <param name="delayTimeSpan">延迟的时间</param>
         /// <param name="intervalTimeSpan">间隔的时间</param>
         /// <param name="timerStateCallback">委托</param>
         /// <param name="timeLeft">剩余时间</param>
         /// <param name="oState">回调的状态类</param>
-        public DelayStateCallTimer( TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object oState )
+        public DelayStateCallTimer(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object oState )
             : base(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft )
         {
             m_Callback = timerStateCallback;
@@ -75,7 +74,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 
         /// </summary>
-        protected override void OnTick()
+        public override void OnTick()
         {
             if ( m_Callback != null )
                 m_Callback( m_State );
@@ -115,14 +114,13 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 延迟调用的时间有状态类
         /// </summary>
-        /// <param name="processPriority">优先级</param>
         /// <param name="iTimes">调用的次数</param>
         /// <param name="delayTimeSpan">延迟的时间</param>
         /// <param name="intervalTimeSpan">间隔的时间</param>
         /// <param name="timerStateCallback">委托</param>
         /// <param name="timeLeft">剩余时间</param>
         /// <param name="tState">回调的状态类</param>
-        public DelayStateCallTimer( TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState )
+        public DelayStateCallTimer(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState )
             : base(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft )
         {
             m_Callback = timerStateCallback;
@@ -144,7 +142,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 
         /// </summary>
-        protected override void OnTick()
+        public override void OnTick()
         {
             if ( m_Callback != null )
                 m_Callback( m_State );

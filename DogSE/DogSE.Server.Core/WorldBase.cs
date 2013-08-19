@@ -1,9 +1,11 @@
 ﻿using DogSE.Library.Log;
+using DogSE.Library.Time;
 using DogSE.Server.Core.Config;
 using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Task;
+using DogSE.Server.Core.Timer;
 using DogSE.Server.Net;
 
 namespace DogSE.Server.Core
@@ -13,6 +15,8 @@ namespace DogSE.Server.Core
     /// </summary>
     public class WorldBase
     {
+        private bool m_isStartWorld;
+
         /// <summary>
         /// 游戏世界对应的服务器监听器
         /// </summary>
@@ -23,11 +27,21 @@ namespace DogSE.Server.Core
         /// </summary>
         public void StartWorld()
         {
+            if (m_isStartWorld)
+                return;
+            m_isStartWorld = true;
+            OneServer.Closing = false;
+
             StaticConfigFileManager.LoadData();
 
             InitLogicModule();
 
             StartServerSocket();
+
+            TimerThread.TaskManager = taskManager;
+            TimerThread.StartTimerThread();
+
+            taskManager.StartThread();
         }
 
         /// <summary>

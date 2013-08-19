@@ -22,7 +22,6 @@
 #region zh-CHS 包含名字空间 | en Include namespace
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using DogSE.Library.Time;
 
@@ -349,12 +348,14 @@ namespace DogSE.Server.Core.Timer
         /// </summary>
         public void Start()
         {
-            if ( m_Running)
+            if (!m_Running)
             {
-                TimerThread.AddTimer( this );
+                TimerThread.AddTimer(this);
+
+                m_Running = true;
 
                 TimerProfile timerProfile = GetProfile();
-                if ( timerProfile != null )
+                if (timerProfile != null)
                     timerProfile.RegStart();
             }
         }
@@ -367,6 +368,7 @@ namespace DogSE.Server.Core.Timer
             if ( m_Running )
             {
                 TimerThread.RemoveTimer( this );
+                m_Running = false;
 
                 TimerProfile timerProfile = GetProfile();
                 if ( timerProfile != null )
@@ -376,7 +378,7 @@ namespace DogSE.Server.Core.Timer
                 EventHandler<StopTimeSliceEventArgs> tempEventArgs = m_EventStopTimeSlice;
                 if ( tempEventArgs != null )
                 {
-                    StopTimeSliceEventArgs eventArgs = new StopTimeSliceEventArgs( this );
+                    var eventArgs = new StopTimeSliceEventArgs( this );
 
                     tempEventArgs( this, eventArgs );
                 }
@@ -418,7 +420,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 时间片的处理函数
         /// </summary>
-        protected virtual void OnTick()
+        public virtual void OnTick()
         {
         }
         #endregion
@@ -513,20 +515,9 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSliceCallback timerCallback)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerCallback);
+            return StartTimeSlice(delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerCallback);
         }
 
-        /// <summary>
-        /// 带优先级的在 delayTimeSpan 时间结束后调用一次回调函数
-        /// </summary>
-        /// <param name="processPriority">优先级</param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerCallback);
-        }
 
         /// <summary>
         /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
@@ -537,21 +528,9 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceCallback timerCallback)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerCallback);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerCallback);
         }
 
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
-        /// </summary>
-        /// <param name="processPriority">优先级</param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerCallback);
-        }
 
         /// <summary>
         /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
@@ -561,87 +540,20 @@ namespace DogSE.Server.Core.Timer
         /// </remarks>
         /// <param name="delayTimeSpan"></param>
         /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerCallback);
-        }
-
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerCallback);
-        }
-
-        /// <summary>
-        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
-        /// </summary>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timeLeft">timeLeft 为总的时间，是从调用方法开始到结束</param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerCallback);
-        }
-
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceCallback timerCallback)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerCallback);
-        }
-
-        /// <summary>
-        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
-        /// </summary>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerCallback"></param>
+        /// <param name="iTimes">调用的次数</param>
+        /// <param name="timerCallback">回调方法</param>
+        /// <param name="timeLeft">剩余时间</param>
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceCallback timerCallback)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerCallback);
-        }
-
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerCallback"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceCallback timerCallback)
-        {
-            TimeSlice timeSlice = new DelayCallTimer(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerCallback);
+            TimeSlice timeSlice = new DelayCallTimer(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerCallback);
 
             timeSlice.Start();
 
             return timeSlice;
         }
+
+
 
         /// <summary>
         /// 在 delayTimeSpan 时间结束后调用一次回调函数
@@ -652,20 +564,7 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSliceStateCallback timerStateCallback, object tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
-        }
-
-        /// <summary>
-        /// 带优先级的在 delayTimeSpan 时间结束后调用一次回调函数
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSliceStateCallback timerStateCallback, object tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
         /// <summary>
@@ -678,21 +577,20 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceStateCallback timerStateCallback, object tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
         /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
+        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
         /// </summary>
-        /// <param name="processPriority"></param>
         /// <param name="delayTimeSpan"></param>
         /// <param name="intervalTimeSpan"></param>
+        /// <param name="iTimes"></param>
         /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
         /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceStateCallback timerStateCallback, object tState)
+        public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceCallback timerStateCallback)
         {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback);
         }
 
         /// <summary>
@@ -706,22 +604,21 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceStateCallback timerStateCallback, object tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
+
         /// <summary>
-        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
+        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
         /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="iTimes"></param>
         /// <param name="delayTimeSpan"></param>
         /// <param name="intervalTimeSpan"></param>
+        /// <param name="timeLeft"></param>
         /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
         /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceStateCallback timerStateCallback, object tState)
+        public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceCallback timerStateCallback)
         {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback);
         }
 
         /// <summary>
@@ -735,26 +632,12 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
         }
 
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
-        }
 
         /// <summary>
-        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
+        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
         /// </summary>
         /// <param name="delayTimeSpan"></param>
         /// <param name="intervalTimeSpan"></param>
@@ -765,23 +648,7 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
-        }
-
-        /// <summary>
-        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object tState)
-        {
-            TimeSlice timeSlice = new DelayStateCallTimer(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
+            TimeSlice timeSlice = new DelayStateCallTimer(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
 
             timeSlice.Start();
 
@@ -798,22 +665,9 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice<T>(TimeSpan delayTimeSpan, TimeSliceStateCallback<T> timerStateCallback, T tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
-        /// <summary>
-        /// 带优先级的在 delayTimeSpan 时间结束后调用一次回调函数
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice<T>(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSliceStateCallback<T> timerStateCallback, T tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue, timerStateCallback, tState);
-        }
 
         /// <summary>
         /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
@@ -826,23 +680,9 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice<T>(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceStateCallback<T> timerStateCallback, T tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
-        /// </summary>
-        /// <param name="processPriority"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice<T>(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSliceStateCallback<T> timerStateCallback, T tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, TimeSpan.MaxValue, timerStateCallback, tState);
-        }
 
         /// <summary>
         /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
@@ -856,24 +696,10 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice<T>(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceStateCallback<T> timerStateCallback, T tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
         }
 
-        /// <summary>
-        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
-        /// </summary>
-        /// <param name="iTimes"></param>
-        /// <typeparam name="T">回调对象类型</typeparam>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="processPriority"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice<T>(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSliceStateCallback<T> timerStateCallback, T tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, TimeSpan.MaxValue, timerStateCallback, tState);
-        }
+
 
         /// <summary>
         /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
@@ -887,27 +713,12 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice<T>(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
+            return StartTimeSlice(delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
         }
 
-        /// <summary>
-        /// 带优先级的从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice<T>(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState)
-        {
-            return StartTimeSlice(processPriority, delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft, timerStateCallback, tState);
-        }
 
         /// <summary>
-        /// 从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
+        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="delayTimeSpan"></param>
@@ -919,24 +730,7 @@ namespace DogSE.Server.Core.Timer
         /// <returns></returns>
         public static TimeSlice StartTimeSlice<T>(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState)
         {
-            return StartTimeSlice(TimerPriority.Normal, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
-        }
-
-        /// <summary>
-        /// 带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="processPriority"></param>
-        /// <param name="delayTimeSpan"></param>
-        /// <param name="intervalTimeSpan"></param>
-        /// <param name="iTimes"></param>
-        /// <param name="timeLeft"></param>
-        /// <param name="timerStateCallback"></param>
-        /// <param name="tState"></param>
-        /// <returns></returns>
-        public static TimeSlice StartTimeSlice<T>(TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback<T> timerStateCallback, T tState)
-        {
-            TimeSlice timeSlice = new DelayStateCallTimer<T>(processPriority, delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
+            TimeSlice timeSlice = new DelayStateCallTimer<T>(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft, timerStateCallback, tState);
 
             timeSlice.Start();
 
@@ -977,124 +771,6 @@ namespace DogSE.Server.Core.Timer
             {
                 Monitor.Exit(s_LockNormalTimeSliceQueue);
             }
-        }
-
-        #region zh-CHS 私有静态成员变量 | en Private Static Member Variables
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private volatile static int s_CallNormalCount = 0;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private readonly static int CALL_SLICE_MAX_COUNT = 3;
-        #endregion
-        /// <summary>
-        /// 运行时间片(具有均衡负载的时间片处理)
-        /// </summary>
-        internal static void Slice()
-        {
-            bool bIsSliceOK = false;
-
-            do
-            {
-
-                if ( s_CallNormalCount < CALL_SLICE_MAX_COUNT )
-                {
-                    bIsSliceOK = Slice_Normal();
-                    if ( bIsSliceOK == true )
-                    {
-                        s_CallNormalCount++;
-                        break;
-                    }
-                }
-
-                if ( s_CallNormalCount >= CALL_SLICE_MAX_COUNT )
-                {
-                    s_CallNormalCount = 0;
-
-                    bIsSliceOK = Slice_Normal();
-                    if ( bIsSliceOK == true )
-                        break;
-                }
-
-            } while ( false );
-
-            if ( bIsSliceOK == true )
-            {
-                // 如果已经处理完,再发一次事件消息,让下一个线程来处理下一个时间片优先级的调用
-            }
-        }
-
-        /// <summary>
-        /// 运行时间片(Normal 调度优先级)
-        /// </summary>
-        internal static bool Slice_Normal()
-        {
-            if ( s_NormalTimeSliceQueue.Count <= 0 )
-                return false;
-
-            TimeSlice[] timeSliceArray = null;
-
-            // 使用数组减少锁定时间
-            Monitor.Enter( s_LockNormalTimeSliceQueue );
-            try
-            {
-                if ( s_NormalTimeSliceQueue.Count > 0 )
-                {
-                    // 时间片先进先出列队集合的数量(和中断处理比较)
-                    long iQueueCountAtSlice = s_NormalTimeSliceQueue.Count;
-                    if ( iQueueCountAtSlice <= s_BreakSliceAtNumber )
-                    {
-                        timeSliceArray = s_NormalTimeSliceQueue.ToArray();
-                        s_NormalTimeSliceQueue.Clear();
-                    }
-                    else
-                    {
-                        timeSliceArray = new TimeSlice[s_BreakSliceAtNumber];
-                        for ( long iIndex = 0; iIndex < s_BreakSliceAtNumber; iIndex++ )
-                            timeSliceArray[iIndex] = s_NormalTimeSliceQueue.Dequeue();
-
-                        // 如果没有全部处理完,再发一次事件消息,让下一个线程来处理
-                    }
-                }
-            }
-            finally
-            {
-                Monitor.Exit( s_LockNormalTimeSliceQueue );
-            }
-
-            if ( timeSliceArray == null )
-                return false;
-
-            Stopwatch stopWatch = null;
-            for ( int iIndex = 0; iIndex < timeSliceArray.Length; iIndex++ )
-            {
-                TimeSlice timeSlice = timeSliceArray[iIndex];
-
-                // 线程安全的
-                TimerProfile timerProfile = timeSlice.GetProfile();
-                if ( timerProfile != null )
-                {
-                    if ( stopWatch == null )
-                        stopWatch = Stopwatch.StartNew();
-                    else
-                        stopWatch.Start();
-                }
-
-                timeSlice.OnTick();
-                timeSlice.m_InQueued = false;  // 表示当前已不在列表中,用于在TimerThread线程中检测,如果已在列表中则不许要再次加入了
-
-                if ( timerProfile != null )
-                {
-                    timerProfile.RegTicked( stopWatch.Elapsed );
-                    stopWatch.Reset();
-                }
-            }
-
-            return true;
         }
 
         /// <summary>

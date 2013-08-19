@@ -41,13 +41,12 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 延迟调用的时间
         /// </summary>
-        /// <param name="processPriority">优先级</param>
         /// <param name="delayTimeSpan">延迟的时间</param>
         /// <param name="intervalTimeSpan">间隔的时间</param>
         /// <param name="iTimes">调用的次数</param>
         /// <param name="timeLeft">剩余时间</param>
         /// <param name="timerCallback">委托</param>
-        public DelayCallTimer( TimerPriority processPriority, TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceCallback timerCallback )
+        public DelayCallTimer( TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceCallback timerCallback )
             : base(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft )
         {
             m_Callback = timerCallback;
@@ -68,7 +67,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 调用
         /// </summary>
-        protected override void OnTick()
+        public override void OnTick()
         {
             if ( m_Callback != null )
                 m_Callback();

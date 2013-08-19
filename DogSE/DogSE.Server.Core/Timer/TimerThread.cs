@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Threading;
 using DogSE.Library.Log;
 using DogSE.Library.Time;
+using DogSE.Server.Core.Task;
 
 #endregion
 
@@ -35,11 +36,17 @@ namespace DogSE.Server.Core.Timer
     /// </summary>
     internal class TimerThread
     {
+        /// <summary>
+        /// 任务管理器
+        /// </summary>
+        static internal TaskManager TaskManager {private get; set; }
+
+
         #region zh-CHS 私有静态成员变量 | en Private Static Member Variables
         /// <summary>
         /// 下一次调用的时间片
         /// </summary>
-        private static readonly DateTime[] s_NextPriorities = new DateTime[8]
+        private static readonly DateTime[] s_NextPriorities = new[]
             {
                 OneServer.NowTime,
                 OneServer.NowTime,
@@ -54,7 +61,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 延迟调用的时间片
         /// </summary>
-        private static readonly TimeSpan[] s_PriorityDelays = new TimeSpan[8]
+        private static readonly TimeSpan[] s_PriorityDelays = new[]
 			{
 				TimeSpan.Zero,
 				TimeSpan.FromMilliseconds( 25.0 ),
@@ -69,7 +76,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 8种时间片的列表
         /// </summary>
-        private static readonly HashSet<TimeSlice>[] s_Timers = new HashSet<TimeSlice>[8]
+        private static readonly HashSet<TimeSlice>[] s_Timers = new[]
 			{
 				new HashSet<TimeSlice>(),
 				new HashSet<TimeSlice>(),
@@ -143,17 +150,16 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 当有新的时间片改动或添加或移去的时候事件发生
         /// </summary>
-        private static AutoResetEvent s_Signal = new AutoResetEvent( true );
+        private static readonly AutoResetEvent s_Signal = new AutoResetEvent( true );
         #endregion
         /// <summary>
         /// Timer的主要处理函数,用来计算是否需要处理的时候了
         /// </summary>
         private static void RunTimerThread()
         {
-            Logs.Info( "时间片: 处理时间片的主线程已启动!" );
+            Logs.Info( "Time slice: Time slice thread start!" );
 
             bool bSkipWait = false; // 是否跳过等待
-            DateTime nowDateTime;
 
             // 获取时间片
             HashSet<TimeSlice> fiveHundredTimeSlice = s_Timers[(int)TimerFrequency.FiveHundredMS];
@@ -165,7 +171,7 @@ namespace DogSE.Server.Core.Timer
                 if ( bSkipWait )
                     bSkipWait = false;  // 恢复原始设置
                 else
-                    s_Signal.WaitOne( 10 );  // 等待让其它的CPU有机会处理
+                    s_Signal.WaitOne( 1 );  // 等待让其它的CPU有机会处理
 
                 // 服务已经关闭则退出
                 if ( OneServer.Closing )
@@ -176,6 +182,7 @@ namespace DogSE.Server.Core.Timer
 
                 // 8种时间片
                 long iIndex;
+                DateTime nowDateTime;
                 for ( iIndex = 0; iIndex < 8; iIndex++ )
                 {
                     nowDateTime = OneServer.NowTime;
@@ -192,8 +199,8 @@ namespace DogSE.Server.Core.Timer
                         // 如果当前时间片已经处理过,已不在先入先出的集合中,并且当前的时间大于下一次调用的时间
                         if ( timeSlice.InQueued == false && nowDateTime >= timeSlice.NextTime )
                         {
-                            // 表示将当前的时间片已经加入先入先出集合中
-                            TimeSlice.JoinProcessQueue( timeSlice );
+                            // 将定时任务压入业务逻辑处理线程里
+                            TaskManager.AppendTask(timeSlice.OnTick);
 
                             // 调用次数累加 1
                             timeSlice.m_NumberOfTimes++;
@@ -242,15 +249,10 @@ namespace DogSE.Server.Core.Timer
         /// <param name="isAdd"></param>
         private static void Change( TimeSlice tTimer, long newIndex, bool isAdd )
         {
-            Monitor.Enter( s_LockTimerChangeEntryChangeQueue );
-            try
+            lock( s_LockTimerChangeEntryChangeQueue )
             {
                 // 在ProcessChangeQueue(...)中释放入不使用的列表中
                 s_TimerChangeEntryChangeQueue.Enqueue( new TimerChangeEntry( tTimer, newIndex, isAdd ) );
-            }
-            finally
-            {
-                Monitor.Exit( s_LockTimerChangeEntryChangeQueue );
             }
 
             // 发生事件

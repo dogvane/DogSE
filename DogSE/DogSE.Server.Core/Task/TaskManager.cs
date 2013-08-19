@@ -65,7 +65,7 @@ namespace DogSE.Server.Core.Task
         /// </summary>
         public void StartThread()
         {
-            if (workThread == null)
+            if (workThread != null)
             {
                 Logs.Warn("work thread is start.");
                 return;

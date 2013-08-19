@@ -41,6 +41,7 @@ namespace DogSE.Server.Core.UnitTest.Config
 ";
 
             Logs.AddAppender(FileAppender.GetAppender("debug.log"));
+            Logs.AddAppender(new DebugAppender());
             Logs.AddAppender(new ConsoleAppender());
 
             Logs.SetMessageLevel<FileAppender>(LogMessageType.MSG_DEBUG);

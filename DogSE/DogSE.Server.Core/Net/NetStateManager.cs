@@ -119,7 +119,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 网络客户端的集合
         /// </summary>
-        private readonly ConcurrentDictionary<long, NetState> m_NetStates = new ConcurrentDictionary<long, NetState>(0, HANDLER_CAPACITY_SIZE);
+        private readonly ConcurrentDictionary<long, NetState> m_NetStates = new ConcurrentDictionary<long, NetState>(2, HANDLER_CAPACITY_SIZE);
         #endregion
         /// <summary>
         /// 添加客户端到集合
