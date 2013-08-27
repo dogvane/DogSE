@@ -143,12 +143,12 @@ namespace DogSE.Server.Core
 
         }
 
-        private NetStateManager m_netStateManager = new NetStateManager();
+        private readonly NetStateManager m_netStateManager = new NetStateManager();
 
-        PacketHandlersBase PacketHandlersManger = new PacketHandlersBase();
+        readonly PacketHandlersBase PacketHandlersManger = new PacketHandlersBase();
 
-        private TaskManager taskManager = new TaskManager();
+        private readonly TaskManager taskManager = new TaskManager("logic");
 
-        private LogicModuleManager logicModuleManager = new LogicModuleManager();
+        private readonly LogicModuleManager logicModuleManager = new LogicModuleManager();
     }
 }

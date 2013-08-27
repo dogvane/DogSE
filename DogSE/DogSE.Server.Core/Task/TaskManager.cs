@@ -15,6 +15,18 @@ namespace DogSE.Server.Core.Task
     /// </remarks>
     public class TaskManager
     {
+        private string taskName_;
+
+        /// <summary>
+        /// 任务管理器
+        /// </summary>
+        /// <param name="taskName"></param>
+        public TaskManager(string taskName)
+        {
+            taskName_ = taskName;
+        }
+
+
         /// <summary>
         /// 添加一个任务
         /// </summary>
@@ -67,13 +79,13 @@ namespace DogSE.Server.Core.Task
         {
             if (workThread != null)
             {
-                Logs.Warn("work thread is start.");
+                Logs.Warn("work thread {0} is start.", taskName_);
                 return;
             }
 
             var thread = new Thread(WorkThread);
             thread.Priority = ThreadPriority.AboveNormal;
-            thread.Name = "work thread";
+            thread.Name = "work thread " + taskName_;
             thread.Start();
             workThread = thread;
         }
@@ -92,7 +104,7 @@ namespace DogSE.Server.Core.Task
         void WorkThread()
         {
             isRuning = true;
-            Logs.Info("Logic thread start.");
+            Logs.Info("Logic thread {0} start.", taskName_);
 
             var watch = Stopwatch.StartNew();
             while(isRuning || taskList.Count > 0)
@@ -108,7 +120,7 @@ namespace DogSE.Server.Core.Task
                     }
                     catch (Exception ex)
                     {
-                        Logs.Error("Run task fail.", ex);
+                        Logs.Error("{0} run task fail.", taskName_, ex);
                         isError = true;
                     }
                     watch.Stop();
@@ -143,7 +155,7 @@ namespace DogSE.Server.Core.Task
                 }
                 catch (Exception ex)
                 {
-                    Logs.Error("Abort logic thread fail.", ex);
+                    Logs.Error("Abort logic thread {0} fail.", taskName_, ex);
                 }
                 workThread = null;
             }
