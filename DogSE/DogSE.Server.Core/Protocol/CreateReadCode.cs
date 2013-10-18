@@ -204,6 +204,7 @@ namespace DogSE.Server.Core.Protocol
             ret.Replace("#InitMethod#", initCode.ToString());
             ret.Replace("#CallMethod#", callCode.ToString());
             ret.Replace("#using#", "");
+            ret.Replace("`", "\"");
 
             return ret.ToString();
         }
@@ -239,7 +240,12 @@ namespace DogSE.Server.Core.Protocol
                 compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
                 compilerParameters.ReferencedAssemblies.Add("DogSE.Library.dll");
                 compilerParameters.ReferencedAssemblies.Add("DogSE.Server.Core.dll");
-                compilerParameters.ReferencedAssemblies.Add(classType.Assembly.FullName.Split(',')[0] + ".dll");
+                compilerParameters.ReferencedAssemblies.Add("DogSE.Server.Core.UnitTest.dll");
+
+                var assFileFullName = classType.Assembly.CodeBase;
+                var rightLen = assFileFullName.LastIndexOf("/");
+                var assFile = classType.Assembly.CodeBase.Substring(rightLen + 1, assFileFullName.Length - rightLen - 1);
+                compilerParameters.ReferencedAssemblies.Add(assFile);
 
                 compilerParameters.WarningLevel = 4;
                 compilerParameters.GenerateInMemory = true;
@@ -267,10 +273,16 @@ namespace DogSE.Server.Core.Protocol
                     return null;
                 }
 
+                CompiledAssembly = compilerResults.CompiledAssembly;
+
                 return obj as IProtoclAutoCode;
             }
-
         }
+
+        /// <summary>
+        /// 编译后生成的组件
+        /// </summary>
+        public Assembly CompiledAssembly { get; set; }
 
         private const string CodeBase = @"
 using System;
@@ -291,9 +303,15 @@ namespace DogSE.Server.Core.Protocol.AutoCode
         #FullClassName# module;
 
         public void SetModule(ILogicModule m)
-{
-        module = m as #FullClassName#;
-}
+        {
+            if (m == null)
+                throw new ArgumentNullException(`ILogicModule`);
+            module = (#FullClassName#)m;
+            if (module == null)
+            {
+                throw new NullReferenceException(string.Format(`{0} not #FullClassName#`, m.GetType().FullName));
+            }
+        }
 
 
         public void Init()

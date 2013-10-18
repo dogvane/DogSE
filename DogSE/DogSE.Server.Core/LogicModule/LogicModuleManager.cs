@@ -85,7 +85,7 @@ namespace DogSE.Server.Core.LogicModule
                 modules.Remove(dp.Value);
             }
 
-            while (true)
+            while (dependenceModules.Count > 0)
             {
                 bool isChange = false;
                 foreach (var dp in dependenceModules.ToArray())
@@ -114,9 +114,6 @@ namespace DogSE.Server.Core.LogicModule
                     modules.AddRange(dependenceModules.Select(o => o.Value).ToArray());
                     break;
                 }
-
-                if (dependenceModules.Count == 0)
-                    break;
             }
 
             foreach (var module in modules)
