@@ -26,6 +26,22 @@
         /// </summary>
         LoginServer = 1000,
 
+        /// <summary>
+        /// 登陆服务器返回结果
+        /// </summary>
+        LoginServerResult = 1001,
+
+        /// <summary>
+        /// 创建玩家
+        /// </summary>
+        CreatePlayer = 1002,
+
+        /// <summary>
+        /// 创建玩家结果
+        /// </summary>
+        CreatePlayerResult = 1003,
+
+
         #endregion
     }
 }

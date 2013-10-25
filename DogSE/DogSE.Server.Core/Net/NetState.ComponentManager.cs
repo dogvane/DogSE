@@ -1,4 +1,6 @@
-﻿#region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
+﻿using DogSE.Library.Component;
+
+#region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
 
 //     NOTES
 // ---------------
@@ -20,7 +22,7 @@
  ***************************************************************************/
 
 #region zh-CHS 包含名字空间 | en Include namespace
-using Demo.Mmose.Core.Common.Component;
+
 #endregion
 
 namespace DogSE.Server.Core.Net
@@ -30,66 +32,41 @@ namespace DogSE.Server.Core.Net
     /// </summary>
     public partial class NetState : IComponentManager
     {
-        #region zh-CHS IComponent接口实现 | en IComponent Interface Implementation
+        private readonly ComponentManager m_componentManager = new ComponentManager();
 
-        #region zh-CHS 私有成员变量 | en Private Member Variables
-        /// <summary>
-        /// 
-        /// </summary>
-        private ComponentManager m_ComponentManager = new ComponentManager();
-        #endregion
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="componentMessage"></param>
-        public void OnHandleComponentMessage( ComponentMessage componentMessage )
-        {
-            m_ComponentManager.OnHandleComponentMessage( componentMessage );
-        }
+        #region IComponentManager 成员
 
-        #endregion
-
-        #region zh-CHS IComponentHandler接口实现 | en IComponentHandler Interface Implementation
         /// <summary>
-        /// 
+        /// 注册一个组件数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="componentId"></param>
-        /// <param name="component"></param>
-        public void RegisterComponent<T>( ComponentId componentId, T component ) where T : class, IComponent
+        /// <param name="componentId">组件ID</param>
+        /// <param name="component">组件实例（非空）</param>
+        public void RegisterComponent<T>(string componentId, T component) where T : class
         {
-            m_ComponentManager.RegisterComponent<T>( componentId, component );
+            m_componentManager.RegisterComponent<T>(componentId, component);
         }
 
         /// <summary>
-        /// 
+        /// 获得一个组件数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="componentId"></param>
+        /// <param name="componentId">组件ID</param>
         /// <returns></returns>
-        public T GetComponent<T>( ComponentId componentId ) where T : class, IComponent
+        public T GetComponent<T>(string componentId) where T : class
         {
-            return m_ComponentManager.GetComponent<T>( componentId );
+            return m_componentManager.GetComponent<T>(componentId);
         }
 
         /// <summary>
-        /// 
+        /// 释放组件的资源
         /// </summary>
-        /// <param name="componentId"></param>
-        /// <param name="componentMessage"></param>
-        public void SubScribeComponentMessage( ComponentMessage componentMessage, ComponentId componentId )
+        /// <typeparam name="T"></typeparam>
+        public void ReleaseComponent<T>()
         {
-            m_ComponentManager.SubScribeComponentMessage( componentMessage, componentId );
+            m_componentManager.ReleaseComponent<T>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="componentMessage"></param>
-        public void PostComponentMessage( ComponentMessage componentMessage )
-        {
-            m_ComponentManager.PostComponentMessage( componentMessage );
-        }
         #endregion
     }
 }

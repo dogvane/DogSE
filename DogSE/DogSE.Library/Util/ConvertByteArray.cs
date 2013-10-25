@@ -607,7 +607,7 @@ namespace DogSE.Library.Util
         /// <param name="bBool"></param>
         /// <param name="byteBuffer"></param>
         /// <param name="iBufferIndex"></param>
-        public static void ToArrayInByte( this bool bBool, ref byte[] byteBuffer, int iBufferIndex )
+        public static void ToArrayInByte( this bool bBool, ref byte[] byteBuffer, int iBufferIndex = 0 )
         {
             ToByteArray( bBool, ref byteBuffer, iBufferIndex );
         }
@@ -629,24 +629,9 @@ namespace DogSE.Library.Util
         /// <param name="byteBuffer"></param>
         /// <param name="iBufferIndex"></param>
         /// <returns>剩余多少字节没有拷贝过去</returns>
-        public static int ToByteArray( string strString, ref byte[] byteBuffer, int iBufferIndex )
+        public static int ToByteArray( string strString, ref byte[] byteBuffer, int iBufferIndex  = 0)
         {
-            if ( byteBuffer == null )
-                throw new ArgumentNullException( "byteBuffer" );
-
-            if ( iBufferIndex > byteBuffer.Length )
-                throw new ArgumentException( "ByteArray.ToByteArray(...) - iBufferIndex > byteBuffer.Length error!" );
-
-            byte[] byteString = ConvertString.UTF8.GetBytes( strString );
-
-            int iResidualSize = byteBuffer.Length - iBufferIndex;
-
-            if ( iResidualSize >= byteBuffer.Length )
-                Buffer.BlockCopy( byteString, 0, byteBuffer, iBufferIndex, byteBuffer.Length );
-            else
-                Buffer.BlockCopy( byteString, 0, byteBuffer, iBufferIndex, iResidualSize );
-
-            return iResidualSize >= byteBuffer.Length ? 0 : byteBuffer.Length - iResidualSize;
+            return ToByteArray(strString, Encoding.UTF8, ref byteBuffer, iBufferIndex);            
         }
 
         /// <summary>
@@ -692,7 +677,7 @@ namespace DogSE.Library.Util
         /// <param name="byteBuffer"></param>
         /// <param name="iBufferIndex"></param>
         /// <returns></returns>
-        public static int ToByteArray( string strString, Encoding encoding, ref byte[] byteBuffer, int iBufferIndex )
+        public static int ToByteArray( string strString, Encoding encoding, ref byte[] byteBuffer, int iBufferIndex = 0 )
         {
             if ( byteBuffer == null )
                 throw new ArgumentNullException( "byteBuffer" );

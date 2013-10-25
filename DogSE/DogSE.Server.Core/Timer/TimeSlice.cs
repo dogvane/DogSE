@@ -40,7 +40,7 @@ namespace DogSE.Server.Core.Timer
         /// </summary>
         /// <param name="delayTimeSpan">延迟的时间</param>
         public TimeSlice( TimeSpan delayTimeSpan )
-            : this(delayTimeSpan, TimeSpan.Zero, (long) 1, TimeSpan.MaxValue )
+            : this(delayTimeSpan, TimeSpan.Zero, 1, TimeSpan.MaxValue )
         {
         }
 
@@ -51,7 +51,7 @@ namespace DogSE.Server.Core.Timer
         /// <param name="delayTimeSpan">延迟的时间</param>
         /// <param name="intervalTimeSpan">间隔的时间</param>
         public TimeSlice( TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan )
-            : this(delayTimeSpan, intervalTimeSpan, (long) long.MaxValue, TimeSpan.MaxValue )
+            : this(delayTimeSpan, intervalTimeSpan,  long.MaxValue, TimeSpan.MaxValue )
         {
         }
 
@@ -73,7 +73,7 @@ namespace DogSE.Server.Core.Timer
         /// <param name="intervalTimeSpan"></param>
         /// <param name="timeLeft">剩余时间</param>
         public TimeSlice( TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, TimeSpan timeLeft )
-            : this(delayTimeSpan, intervalTimeSpan, (long) long.MaxValue, timeLeft )
+            : this(delayTimeSpan, intervalTimeSpan, long.MaxValue, timeLeft )
         {
         }
 
@@ -129,10 +129,11 @@ namespace DogSE.Server.Core.Timer
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
+
         /// <summary>
         /// 调用的总次数
         /// </summary>
-        private long m_Times = long.MaxValue;
+        private long m_Times;
         #endregion
         /// <summary>
         /// 调用的总次数
@@ -153,10 +154,12 @@ namespace DogSE.Server.Core.Timer
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
+
         /// <summary>
         /// 剩余时间
         /// </summary>
-        private TimeSpan m_TimeLeft = TimeSpan.MaxValue;
+        private TimeSpan m_TimeLeft;
+
         #endregion
         /// <summary>
         /// 剩余时间
@@ -176,10 +179,12 @@ namespace DogSE.Server.Core.Timer
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
+
         /// <summary>
         /// 剩余时间
         /// </summary>
-        private DateTime m_StopTime = DateTime.MaxValue;
+        private DateTime m_StopTime;
+
         #endregion
         /// <summary>
         /// 停止时间
@@ -190,10 +195,12 @@ namespace DogSE.Server.Core.Timer
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
+
         /// <summary>
         /// 时间片的优先级
         /// </summary>
-        private TimerFrequency m_RunFrequency = TimerFrequency.EveryTick;
+        private TimerFrequency m_RunFrequency;
+
         #endregion
         /// <summary>
         /// 时间片的优先级
@@ -264,7 +271,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 调用是否在运行(volatile 用于多线程)
         /// </summary>
-        private bool m_Running = false;
+        private bool m_Running;
 
         #endregion
         /// <summary>
@@ -331,7 +338,7 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// TimerProfile处理信息定义,以类型名为关键字共有8种
         /// </summary>
-        private static Dictionary<string, TimerProfile> s_Profiles = new Dictionary<string, TimerProfile>();
+        private static readonly Dictionary<string, TimerProfile> s_Profiles = new Dictionary<string, TimerProfile>();
         #endregion
         /// <summary>
         /// 时间片的处理信息定义,以类型名为关键字共有8种
@@ -375,13 +382,7 @@ namespace DogSE.Server.Core.Timer
                     timerProfile.RegStopped();
 
                 // 时间片已经停止的回调事件
-                EventHandler<StopTimeSliceEventArgs> tempEventArgs = m_EventStopTimeSlice;
-                if ( tempEventArgs != null )
-                {
-                    var eventArgs = new StopTimeSliceEventArgs( this );
-
-                    tempEventArgs( this, eventArgs );
-                }
+                OnStopTimeSlice();
             }
         }
 
@@ -746,11 +747,11 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 需要处理的时间片的先进先出列队集合(线程安全)(Normal 调度优先级)
         /// </summary>
-        private static Queue<TimeSlice> s_NormalTimeSliceQueue = new Queue<TimeSlice>();
+        private static readonly Queue<TimeSlice> s_NormalTimeSliceQueue = new Queue<TimeSlice>();
         /// <summary>
         /// (Normal 调度优先级)集合锁
         /// </summary>
-        private static object s_LockNormalTimeSliceQueue = new object();
+        private static readonly object s_LockNormalTimeSliceQueue = new object();
 
         #endregion
         /// <summary>
@@ -783,7 +784,13 @@ namespace DogSE.Server.Core.Timer
             if ( delegateCallback == null )
                 return "null";
 
-            return String.Format( "{0}.{1}", delegateCallback.Method.DeclaringType.FullName, delegateCallback.Method.Name );
+            string methodName;
+            if (delegateCallback.Method.DeclaringType != null)
+                methodName = delegateCallback.Method.DeclaringType.FullName;
+            else
+                methodName = delegateCallback.Method.ReflectedType.FullName;
+
+            return String.Format("{0}.{1}", methodName, delegateCallback.Method.Name);
         }
         #endregion
 
@@ -792,41 +799,19 @@ namespace DogSE.Server.Core.Timer
         #region zh-CHS StopTimeSliceEventArgs事件 | en Public Event
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
-        /// <summary>
-        /// 
-        /// </summary>
-        private EventHandler<StopTimeSliceEventArgs> m_EventStopTimeSlice;
+
         #endregion
+
         /// <summary>
         /// 
         /// </summary>
-        public event EventHandler<StopTimeSliceEventArgs> StopTimeSlice
+        public event EventHandler<StopTimeSliceEventArgs> StopTimeSlice;
+
+        internal void OnStopTimeSlice()
         {
-            add
-            {
-                Monitor.Enter( this );
-                try
-                {
-                    m_EventStopTimeSlice += value;
-                }
-                finally
-                {
-                    Monitor.Exit( this );
-                }
-            }
-            remove
-            {
-                Monitor.Enter( this ); 
-                try
-                {
-                    if (m_EventStopTimeSlice != null)
-                        m_EventStopTimeSlice -= value;
-                }
-                finally
-                {
-                    Monitor.Exit( this );
-                }
-            }
+            EventHandler<StopTimeSliceEventArgs> handler = StopTimeSlice;
+            if (handler != null) 
+                handler(this, new StopTimeSliceEventArgs(this));
         }
 
         #endregion

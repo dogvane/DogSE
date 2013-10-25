@@ -1,8 +1,5 @@
 ﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using DogSE.Library.Log;
@@ -10,7 +7,6 @@ using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Task;
-using Microsoft.CSharp;
 
 namespace DogSE.Tools.CodeGeneration.Server
 {
@@ -298,7 +294,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                 }
             }
 
-            var fileContext = fileCodeBase.Replace("#code#", codeBuilder.ToString());
+            var fileContext = FileCodeBase.Replace("#code#", codeBuilder.ToString());
             File.WriteAllText(outFile, fileContext);
         }
 
@@ -308,7 +304,7 @@ namespace DogSE.Tools.CodeGeneration.Server
             CreateCode(@"E:\Project\DogSE\TradeAge\TradeAge.Server.Interface\bin\Debug\TradeAge.Server.Interface.dll",
                        @"E:\Project\DogSE\TradeAge\Server\TradeAge.Server.Protocol\ServerLogicProtocol.cs");
         }
-        const string fileCodeBase = @"
+        const string FileCodeBase = @"
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -54,5 +54,13 @@ namespace DogSE.Library.Component
         {
             m_ComponentDictionary.Clear();
         }
+
+        /// <summary>
+        /// 清理所有数据（为GC用，注意使用场所）
+        /// </summary>
+        public void Clear()
+        {
+            m_ComponentDictionary.Clear();
+        }
     }
 }

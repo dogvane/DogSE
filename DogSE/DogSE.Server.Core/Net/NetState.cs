@@ -65,7 +65,7 @@ namespace DogSE.Server.Core.Net
         public NetState()
         {
             m_Socket = null;
-            m_ToString = "0.0.0.0";
+            m_IPToString = "0.0.0.0";
             m_NextCheckActivity = DateTime.MaxValue;
 
             m_NetAddress = new IPEndPoint(IPAddress.None, 0);
@@ -241,11 +241,6 @@ namespace DogSE.Server.Core.Net
         {
             if (Running == false)
                 return;
-
-            // XG
-            //SanGuo.TcpMonitor monitor = SanGuo.SanGuoMonitor.tcpMonitor;
-            //++monitor.front.c11.runCount; // 消息数量
-            //monitor.front.c12.runCount += packet.WriterStream.Length; // 消息长度
             
             // 防止发送的顺序出错
             m_Socket.SendPackage(packet.WriterStream.GetBuffer());
@@ -266,6 +261,7 @@ namespace DogSE.Server.Core.Net
         /// </summary>
         public void Dispose()
         {
+            //  TODO：这里是以前的代码，方法名存在歧义，没有资源回收的入口代码，目前组件模式的数据没有销毁
             Dispose(true);
         }
 
@@ -287,6 +283,7 @@ namespace DogSE.Server.Core.Net
         {
             m_Socket.CloseSocket();
         }
+
         #endregion
         /// <summary>
         /// 清理当前的网络数据,并断开连接
@@ -315,7 +312,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 当前实例的IP地址字符串
         /// </summary>
-        private string m_ToString = string.Empty;
+        private string m_IPToString = string.Empty;
         #endregion
         /// <summary>
         /// 当前实例的IP地址字符串
@@ -323,7 +320,7 @@ namespace DogSE.Server.Core.Net
         /// <returns></returns>
         public override string ToString()
         {
-            return m_ToString;
+            return m_IPToString;
         }
         #endregion
 

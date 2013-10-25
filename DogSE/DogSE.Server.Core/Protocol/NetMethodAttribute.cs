@@ -15,10 +15,12 @@ namespace DogSE.Server.Core.Protocol
         /// </summary>
         /// <param name="opcode"></param>
         /// <param name="type">消息的处理方法</param>
-        public NetMethodAttribute(ushort opcode, NetMethodType type)
+        /// <param name="isVerifyLogin">是否进行登录验证，默认是进行的，只有登录等极少数的消息是不需要验证的</param>
+        public NetMethodAttribute(ushort opcode, NetMethodType type, bool isVerifyLogin = true)
         {
             OpCode = opcode;
             MethodType = type;
+            IsVerifyLogin = isVerifyLogin;
         }
 
         /// <summary>
@@ -31,6 +33,10 @@ namespace DogSE.Server.Core.Protocol
         /// </summary>
         public NetMethodType MethodType { get; private set; }
 
+        /// <summary>
+        /// 是否进行登录验证
+        /// </summary>
+        public bool IsVerifyLogin { get; private set; }
     }
 
     /// <summary>
