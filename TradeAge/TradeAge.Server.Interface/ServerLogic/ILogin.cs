@@ -16,15 +16,16 @@ namespace TradeAge.Server.Interface.ServerLogic
         /// <param name="netstate"></param>
         /// <param name="accountName"></param>
         /// <param name="password"></param>
+        /// <param name="serverId">服务器id</param>
         [NetMethod((ushort) OpCode.LoginServer, NetMethodType.SimpleMethod, false)]
-        void OnLoginServer(NetState netstate, string accountName, string password);
+        void OnLoginServer(NetState netstate, string accountName, string password, int serverId = 0);
 
         /// <summary>
         /// 创建角色
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="playerName"></param>
-        [NetMethod((ushort)OpCode.LoginServer, NetMethodType.SimpleMethod)]
+        [NetMethod((ushort)OpCode.CreatePlayerResult, NetMethodType.SimpleMethod)]
         void OnCreatePlayer(NetState netstate, string playerName);
 
 

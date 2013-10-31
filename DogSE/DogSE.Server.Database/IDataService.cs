@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
+﻿using System.Data;
 using DogSE.Server.Common;
 
 namespace DogSE.Server.Database
@@ -18,14 +14,14 @@ namespace DogSE.Server.Database
         /// <typeparam name="T"></typeparam>
         /// <param name="serial"></param>
         /// <returns></returns>
-        T LoadEntity<T>(Serial serial) where T : IDataEntity;
+        T LoadEntity<T>(int serial) where T : class, IDataEntity, new();
 
         /// <summary>
         /// 加载某个类型的所有实体数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T[] LoadEntitys<T>() where T : IDataEntity;
+        T[] LoadEntitys<T>() where T : class, IDataEntity, new();
 
 
         /// <summary>
@@ -35,16 +31,17 @@ namespace DogSE.Server.Database
         /// <param name="entity"></param>
         /// <returns>
         /// </returns>
-        int UpdateEntity<T>(T entity) where T : IDataEntity;
+        int UpdateEntity<T>(T entity) where T : class, IDataEntity;
 
 
         /// <summary>
-        /// 更新（新增）一组实体数据
+        /// 更新（新增）某个实体数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        int UpdateEntitys<T>(T[] entitys) where T : IDataEntity;
+        /// <param name="entity"></param>
+        /// <returns>
+        /// </returns>
+        int InsertEntity<T>(T entity) where T : class, IDataEntity;
 
         /// <summary>
         /// 删除某个实体数据
@@ -52,15 +49,7 @@ namespace DogSE.Server.Database
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        int DeleteEntity<T>(T entity) where T : IDataEntity;
-
-        /// <summary>
-        /// 删除一组实体数据
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entitys"></param>
-        /// <returns></returns>
-        int DeleteEntitys<T>(T[] entitys) where T : IDataEntity;
+        int DeleteEntity<T>(T entity) where T : class, IDataEntity;
 
         /// <summary>
         /// 执行一组sql语句

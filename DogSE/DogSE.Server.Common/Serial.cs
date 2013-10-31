@@ -60,7 +60,7 @@ namespace DogSE.Server.Common
         /// <summary>
         /// 
         /// </summary>
-        private long m_Serial;
+        private readonly long m_Serial;
         #endregion
         /// <summary>
         /// 
@@ -279,7 +279,8 @@ namespace DogSE.Server.Common
         /// <returns></returns>
         public override bool Equals( object xObject )
         {
-            if ( xObject == null || !( xObject is Serial ) ) return false;
+            if (!(xObject is Serial))
+                return false;
 
             return ( (Serial)xObject ).m_Serial == m_Serial;
         }
@@ -316,7 +317,7 @@ namespace DogSE.Server.Common
         {
             if ( otherObject == null )
                 return 1;
-            else if ( otherObject is Serial )
+            if ( otherObject is Serial )
                 return CompareTo( (Serial)otherObject );
 
             return -1;
@@ -372,7 +373,7 @@ namespace DogSE.Server.Common
         /// <summary>
         /// 
         /// </summary>
-        private long m_MinSerial = 0;
+        private long m_MinSerial;
         #endregion
         /// <summary>
         /// 
@@ -401,15 +402,15 @@ namespace DogSE.Server.Common
         /// <summary>
         /// 
         /// </summary>
-        private Queue<long> m_ExclusiveSerial = new Queue<long>( 20 );
+        private readonly Queue<long> m_ExclusiveSerial = new Queue<long>( 20 );
         /// <summary>
         /// 
         /// </summary>
-        private object m_LockExclusiveSerial = new object();
+        private readonly object m_LockExclusiveSerial = new object();
         /// <summary>
         /// 
         /// </summary>
-        private long m_ExclusiveSerialIndex = 0;
+        private long m_ExclusiveSerialIndex;
         #endregion
 
         #region zh-CHS 共有方法 | en Public Methods

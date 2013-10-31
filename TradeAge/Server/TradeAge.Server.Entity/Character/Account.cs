@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace TradeAge.Server.Entity.Character
+{
+    /// <summary>
+    /// 账号信息，账号和玩家对象不是同一个对象，虽然他们的id可能是一样的
+    /// 但是账号信息只用于登录时用于登录验证时用
+    /// </summary>
+    public class Account
+    {
+        /// <summary>
+        /// 账号id，和玩家id里路上一一对应
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// 账号名字
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 账号密码
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// 账号创建时间
+        /// </summary>
+        public DateTime CreateTime { get; set; }
+
+        /// <summary>
+        /// 服务器id
+        /// </summary>
+        public int ServerId { get; set; }
+    }
+}

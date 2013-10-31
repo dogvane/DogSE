@@ -32,11 +32,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Login\LogicModule.cs" />
@@ -47,21 +42,9 @@
       <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
       <Name>DogSE.Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Common\DogSE.Server.Common.csproj">
-      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
-      <Name>DogSE.Server.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Core\DogSE.Server.Core.csproj">
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
       <Name>DogSE.Server.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Net\DogSE.Server.Net.csproj">
-      <Project>{79e78eef-5810-4a54-abfa-901bffeab249}</Project>
-      <Name>DogSE.Server.Net</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Common\TradeAge.Common.Entity\TradeAge.Common.Entity.csproj">
-      <Project>{22ebede1-f9eb-40ec-97ec-89440f54f690}</Project>
-      <Name>TradeAge.Common.Entity</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TradeAge.Server.Interface\TradeAge.Server.Interface.csproj">
       <Project>{71dc0ea6-94e6-4348-a86f-636ccd449b3b}</Project>
@@ -70,14 +53,6 @@
     <ProjectReference Include="..\TradeAge.Server.Entity\TradeAge.Server.Entity.csproj">
       <Project>{7e2f65e0-1c97-40c9-bdf8-12008bede0ca}</Project>
       <Name>TradeAge.Server.Entity</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeAge.Server.Game\TradeAge.Server.Game.csproj">
-      <Project>{1cebaa71-7742-4aa6-857e-81bfc81eaf84}</Project>
-      <Name>TradeAge.Server.Game</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeAge.Server.Protocol\TradeAge.Server.Protocol.csproj">
-      <Project>{6780b91b-af66-4874-810a-0ad67df40841}</Project>
-      <Name>TradeAge.Server.Protocol</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

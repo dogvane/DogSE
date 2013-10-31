@@ -18,6 +18,8 @@
  *
  ***************************************************************************/
 
+using IvyOrm;
+
 namespace DogSE.Server.Common
 {
     #region zh-CHS 接口 | en Interface
@@ -35,9 +37,13 @@ namespace DogSE.Server.Common
     /// <summary>
     /// 用于保存数据的实体类
     /// </summary>
-    public interface IDataEntity:ISerial
+    public interface IDataEntity
     {
-        
+        /// <summary>
+        /// 数据实体类的唯一id标示
+        /// </summary>
+        [PrimaryKey(PrimaryKeyOptions.IncludeInInsert)]
+        int Id { get; set; }
     }
 
     /// <summary>

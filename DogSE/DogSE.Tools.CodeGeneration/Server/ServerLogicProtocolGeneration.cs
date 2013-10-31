@@ -81,8 +81,22 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                 if (param[0].ParameterType != typeof(NetState))
                 {
-                    Logs.Error("{0}.{1} 的第一个参数必须是 NetState 对象", classType.Name, methodinfo.Name);
-                    return;
+                    if (!att.IsVerifyLogin)
+                    {
+                        //  如果不需要验证登录数据，则第一个对象必须是NetState对象
+                        Logs.Error("{0}.{1} 的第一个参数必须是 NetState 对象", classType.Name, methodinfo.Name);
+                        return;
+                    }
+
+                    var componentType = param[0].ParameterType;
+                    var field = componentType.GetField("ComponentId");
+                    if (field == null || !field.IsStatic)
+                    {
+                        Logs.Error("{0}.{1} 必须包含一个 ComponentId 的常量字符串作为登录验证后和NetState绑定的组件。");
+                        return;
+                    }
+
+
                 }
 
                 if (att.MethodType == NetMethodType.PacketReader)
@@ -139,6 +153,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                                           att.OpCode, methodName);
                     initCode.AppendLine();
 
+
                     callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
                     callCode.AppendLine("{");
                     for (int i = 1; i < param.Length; i++)
@@ -176,7 +191,22 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                     }
 
-                    callCode.AppendFormat("module.{0}(netstate", methodinfo.Name);
+                    if (param[0].ParameterType != typeof(NetState) && att.IsVerifyLogin)
+                    {
+                        //  作为验证数据
+                        var componentType = param[0].ParameterType;
+                        callCode.AppendFormat("var {0} = netstate.GetComponent<{1}>({1}.ComponentId);",
+                           componentType.Name.ToLower(), componentType.Name);
+
+                        callCode.AppendFormat("module.{0}({1}", methodinfo.Name, componentType.Name.ToLower());
+                    }
+                    else
+                    {
+                        //  不需要验证
+                        callCode.AppendFormat("module.{0}(netstate", methodinfo.Name);
+                    }
+
+
                     for (int i = 1; i < param.Length; i++)
                         callCode.AppendFormat(",p{0}", i);
                     callCode.AppendLine(");");

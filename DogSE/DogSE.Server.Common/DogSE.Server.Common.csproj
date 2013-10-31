@@ -34,10 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IvyOrm">
+      <HintPath>..\..\Lib\IvyOrm.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoundingBox.cs" />
@@ -60,12 +61,6 @@
     <Compile Include="Vector2.cs" />
     <Compile Include="Vector3.cs" />
     <Compile Include="Vector4.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DogSE.Library\DogSE.Library.csproj">
-      <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
-      <Name>DogSE.Library</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interface\Net\" />

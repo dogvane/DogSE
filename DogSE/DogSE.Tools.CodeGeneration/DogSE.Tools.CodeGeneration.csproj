@@ -34,11 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\ASReturnCodeGeneration.cs" />
@@ -50,10 +45,6 @@
     <ProjectReference Include="..\DogSE.Library\DogSE.Library.csproj">
       <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
       <Name>DogSE.Library</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DogSE.Server.Common\DogSE.Server.Common.csproj">
-      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
-      <Name>DogSE.Server.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\DogSE.Server.Core\DogSE.Server.Core.csproj">
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>

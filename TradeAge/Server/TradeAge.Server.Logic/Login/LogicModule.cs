@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using DogSE.Library.Time;
 using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
-using TradeAge.Common.Entity.NetCode;
+using TradeAge.Server.Entity;
+using TradeAge.Server.Entity.Character;
+using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Interface.ServerLogic;
 
 namespace TradeAge.Server.Logic.Login
@@ -53,10 +55,47 @@ namespace TradeAge.Server.Logic.Login
         /// <param name="netstate"></param>
         /// <param name="accountName"></param>
         /// <param name="password"></param>
-        [NetMethod((ushort)OpCode.LoginServer, NetMethodType.SimpleMethod)]
-        public void OnLoginServer(NetState netstate, string accountName, string password)
+        /// <param name="serverId"></param>
+        public void OnLoginServer(NetState netstate, string accountName, string password, int serverId = 0)
+        {
+            var account = WorldEntityManager.AccountNames.GetValue(accountName);
+            if (account == null)
+            {
+                //  账号不存在，则创建账号
+                account = new Account
+                {
+                    Name = accountName,
+                    Password = password,
+                    CreateTime = OneServer.NowTime,
+                    ServerId = serverId,
+                    Id = WorldSeqGen.AccountSeq.NextSeq(),
+                };
+
+                WorldEntityManager.AccountNames.SetValue(accountName, account);
+                WorldEntityManager.Accounts.SetValue(account.Id, account);
+
+                //  保存到数据
+                
+            }
+            else
+            {
+                
+            }
+
+        }
+
+        #region ILogin 成员
+
+        /// <summary>
+        /// 创建玩家
+        /// </summary>
+        /// <param name="netstate"></param>
+        /// <param name="playerName"></param>
+        public void OnCreatePlayer(NetState netstate, string playerName)
         {
             
         }
+
+        #endregion
     }
 }

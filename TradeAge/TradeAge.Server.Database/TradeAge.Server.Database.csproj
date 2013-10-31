@@ -1,19 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{71DC0EA6-94E6-4348-A86F-636CCD449B3B}</ProjectGuid>
+    <ProjectGuid>{BE1BDE36-B98A-42FF-BF63-611C73186645}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TradeAge.Server.Interface</RootNamespace>
-    <AssemblyName>TradeAge.Server.Interface</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>TradeAge.Server.Database</RootNamespace>
+    <AssemblyName>TradeAge.Server.Database</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,41 +29,28 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\ILogin.cs" />
+    <Compile Include="DatabaseConfig.cs" />
+    <Compile Include="GameDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerLogic\ILogin.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controller\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\DogSE\DogSE.Library\DogSE.Library.csproj">
-      <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
-      <Name>DogSE.Library</Name>
+    <ProjectReference Include="..\..\DogSE\DogSE.Server.Common\DogSE.Server.Common.csproj">
+      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
+      <Name>DogSE.Server.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\DogSE\DogSE.Server.Core\DogSE.Server.Core.csproj">
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
       <Name>DogSE.Server.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common\TradeAge.Common.Entity\TradeAge.Common.Entity.csproj">
-      <Project>{22ebede1-f9eb-40ec-97ec-89440f54f690}</Project>
-      <Name>TradeAge.Common.Entity</Name>
+    <ProjectReference Include="..\..\DogSE\DogSE.Server.Database\DogSE.Server.Database.csproj">
+      <Project>{85faf347-7046-408a-9cd8-b5f5eed84301}</Project>
+      <Name>DogSE.Server.Database</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Server\TradeAge.Server.Entity\TradeAge.Server.Entity.csproj">
-      <Project>{7e2f65e0-1c97-40c9-bdf8-12008bede0ca}</Project>
-      <Name>TradeAge.Server.Entity</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Client\Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
