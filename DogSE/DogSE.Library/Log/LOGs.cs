@@ -8,6 +8,18 @@ namespace DogSE.Library.Log
     /// </summary>
     public static class Logs
     {
+        /// <summary>
+        /// 初始化日志配置文件
+        /// </summary>
+        /// <param name="logFile"></param>
+        /// <param name="msgType"></param>
+        public static void ConfigLogFile(string logFile, LogMessageType msgType = LogMessageType.MSG_INFO)
+        {
+            var append = FileAppender.GetAppender(logFile);
+            append.Level = msgType;
+            AddAppender(append);
+        }
+
         #region 新的操作接口
 
         /// <summary>

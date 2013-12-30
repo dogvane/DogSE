@@ -13,6 +13,16 @@ namespace DogSE.Server.Net
     /// </summary>
     public class ClientSession<T>
     {
+
+        /// <summary>
+        /// 发送数据上下文对象
+        /// </summary>
+        internal SocketAsyncEventArgs SendEventArgs { get; private set; }
+        /// <summary>
+        /// 接收数据上下文对象
+        /// </summary>
+        internal SocketAsyncEventArgs ReceiveEventArgs { get; private set; }
+
         /// <summary>
         /// 和Session关联的对象
         /// </summary>
@@ -33,6 +43,11 @@ namespace DogSE.Server.Net
                 throw new ArgumentNullException("socket", "ClientSession create socket don't null.");
 
             Socket = socket;
+            SendEventArgs = new SocketAsyncEventArgs();
+            SendEventArgs.Completed += OnSendCompleted;
+
+            ReceiveEventArgs = new SocketAsyncEventArgs();
+
             ConnectTime = OneServer.NowTime;
         }
 
@@ -51,7 +66,18 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 接收的缓冲区数据，仅用于同底层数据交换时用
         /// </summary>
-        internal DogBuffer32K RecvBuffer { get; set; }
+        internal DogBuffer32K RecvBuffer { get; private set; }
+
+        /// <summary>
+        /// 重新异步开始接受数据
+        /// </summary>
+        internal void SyncRecvData()
+        {
+            var buff = DogBuffer.GetFromPool32K();
+            RecvBuffer = buff;
+            ReceiveEventArgs.SetBuffer(buff.Bytes, 0, buff.Bytes.Length);
+            Socket.ReceiveAsync(ReceiveEventArgs);
+        }
 
         /// <summary>
         /// 关闭连接
@@ -62,11 +88,23 @@ namespace DogSE.Server.Net
             {
                 if (Socket.Connected)
                     Socket.Close();
-                    //Socket.Disconnect(false);
-                    //Socket.BeginDisconnect(true, ir =>
-                    //{
-                    //    (ir.AsyncState as Socket).EndDisconnect(ir);
-                    //}, Socket);
+
+                Socket = null;
+            }
+
+            if (RecvBuffer != null)
+                RecvBuffer.Release();
+
+            SendEventArgs = null;
+            ReceiveEventArgs = null;
+            if (m_PendingBuffer.Count > 0)
+            {
+                foreach (var buff in m_PendingBuffer)
+                {
+                    buff.Release();
+                }
+
+                m_PendingBuffer.Clear();
             }
         }
 
@@ -101,33 +139,30 @@ namespace DogSE.Server.Net
                 //  TODO 这里要不要考虑进行并报发送处理
                 isSending = true;
                 var buff = m_PendingBuffer.Dequeue();
-                
-                Socket.BeginSend(buff.Bytes, 0, buff.Length, SocketFlags.None, OnSendReturn, buff);
+                SendEventArgs.UserToken = buff;
+                SendEventArgs.SetBuffer(buff.Bytes, 0, buff.Length);
+                Socket.SendAsync(SendEventArgs);
             }
         }
 
-        void OnSendReturn(IAsyncResult result)
+        void OnSendCompleted(object sender, SocketAsyncEventArgs e)
         {
-            SocketError error;
-            var ret = Socket.EndSend(result, out error);
-            if (error == SocketError.Success)
+            var buff = e.UserToken as DogBuffer;
+            if (buff != null)
+                buff.Release();
+
+            if (e.BytesTransferred == 0)
             {
-                //  发送成功
-                var buff = result.AsyncState as DogBuffer;
-
-                if (buff != null)
-                {
-                    if (ret == buff.Length)
-                        buff.Release();
-                    else
-                        Logs.Error("Async send length not buff len.");
-                }
-
+                //  发送传输为0，目标方应该断开连接了，这里进入断开环节。
                 isSending = false;
-                PeekSend();
+                CloseSocket();
+                return;
             }
-        }
 
+            //  发送完成后，再检查一下还有没有没发送的接着发送
+            isSending = false;
+            PeekSend();
+        }
 
         /// <summary>
         /// 远程的地址

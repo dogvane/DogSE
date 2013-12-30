@@ -1,5 +1,6 @@
 ﻿using System;
 using DogSE.Library.Common;
+using DogSE.Library.Log;
 
 namespace DogSE.Server.Net
 {
@@ -33,6 +34,10 @@ namespace DogSE.Server.Net
     /// </summary>
     public class DogBuffer
     {
+        //private static int s_id = 0;
+
+        //private int m_id = 0;
+
         /// <summary>
         /// 
         /// </summary>
@@ -40,6 +45,7 @@ namespace DogSE.Server.Net
         {
             m_buffer = new byte[1024*4];
             BuffSizeType = DogBufferType._4K;
+            //m_id = s_id++;
         }
 
         internal DogBufferType BuffSizeType { get; set; }
@@ -85,6 +91,11 @@ namespace DogSE.Server.Net
         public void Use()
         {
             referenceCounter++;
+            //var stack = new System.Diagnostics.StackTrace(0);
+            //var name = stack.GetFrame(1).GetMethod().Name;
+            //if (name == "GetFromPool32K" || name == "GetFromPool4K")
+            //    name = stack.GetFrame(2).GetMethod().Name;
+            //Logs.Debug("use buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, name);
         }
 
         /// <summary>
@@ -93,8 +104,13 @@ namespace DogSE.Server.Net
         public void Release()
         {
             referenceCounter--;
+            
+            //var stack = new System.Diagnostics.StackTrace(0);
+            //Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, stack.GetFrame(1).GetMethod().Name);
+
             if (referenceCounter < 0)
             {
+                Logs.Error("重复释放。");
                 referenceCounter = 0;
                 return;
             }

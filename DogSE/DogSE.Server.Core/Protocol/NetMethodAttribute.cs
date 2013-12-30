@@ -6,6 +6,16 @@ using System.Text;
 namespace DogSE.Server.Core.Protocol
 {
     /// <summary>
+    /// 客户端的接口定义标签
+    /// 只用来标记，给协议生成工具找到对应的接口
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Interface)]
+    public class ClientInterfaceAttribute : Attribute
+    {
+        
+    }
+
+    /// <summary>
     /// 网络回调方法的参数
     /// </summary>
     public class NetMethodAttribute:Attribute

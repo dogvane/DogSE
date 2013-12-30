@@ -47,6 +47,7 @@ namespace DogSE.Server.Net
             serverSocket.BeginAcceptSocket(OnSocketAccept, null);
         }
 
+
         /// <summary>
         /// 触发socket的连接
         /// </summary>
@@ -64,7 +65,10 @@ namespace DogSE.Server.Net
                 var ev = SocketConnect;
                 if (ev != null)
                 {
-                    var arg = new SocketConnectEventArgs<T>(session);
+                    var arg = m_connectArgsPool.AcquireContent();
+                    arg.Session = session;
+                    arg.AllowConnection = true;
+
                     try
                     {
                         ev(this, arg);
@@ -76,16 +80,21 @@ namespace DogSE.Server.Net
                     }
 
                     if (!arg.AllowConnection)
-                        session.CloseSocket();
+                    {
+                        session.CloseSocket();  //  如果业务逻辑不允许连接，则自己关闭
+                    }
                     else
                     {
                         connectSessions.Add(session);
-                        session.RecvBuffer = DogBuffer.GetFromPool32K();
-
                         session.Socket.UseOnlyOverlappedIO = true;
-                        session.Socket.BeginReceive(session.RecvBuffer.Bytes, 0, session.RecvBuffer.Bytes.Length,
-                                                    SocketFlags.Partial, OnClientRecv, session);
+
+                        session.ReceiveEventArgs.UserToken = session;
+                        session.ReceiveEventArgs.Completed += OnRecvCompleted;
+
+                        session.SyncRecvData();
                     }
+
+                    m_connectArgsPool.ReleaseContent(arg);  //  事件完成后就进行回收
                 }
                 else
                 {
@@ -96,43 +105,65 @@ namespace DogSE.Server.Net
             }
         }
 
-        /// <summary>
-        /// 消息接收处理
-        /// </summary>
-        /// <param name="ar"></param>
-        private void OnClientRecv(IAsyncResult ar)
+        void OnRecvCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var session = ar.AsyncState as ClientSession<T>;
+            var session = e.UserToken as ClientSession<T>;
             if (session == null)
+            {
+                Logs.Error("OnRecvCompleted UserToken is not " + typeof(ClientSession<T>).Name);
                 return;
+            }
 
-            SocketError error = SocketError.SocketError;
-            var len = 0;
-            
-            if (session.Socket.Connected)
-                len = session.Socket.EndReceive(ar, out error);
+            if (e.BytesTransferred == 0)
+            {
+                //  传输为0，表示客户端已经被关闭
 
-            if (error == SocketError.Success && len > 0)
+                if (connectSessions.TryTake(out session))
+                {
+                    Logs.Error("connectSessions.TryTake(out session) fail.");
+                    return;
+                }
+
+                //  触发关闭连接事件
+                var disconnectTemp = SocketDisconnect;
+                if (disconnectTemp != null)
+                {
+                    var arg = m_disconnectArgsPool.AcquireContent();
+                    arg.Session = session;
+
+                    try
+                    {
+                        disconnectTemp(this, arg);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logs.Error("On socket close event error.", ex);
+                    }
+
+                    m_disconnectArgsPool.ReleaseContent(arg);
+
+                    //  清理工作由内部的发送缓冲检查出错误后内部进行处理
+                }
+            }
+            else
             {
                 //  正常收到数据
                 var buff = session.RecvBuffer;
-                buff.Length = len;  //  设置buff的有效长度
+                buff.Length = e.BytesTransferred;  //  设置buff的有效长度
 
                 //  在处理逻辑前，先重新抛一个接收的请求到系统，这样就可以及时的收到消息
                 //  不必等系统逻辑完成操作后，才能继续接收消息。
-                session.RecvBuffer = DogBuffer.GetFromPool32K();    //因为之前的接收缓冲区还有作用，因此这里需要重新申请
-                session.Socket.BeginReceive(session.RecvBuffer.Bytes, 0, session.RecvBuffer.Bytes.Length,
-                            SocketFlags.Partial, OnClientRecv, session);
+                session.SyncRecvData();
 
-                var e = SocketRecv;
-                if (e != null)
+                var recvTemp = SocketRecv;
+                if (recvTemp != null)
                 {
                     var ev = m_recvEventArgsPool.AcquireContent();
                     ev.Buffer = buff;
                     ev.Session = session;
                     try
                     {
-                        e(this, ev);
+                        recvTemp(this, ev);
                     }
                     catch (Exception ex)
                     {
@@ -144,33 +175,7 @@ namespace DogSE.Server.Net
 
                 buff.Release();
             }
-            else
-            {
-                //  发生意外情况,socket将需要被关闭
-                if (session.Socket.Connected)
-                    session.Socket.Close();
-
-                if (connectSessions.TryTake(out session))
-                {
-                    //  触发关闭连接事件
-                    var e = SocketDisconnect;
-                    if (e != null)
-                    {
-                        try
-                        {
-                            e(this, new SocketDisconnectEventArgs<T>(session));
-                        }
-                        catch (Exception ex)
-                        {
-                            Logs.Error("On socket close event error.", ex);
-                        }
-                    }
-                }
-                
-            }
         }
-
-        private readonly ObjectPool<SocketRecvEventArgs<T>> m_recvEventArgsPool = new ObjectPool<SocketRecvEventArgs<T>>(1024 * 8);
 
         /// <summary>
         /// 关闭所有的客户端连接
@@ -197,6 +202,7 @@ namespace DogSE.Server.Net
         /// </summary>
         public event EventHandler<SocketConnectEventArgs<T>> SocketConnect;
 
+        private readonly ObjectPool<SocketConnectEventArgs<T>> m_connectArgsPool = new ObjectPool<SocketConnectEventArgs<T>>();
 
         /// <summary>
         /// socket发生关闭连接事件
@@ -206,10 +212,18 @@ namespace DogSE.Server.Net
         /// </remarks>
         public event EventHandler<SocketDisconnectEventArgs<T>> SocketDisconnect;
 
+
+        private readonly ObjectPool<SocketDisconnectEventArgs<T>> m_disconnectArgsPool = new ObjectPool<SocketDisconnectEventArgs<T>>();
+
+
         /// <summary>
         /// socket有数据送达
         /// </summary>
         public event EventHandler<SocketRecvEventArgs<T>> SocketRecv;
+
+
+        private readonly ObjectPool<SocketRecvEventArgs<T>> m_recvEventArgsPool = new ObjectPool<SocketRecvEventArgs<T>>(1024 * 8);
+
 
     }
 

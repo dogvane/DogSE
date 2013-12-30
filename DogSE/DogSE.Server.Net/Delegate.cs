@@ -10,17 +10,15 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="session"></param>
-        internal SocketConnectEventArgs(ClientSession<T> session)
+        public SocketConnectEventArgs()
         {
-            Session = session;
             AllowConnection = true;
         }
 
         /// <summary>
         /// 客户端连接的Session
         /// </summary>
-        public ClientSession<T> Session { get; private set; }
+        public ClientSession<T> Session { get; internal set; }
 
         /// <summary>
         /// 是否允许连接
@@ -34,18 +32,9 @@ namespace DogSE.Server.Net
     public class SocketDisconnectEventArgs<T> : EventArgs
     {
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="session"></param>
-        internal SocketDisconnectEventArgs(ClientSession<T> session)
-        {
-            Session = session;
-        }
-
-        /// <summary>
         /// 客户端连接的Session
         /// </summary>
-        public ClientSession<T> Session { get; private set; }
+        public ClientSession<T> Session { get; internal set; }
     }
 
     /// <summary>
