@@ -14,8 +14,10 @@ namespace DogSE.Library.Time
         // 用于计算经过的时间（因为Stopwatch的计算速度比DateTime.Now快近3倍）
         private static Stopwatch s_UpdateTime = Stopwatch.StartNew();
 
-        // 重点被使用的
+
+        /// <summary>
         /// 服务器当前的时间
+        /// </summary>
         public static DateTime NowTime { get { return s_NowTime + s_UpdateTime.Elapsed; } }
 
         /// <summary>

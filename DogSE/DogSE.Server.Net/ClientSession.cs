@@ -124,7 +124,10 @@ namespace DogSE.Server.Net
         {
             buff.Use();
 
-            m_PendingBuffer.Enqueue(buff);
+            lock (m_PendingBuffer)
+            {
+                m_PendingBuffer.Enqueue(buff);
+            }
 
             PeekSend();
         }
@@ -132,13 +135,18 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 检查队列里是否有要发送的数据，如果有则进行发送处理
         /// </summary>
-        void PeekSend()
+        private void PeekSend()
         {
-            if (m_PendingBuffer.Count > 0 && !isSending)
+            lock (m_PendingBuffer)
             {
+                if (isSending || m_PendingBuffer.Count == 0)
+                    return;
+
                 //  TODO 这里要不要考虑进行并报发送处理
                 isSending = true;
-                var buff = m_PendingBuffer.Dequeue();
+
+                DogBuffer buff;
+                buff = m_PendingBuffer.Dequeue();
                 SendEventArgs.UserToken = buff;
                 SendEventArgs.SetBuffer(buff.Bytes, 0, buff.Length);
                 Socket.SendAsync(SendEventArgs);

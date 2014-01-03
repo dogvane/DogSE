@@ -60,7 +60,7 @@ namespace DogSE.Server.Core.Net
         {
             buffer = DogBuffer.GetFromPool32K();
             //  先预留2位用于存放消息id
-            buffer.Length = 2;
+            buffer.Length = 4;
             Write(codeId);
         }
 
@@ -139,13 +139,13 @@ namespace DogSE.Server.Core.Net
             FixBuffer(2);
             if ( m_Endian == Endian.LITTLE_ENDIAN )
             {
-                buffer.Bytes[buffer.Length++] = (byte)shortValue;
                 buffer.Bytes[buffer.Length++] = (byte)(shortValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte)shortValue;
             }
             else
             {
-                buffer.Bytes[buffer.Length++] = (byte)(shortValue >> 8);
                 buffer.Bytes[buffer.Length++] = (byte)shortValue;
+                buffer.Bytes[buffer.Length++] = (byte)(shortValue >> 8);
             }
         }
 
@@ -157,13 +157,13 @@ namespace DogSE.Server.Core.Net
             FixBuffer(2);
             if ( m_Endian == Endian.LITTLE_ENDIAN )
             {
-                buffer.Bytes[buffer.Length++] = (byte)ushortValue;
                 buffer.Bytes[buffer.Length++] = (byte)(ushortValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte)ushortValue;
             }
             else
             {
-                buffer.Bytes[buffer.Length++] = (byte)(ushortValue >> 8);
                 buffer.Bytes[buffer.Length++] = (byte)ushortValue;
+                buffer.Bytes[buffer.Length++] = (byte)(ushortValue >> 8);
             }
         }
 
@@ -175,17 +175,17 @@ namespace DogSE.Server.Core.Net
             FixBuffer(4);
             if ( m_Endian == Endian.LITTLE_ENDIAN )
             {
-                buffer.Bytes[buffer.Length++] = (byte)intValue;
-                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 8);
-                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 16);
                 buffer.Bytes[buffer.Length++] = (byte)(intValue >> 24);
+                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte)intValue;
             }
             else
             {
-                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 24);
-                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 16);
-                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 8);
                 buffer.Bytes[buffer.Length++] = (byte)intValue;
+                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte)(intValue >> 24);
             }
         }
 
@@ -197,17 +197,17 @@ namespace DogSE.Server.Core.Net
             FixBuffer(4);
             if ( m_Endian == Endian.LITTLE_ENDIAN )
             {
-                buffer.Bytes[buffer.Length++]  = (byte)uintValue;
-                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 8 );
-                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 16 );
                 buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 24 );
+                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 16 );
+                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 8 );
+                buffer.Bytes[buffer.Length++]  = (byte)uintValue;
             }
             else
             {
-                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 24 );
-                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 16 );
-                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 8 );
                 buffer.Bytes[buffer.Length++]  = (byte)uintValue;
+                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 8 );
+                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 16 );
+                buffer.Bytes[buffer.Length++]  = (byte)( uintValue >> 24 );
             }
 
         }
@@ -228,29 +228,29 @@ namespace DogSE.Server.Core.Net
         public void Write( long longValue )
         {
             FixBuffer(8);
-            if ( m_Endian == Endian.LITTLE_ENDIAN )
+            if (m_Endian == Endian.LITTLE_ENDIAN)
             {
-                buffer.Bytes[buffer.Length++]  = (byte)longValue;
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 8 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 16 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 24 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 32 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 40 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 48 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 56 );
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 56);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 48);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 40);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 32);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 24);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte) longValue;
+
             }
             else
             {
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 56 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 48 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 40 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 32 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 24 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 16 );
-                buffer.Bytes[buffer.Length++]  = (byte)( longValue >> 8 );
-                buffer.Bytes[buffer.Length++]  = (byte)longValue;
+                buffer.Bytes[buffer.Length++] = (byte) longValue;
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 24);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 32);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 40);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 48);
+                buffer.Bytes[buffer.Length++] = (byte) (longValue >> 56);
             }
-
         }
 
         /// <summary>
@@ -259,27 +259,28 @@ namespace DogSE.Server.Core.Net
         public void Write( ulong ulongValue )
         {
             FixBuffer(8);
-            if ( m_Endian == Endian.LITTLE_ENDIAN )
+            if (m_Endian == Endian.LITTLE_ENDIAN)
             {
-                buffer.Bytes[buffer.Length++]  = (byte)ulongValue;
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 8 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 16 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 24 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 32 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 40 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 48 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 56 );
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 56);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 48);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 40);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 32);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 24);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte) ulongValue;
+
             }
             else
             {
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 56 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 48 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 40 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 32 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 24 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 16 );
-                buffer.Bytes[buffer.Length++]  = (byte)( ulongValue >> 8 );
-                buffer.Bytes[buffer.Length++]  = (byte)ulongValue;
+                buffer.Bytes[buffer.Length++] = (byte) ulongValue;
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 8);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 16);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 24);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 32);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 40);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 48);
+                buffer.Bytes[buffer.Length++] = (byte) (ulongValue >> 56);
             }
         }
 
@@ -383,17 +384,18 @@ namespace DogSE.Server.Core.Net
 
             if (m_Endian == Endian.LITTLE_ENDIAN)
             {
-                buffer.Bytes[0] = (byte)intValue;
-                buffer.Bytes[1] = (byte)(intValue >> 8);
-                buffer.Bytes[2] = (byte)(intValue >> 16);
-                buffer.Bytes[3] = (byte)(intValue >> 24);
+                buffer.Bytes[0] = (byte) (intValue >> 24);
+                buffer.Bytes[1] = (byte) (intValue >> 16);
+                buffer.Bytes[2] = (byte) (intValue >> 8);
+                buffer.Bytes[3] = (byte) intValue;
+
             }
             else
             {
-                buffer.Bytes[0] = (byte)(intValue >> 24);
-                buffer.Bytes[1] = (byte)(intValue >> 16);
-                buffer.Bytes[2] = (byte)(intValue >> 8);
-                buffer.Bytes[3] = (byte)intValue;
+                buffer.Bytes[0] = (byte) intValue;
+                buffer.Bytes[1] = (byte) (intValue >> 8);
+                buffer.Bytes[2] = (byte) (intValue >> 16);
+                buffer.Bytes[3] = (byte) (intValue >> 24);
             }
             return buffer;
         }

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Core.UnitTest"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.NetTestServer", "UnitTest\DogSE.Server.NetTestServer\DogSE.Server.NetTestServer.csproj", "{BBCBD319-4B80-4B56-9287-D929AB3D6B06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.LogicTestServer", "UnitTest\DogSE.Server.LogicTestServer\DogSE.Server.LogicTestServer.csproj", "{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{BBCBD319-4B80-4B56-9287-D929AB3D6B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBCBD319-4B80-4B56-9287-D929AB3D6B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBCBD319-4B80-4B56-9287-D929AB3D6B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{5A9A7697-2CA4-496A-BBD9-0072434D10CA} = {93F024BD-5B36-4B90-A727-9CBEEAB9DEDF}
 		{B6BEABEE-F80B-48B6-8737-BA677C01022D} = {93F024BD-5B36-4B90-A727-9CBEEAB9DEDF}
 		{BBCBD319-4B80-4B56-9287-D929AB3D6B06} = {93F024BD-5B36-4B90-A727-9CBEEAB9DEDF}
+		{F7711960-FD5B-46C5-BB94-DA6C2CA3CFF0} = {93F024BD-5B36-4B90-A727-9CBEEAB9DEDF}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

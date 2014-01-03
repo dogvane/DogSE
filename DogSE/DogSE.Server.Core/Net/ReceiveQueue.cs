@@ -205,7 +205,7 @@ namespace DogSE.Server.Core.Net
 
             lock (m_LockBuffer)
             {
-                if (PacketLengthSize < m_Size)
+                if (PacketLengthSize > m_Size)
                     return 0;
 
                 if (m_Head + PacketLengthSize < m_Buffer.Length)
@@ -215,10 +215,9 @@ namespace DogSE.Server.Core.Net
 
                     //  读四字节长度
                     if (m_Endian == Endian.LITTLE_ENDIAN)
-                        return m_Buffer[index++] | (m_Buffer[index++] << 8) | (m_Buffer[index++] << 16) | (m_Buffer[index] << 24);
+                        return (m_Buffer[index] << 24) | (m_Buffer[index+1] << 16) | (m_Buffer[index+2] << 8) | m_Buffer[index+3];
                     else
-                        return (m_Buffer[index++] << 24) | (m_Buffer[index++] << 16) | (m_Buffer[index++] << 8) | m_Buffer[index];
-
+                        return m_Buffer[index] | (m_Buffer[index + 1] << 8) | (m_Buffer[index + 2] << 16) | (m_Buffer[index + 3] << 24);
                 }
             }
 

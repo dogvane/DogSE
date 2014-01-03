@@ -45,6 +45,22 @@ namespace DogSE.Server.Core
         }
 
         /// <summary>
+        /// 游戏世界停止
+        /// </summary>
+        public void StopWorld()
+        {
+            OneServer.Closing = true;
+            m_isStartWorld = false;
+            taskManager.Runing = false;
+            //  等待任务线程退出
+
+            foreach (var module in logicModuleManager.GetModules())
+            {
+                module.Release();
+            }
+        }
+
+        /// <summary>
         /// 初始化游戏逻辑模块
         /// </summary>
         private void InitLogicModule()
@@ -81,7 +97,7 @@ namespace DogSE.Server.Core
                 linster.SocketDisconnect += OnSocketDisconnect;
                 linster.SocketRecv += OnSocketRecv;
 
-                Listeners[++index] = linster;
+                Listeners[index++] = linster;
                 Logs.Info("open socket {0}:{1}", tcp.Host, tcp.Port);
             }
         }
@@ -109,8 +125,10 @@ namespace DogSE.Server.Core
                         readBuffer = DogBuffer.GetFromPool32K();
 
                     var get = netState.ReceiveBuffer.Dequeue(readBuffer.Bytes, 0, len);
-                    if (get != len)
+                    if (get == len)
                     {
+                        readBuffer.Length = len;
+
                         var packageReader = new PacketReader(readBuffer);
                         var packetHandler = PacketHandlersManger.GetHandler(packageReader.GetPacketID());
                         if (packetHandler != null)
@@ -133,14 +151,18 @@ namespace DogSE.Server.Core
         {
             NetState netState = e.Session.Data;
             m_netStateManager.InternalRemoveNetState(netState.Serial);
+
+            e.Session.Data = null;
+            netState.Dispose();
         }
 
         void OnSocketConnect(object sender, SocketConnectEventArgs<NetState> e)
         {
             var netState = new NetState(e.Session, this);
+            e.Session.Data = netState;
 
             m_netStateManager.InternalAddNetState(0, netState);
-
+            netState.Start();
         }
 
         private readonly NetStateManager m_netStateManager = new NetStateManager();

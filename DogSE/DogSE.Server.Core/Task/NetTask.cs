@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using DogSE.Library.Common;
+using DogSE.Library.Time;
 using DogSE.Server.Core.Net;
 
 namespace DogSE.Server.Core.Task
@@ -8,7 +9,7 @@ namespace DogSE.Server.Core.Task
     /// <summary>
     /// 网络消息调用任务
     /// </summary>
-    class NetTask:ITask
+    internal class NetTask : ITask
     {
         /// <summary>
         /// 
@@ -57,7 +58,7 @@ namespace DogSE.Server.Core.Task
         /// <summary>
         /// 任务的对象池
         /// </summary>
-        static readonly ObjectPool<NetTask> TaskPool = new ObjectPool<NetTask>(1000);
+        private static readonly ObjectPool<NetTask> TaskPool = new ObjectPool<NetTask>(1000);
 
         /// <summary>
         /// 从缓冲池里获得一个对象
@@ -68,8 +69,15 @@ namespace DogSE.Server.Core.Task
             var ret = TaskPool.AcquireContent();
             ret.isRelease = false;
             ret.TaskProfile = NetTaskProfile.GetNetTaskProfile(packetId);
+            ret.RecvTime = OneServer.NowTime;
             return ret;
         }
+
+        /// <summary>
+        /// 消息包的接收时间
+        /// </summary>
+        public DateTime RecvTime { get; internal set; }
+
     }
 
     /// <summary>

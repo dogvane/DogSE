@@ -162,9 +162,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN )
-                return m_Data[m_Index++] | ( (long)m_Data[m_Index++] << 8 ) | ( (long)m_Data[m_Index++] << 16 ) | ( (long)m_Data[m_Index++] << 24 ) | ( (long)m_Data[m_Index++] << 32 ) | ( (long)m_Data[m_Index++] << 40 ) | ( (long)m_Data[m_Index++] << 48 ) | ( (long)m_Data[m_Index++] << 56 );
-            else
                 return ( (long)m_Data[m_Index++] << 56 ) | ( (long)m_Data[m_Index++] << 48 ) | ( (long)m_Data[m_Index++] << 40 ) | ( (long)m_Data[m_Index++] << 32 ) | ( (uint)( m_Data[m_Index++] << 24 ) ) | ( (uint)m_Data[m_Index++] << 16 ) | ( (uint)m_Data[m_Index++] << 8 ) | m_Data[m_Index++];
+            else
+                return m_Data[m_Index++] | ((long)m_Data[m_Index++] << 8) | ((long)m_Data[m_Index++] << 16) | ((long)m_Data[m_Index++] << 24) | ((long)m_Data[m_Index++] << 32) | ((long)m_Data[m_Index++] << 40) | ((long)m_Data[m_Index++] << 48) | ((long)m_Data[m_Index++] << 56);
         }
 
         /// <summary>
@@ -177,10 +177,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN )
-                return m_Data[m_Index++] | ( m_Data[m_Index++] << 8 ) | ( m_Data[m_Index++] << 16 ) | ( m_Data[m_Index++] << 24 );
-            else
                 return ( m_Data[m_Index++] << 24 ) | ( m_Data[m_Index++] << 16 ) | ( m_Data[m_Index++] << 8 ) | m_Data[m_Index++];
-
+            else
+                return m_Data[m_Index++] | (m_Data[m_Index++] << 8) | (m_Data[m_Index++] << 16) | (m_Data[m_Index++] << 24);
         }
 
         /// <summary>
@@ -193,9 +192,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN ) 
-                return (short)( m_Data[m_Index++] | ( m_Data[m_Index++] << 8 ) );
-            else
                 return (short)( m_Data[m_Index++] << 8 | ( m_Data[m_Index++] ) );
+            else
+                return (short)(m_Data[m_Index++] | (m_Data[m_Index++] << 8));
         }
 
         /// <summary>
@@ -220,9 +219,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN )
-                return (ulong)( m_Data[m_Index++] | ( (long)m_Data[m_Index++] << 8 ) | ( (long)m_Data[m_Index++] << 16 ) | ( (long)m_Data[m_Index++] << 24 ) | ( (long)m_Data[m_Index++] << 32 ) | ( (long)m_Data[m_Index++] << 40 ) | ( (long)m_Data[m_Index++] << 48 ) | ( (long)m_Data[m_Index++] << 56 ) );
-            else
                 return (ulong)( ( (long)m_Data[m_Index++] << 56 ) | ( (long)m_Data[m_Index++] << 48 ) | ( (long)m_Data[m_Index++] << 40 ) | ( (long)m_Data[m_Index++] << 32 ) | ( (uint)m_Data[m_Index++] << 24 ) | ( (uint)m_Data[m_Index++] << 16 ) | ( (uint)m_Data[m_Index++] << 8 ) | m_Data[m_Index++] );
+            else
+                return (ulong)(m_Data[m_Index++] | ((long)m_Data[m_Index++] << 8) | ((long)m_Data[m_Index++] << 16) | ((long)m_Data[m_Index++] << 24) | ((long)m_Data[m_Index++] << 32) | ((long)m_Data[m_Index++] << 40) | ((long)m_Data[m_Index++] << 48) | ((long)m_Data[m_Index++] << 56));
         }
 
         /// <summary>
@@ -235,9 +234,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN ) 
-                return (uint)( m_Data[m_Index++] | ( m_Data[m_Index++] << 8 ) | ( m_Data[m_Index++] << 16 ) | ( m_Data[m_Index++] << 24 ) );
-            else
                 return (uint)( ( m_Data[m_Index++] << 24 ) | ( m_Data[m_Index++] << 16 ) | ( m_Data[m_Index++] << 8 ) | m_Data[m_Index++] );
+            else
+                return (uint)(m_Data[m_Index++] | (m_Data[m_Index++] << 8) | (m_Data[m_Index++] << 16) | (m_Data[m_Index++] << 24));
         }
 
         /// <summary>
@@ -250,9 +249,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if ( m_Endian == Endian.LITTLE_ENDIAN ) 
-                return (ushort)( m_Data[m_Index++] | ( m_Data[m_Index++] << 8 ) );
-            else
                 return (ushort)( ( m_Data[m_Index++] << 8 ) | m_Data[m_Index++] );
+            else
+                return (ushort)(m_Data[m_Index++] | (m_Data[m_Index++] << 8));
         }
 
         /// <summary>
@@ -438,9 +437,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if (m_Endian == Endian.LITTLE_ENDIAN)
-                return m_Data[index++] | (m_Data[index++] << 8) | (m_Data[index++] << 16) | (m_Data[index] << 24);
-            else
                 return (m_Data[index++] << 24) | (m_Data[index++] << 16) | (m_Data[index++] << 8) | m_Data[index];
+            else
+                return m_Data[index++] | (m_Data[index++] << 8) | (m_Data[index++] << 16) | (m_Data[index] << 24);
         }
 
         /// <summary>
@@ -454,9 +453,9 @@ namespace DogSE.Server.Core.Net
                 return 0;
 
             if (m_Endian == Endian.LITTLE_ENDIAN)
-                return (ushort)(m_Data[index++] | (m_Data[index] << 8));
-            else
                 return (ushort)((m_Data[index++] << 8) | m_Data[index]);
+            else
+                return (ushort)(m_Data[index++] | (m_Data[index] << 8));
         }
 
         #endregion

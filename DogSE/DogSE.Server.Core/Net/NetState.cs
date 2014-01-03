@@ -55,8 +55,9 @@ namespace DogSE.Server.Core.Net
                 m_NetAddress = new IPEndPoint(IPAddress.None, clientSocket.RemotePort);
             else
                 m_NetAddress = new IPEndPoint(ipAddress, clientSocket.RemotePort);
-
             World = world;
+
+            ReceiveBuffer = new ReceiveQueue();
         }
 
         /// <summary>
@@ -247,6 +248,19 @@ namespace DogSE.Server.Core.Net
             packet.Release();
         }
 
+        /// <summary>
+        /// 根据输出流来写数据
+        /// </summary>
+        /// <param name="writer"></param>
+        public void Send(PacketWriter writer)
+        {
+            if (Running == false)
+                return;
+
+            // 防止发送的顺序出错
+            m_Socket.SendPackage(writer.GetBuffer());
+        }
+
 
         #region zh-CHS 私有常量 | en Private Constants
 
@@ -282,6 +296,7 @@ namespace DogSE.Server.Core.Net
         private void InsideDispose()
         {
             m_Socket.CloseSocket();
+            m_Socket = null;
         }
 
         #endregion

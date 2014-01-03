@@ -45,6 +45,7 @@
     <Compile Include="LogicModule\ILogicModule.cs" />
     <Compile Include="LogicModule\LogicModuleManager.cs" />
     <Compile Include="Net\NetState.ComponentManager.cs" />
+    <Compile Include="Protocol\CreateProxyCode.cs" />
     <Compile Include="Protocol\CreateReadCode.cs" />
     <Compile Include="Protocol\NetMethodAttribute.cs" />
     <Compile Include="Protocol\RegisterNetMethod.cs" />

@@ -3,52 +3,88 @@ using System.CodeDom.Compiler;
 using System.Reflection;
 using System.Text;
 using DogSE.Library.Log;
-using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
-using DogSE.Server.Core.Task;
 using Microsoft.CSharp;
 
 namespace DogSE.Server.Core.Protocol
 {
     /// <summary>
-    /// 协议包读取
+    /// 创建客户端注册代码
     /// </summary>
-    public interface IPacketReader
+    public static class CreateClientProxyCode
     {
         /// <summary>
-        /// 数据读取
+        /// 注册一个静态的对象接口
         /// </summary>
-        /// <param name="reader"></param>
-        void Read(PacketReader reader);
+        /// <param name="staticProxyType"></param>
+        public static void Register(Type staticProxyType)
+        {
+            if (!(staticProxyType.IsClass && staticProxyType.IsSealed))
+            {
+                Logs.Error("类型 {0} 需要时静态类型", staticProxyType.Name);
+                return;
+            }
+
+            var propertyTypes =
+                staticProxyType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.SetProperty);
+            foreach (var type in propertyTypes)
+            {
+                var cpc = new CreateProxyCode(type.PropertyType);
+                var obj = cpc.CreateCodeAndBuilder();
+
+                type.SetValue(null, obj, null);
+            }
+        }
     }
 
+    /*
+    /// <summary>
+    /// 客户端代理，所有给客户端的数据都从这里发送
+    /// </summary>
+    public static class ClientProxy
+    {
+        /// <summary>
+        /// 客户端时间
+        /// </summary>
+        public static IGetPingTimeLogicBack GetPingTime { get; set; }
+
+
+        private static void test()
+        {
+            CreateClientProxyCode.Register(typeof(ClientProxy));
+
+            Console.WriteLine(GetPingTime == null);
+        }
+    }
 
     /// <summary>
-    /// 消息自动创建接口
+    /// 客户端接口
     /// </summary>
-    public interface IProtoclAutoCode
+    [ClientInterface]
+    public interface IGetPingTimeLogicBack
     {
         /// <summary>
-        /// 初始化数据
+        /// 获取时间返回
         /// </summary>
-        void Init();
+        /// <param name="net"></param>
+        /// <param name="serverTime"></param>
+        [NetMethod(2, NetMethodType.SimpleMethod)]
+        void GetTimeResult(NetState net, long serverTime);
 
         /// <summary>
-        /// 消息管理器
+        /// 获取时间返回
         /// </summary>
-        PacketHandlersBase PacketHandlerManager {get;set;}
-
-        /// <summary>
-        /// 设置模块对象
-        /// </summary>
-        /// <param name="module"></param>
-        void SetModule(ILogicModule module);
+        /// <param name="net"></param>
+        [NetMethod(3, NetMethodType.SimpleMethod)]
+        void GetTimeResult2(NetState net);
     }
+    */
+
 
     /// <summary>
     /// 访问代码创建
     /// </summary>
-    class CreateReadCode
+    class CreateProxyCode
     {
         private readonly Type classType;
 
@@ -56,7 +92,7 @@ namespace DogSE.Server.Core.Protocol
         /// 
         /// </summary>
         /// <param name="type">要创建的方法的类</param>
-        public CreateReadCode(Type type)
+        public CreateProxyCode(Type type)
         {
             classType = type;
         }
@@ -72,7 +108,7 @@ namespace DogSE.Server.Core.Protocol
         void AddMethod(NetMethodAttribute att, MethodInfo methodinfo)
         {
             var param = methodinfo.GetParameters();
-            if (param.Length < 2)
+            if (param.Length < 1)
             {
                 Logs.Error(string.Format("{0}.{1} 不支持 {2} 个参数", classType.Name, methodinfo.Name, param.Length.ToString()));
                 return;
@@ -86,86 +122,66 @@ namespace DogSE.Server.Core.Protocol
 
             if (att.MethodType == NetMethodType.PacketReader)
             {
-                if (param[1].ParameterType != typeof(PacketReader))
-                {
-                    Logs.Error("{0}.{1} 的第二个参数必须是 PacketReader 对象", classType.Name, methodinfo.Name);
-                    return;
-                }
-
-                //string mehtodName = methodinfo.Name;
-                initCode.AppendFormat("PacketHandlerManager.Register({0}, module.{1});",
-                                      att.OpCode, methodinfo.Name);
-                initCode.AppendLine();
-
-                //callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", mehtodName);
-                //callCode.AppendLine("{");
-                //callCode.AppendFormat("module.{0}(netstate, reader);", methodinfo.Name);
-                //callCode.AppendLine("}");
+                Logs.Error("客户端代理类不支持这种模式 {0}", att.MethodType.ToString());
+                return;
             }
 
             if (att.MethodType == NetMethodType.ProtocolStruct)
             {
-                if (param[1].ParameterType.GetInterface(typeof(IPacketReader).FullName) == null)
-                {
-                    Logs.Error("{0}.{1} 的第二个参数必须实现 IPacketReader 接口", classType.Name, methodinfo.Name);
-                    return;
-                }
-
-                if (!param[1].ParameterType.IsClass)
-                {
-                    Logs.Error("{0}.{1} 的第二个参数必须是class类型。", classType.Name, methodinfo.Name);
-                    return;
-                }
-
-                string methodName = methodinfo.Name;
-                initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
-                                      att.OpCode, methodName);
-                initCode.AppendLine();
-
-                callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
-                callCode.AppendLine("{");
-                callCode.AppendFormat(" var package = DogSE.Library.Common.StaticObjectPool<{0}>.AcquireContent();", param[1].ParameterType.FullName);
-                callCode.AppendLine("package.Read(reader);");
-                callCode.AppendFormat("module.{0}(netstate, package);", methodinfo.Name);
-                callCode.AppendFormat("DogSE.Library.Common.StaticObjectPool<{0}>.ReleaseContent(package);", param[1].ParameterType.FullName);
-                callCode.AppendLine("}");
+                //  TODO: 稍后补充这种模式
+                Logs.Error("客户端代理类暂时不支持这种模式 {0}", att.MethodType.ToString());
+                return;
             }
 
             if (att.MethodType == NetMethodType.SimpleMethod)
             {
                 string methodName = methodinfo.Name;
-                initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
-                                      att.OpCode, methodName);
-                initCode.AppendLine();
+                StringBuilder methonNameCode = new StringBuilder();
+                StringBuilder streamWriterCode = new StringBuilder();
+                methonNameCode.AppendFormat("public void {0}(NetState netstate,", methodName);
 
-                callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
-                callCode.AppendLine("{");
+                streamWriterCode.AppendLine("{");
+                streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                streamWriterCode.AppendLine();
+                streamWriterCode.AppendFormat(
+                    @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
+            if ( packetProfile != null )
+                packetProfile.RegConstruct();
+                ", att.OpCode);
+
+
                 for (int i = 1; i < param.Length; i++)
                 {
                     var p = param[i];
                     if (p.ParameterType == typeof (int))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadInt32();\r\n", i);
+                        methonNameCode.AppendFormat("int {0},", p.Name);
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof (long))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadLong64();\r\n", i);
+                        methonNameCode.AppendFormat("long {0},", p.Name); 
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof (float))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadFloat();\r\n", i);
+                        methonNameCode.AppendFormat("float {0},", p.Name);
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof (double))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadFloat();\r\n", i);
+                        methonNameCode.AppendFormat("double {0},", p.Name); 
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof (bool))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadBoolean();\r\n", i);
+                        methonNameCode.AppendFormat("bool {0},", p.Name);
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof (string))
                     {
-                        callCode.AppendFormat("var p{0} = reader.ReadUTF8String();\r\n", i);
+                        methonNameCode.AppendFormat("string {0},", p.Name);
+                        streamWriterCode.AppendFormat("pw.WriteUTF8Null({0});\r\n", p.Name);
                     }
                     else
                     {
@@ -175,12 +191,14 @@ namespace DogSE.Server.Core.Protocol
 
                 }
 
-                callCode.AppendFormat("module.{0}(netstate", methodinfo.Name);
-                for (int i = 1; i < param.Length; i++)
-                    callCode.AppendFormat(",p{0}", i);
-                callCode.AppendLine(");");
-                callCode.AppendLine("}");
+                streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                streamWriterCode.AppendLine("}");
 
+                methonNameCode.Remove(methonNameCode.Length - 1, 1);
+                methonNameCode.Append(")");
+
+                callCode.AppendLine(methonNameCode.ToString());
+                callCode.AppendLine(streamWriterCode.ToString());
             }
         }
 
@@ -203,7 +221,10 @@ namespace DogSE.Server.Core.Protocol
             ret.Replace("#version#", Version.ToString());
             ret.Replace("#InitMethod#", initCode.ToString());
             ret.Replace("#CallMethod#", callCode.ToString());
-            ret.Replace("#using#", "");
+
+            var nsName = classType.Namespace;
+
+            ret.Replace("#using#", string.Format("using {0};", nsName));
             ret.Replace("`", "\"");
 
             return ret.ToString();
@@ -213,7 +234,7 @@ namespace DogSE.Server.Core.Protocol
         /// 创建代码并进行编译
         /// </summary>
         /// <returns></returns>
-        public IProtoclAutoCode CreateCodeAndBuilder()
+        public object CreateCodeAndBuilder()
         {
             foreach (var method in classType.GetMethods())
             {
@@ -229,7 +250,7 @@ namespace DogSE.Server.Core.Protocol
             return Builder(code);
         }
 
-        IProtoclAutoCode Builder(string code)
+        object Builder(string code)
         {
             using (var csharpCodeProvider = new CSharpCodeProvider())
             {
@@ -240,7 +261,6 @@ namespace DogSE.Server.Core.Protocol
                 compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
                 compilerParameters.ReferencedAssemblies.Add("DogSE.Library.dll");
                 compilerParameters.ReferencedAssemblies.Add("DogSE.Server.Core.dll");
-                //compilerParameters.ReferencedAssemblies.Add("DogSE.Server.Core.UnitTest.dll");
 
                 var assFileFullName = classType.Assembly.CodeBase;
                 var rightLen = assFileFullName.LastIndexOf("/");
@@ -254,7 +274,7 @@ namespace DogSE.Server.Core.Protocol
 
                 if (compilerResults.Errors.Count > 0)
                 {
-                    Logs.Error("在动态编译游戏逻辑模块代理类 {0} 时失败。", "");
+                    Logs.Error("在动态编译游戏客户端代理类 {0} 时失败。", "");
                     foreach (var error in compilerResults.Errors)
                     {
                         Console.WriteLine(error.ToString());
@@ -263,19 +283,19 @@ namespace DogSE.Server.Core.Protocol
                     return null;
                 }
 
-                string className = string.Format("DogSE.Server.Core.Protocol.AutoCode.{0}Access{1}", classType.Name, Version);
+                string className = string.Format("DogSE.Server.Core.Protocol.AutoCode.{0}Proxy{1}", classType.Name, Version);
 
                 var obj = compilerResults.CompiledAssembly.CreateInstance(className);
 
                 if (obj == null)
                 {
-                    Logs.Error("在创建动态游戏逻辑模块代理类 {0} 时失败。", classType.Name);
+                    Logs.Error("在创建动态客户端代理类 {0} 时失败。", classType.Name);
                     return null;
                 }
 
                 CompiledAssembly = compilerResults.CompiledAssembly;
 
-                return obj as IProtoclAutoCode;
+                return obj;
             }
         }
 
@@ -291,35 +311,13 @@ using System.Linq;
 using System.Text;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Task;
-using DogSE.Server.Core.LogicModule;
 #using#
 
 namespace DogSE.Server.Core.Protocol.AutoCode
 {
-    class #ClassName#Access#version#:IProtoclAutoCode
+    class #ClassName#Proxy#version#:#ClassName#
     {
-        public PacketHandlersBase PacketHandlerManager {get;set;}
-
-        #FullClassName# module;
-
-        public void SetModule(ILogicModule m)
-        {
-            if (m == null)
-                throw new ArgumentNullException(`ILogicModule`);
-            module = (#FullClassName#)m;
-            if (module == null)
-            {
-                throw new NullReferenceException(string.Format(`{0} not #FullClassName#`, m.GetType().FullName));
-            }
-        }
-
-
-        public void Init()
-        {
-#InitMethod#
-        }
-
-#CallMethod#
+        #CallMethod#
     }
 }
 

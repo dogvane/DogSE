@@ -98,12 +98,32 @@ namespace DogSE.Server.Core.Task
         public bool Runing
         {
             get { return isRuning; }
-            set { isRuning = value; }
+            set
+            {
+                isRuning = value;
+                if (value == false)
+                {
+                    //  如果设置为false，则表示进程需要进行退出了
+                    //  这里会开始等待逻辑线程退出，等逻辑线程退出后，再结束本次操作
+                    int count = 1000;  
+                    while (isWorkThreadRun && count-- > 0)
+                    {
+                        Thread.Sleep(100);
+                    }
+                    if (isWorkThreadRun)
+                    {
+                        //  100s 后如果工作线程没有退出，则发送异常，这里不理会工作线程，直接走后面的流程
+                        Logs.Error("Logic thread can't stop.");
+                    }
+                }
+            }
         }
 
+        private bool isWorkThreadRun = false;
         void WorkThread()
         {
             isRuning = true;
+            isWorkThreadRun = true;
             Logs.Info("Logic thread {0} start.", taskName_);
 
             var watch = Stopwatch.StartNew();
@@ -131,10 +151,11 @@ namespace DogSE.Server.Core.Task
                 else
                 {
                     //  队列里没任务，则让线程先休息一小会
-                    Thread.Sleep(0);
+                    Thread.Sleep(1);
                 }
             }
 
+            isWorkThreadRun = false;
         }
 
         private Thread workThread;
