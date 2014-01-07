@@ -8,7 +8,9 @@ using DogSE.Server.Core.Protocol;
 using TradeAge.Server.Entity;
 using TradeAge.Server.Entity.Character;
 using TradeAge.Server.Entity.Common;
-using TradeAge.Server.Interface.ServerLogic;
+using TradeAge.Server.Entity.Login;
+using TradeAge.Server.Interface.Client;
+using ILogin = TradeAge.Server.Interface.ServerLogic.ILogin;
 
 namespace TradeAge.Server.Logic.Login
 {
@@ -74,14 +76,21 @@ namespace TradeAge.Server.Logic.Login
                 WorldEntityManager.AccountNames.SetValue(accountName, account);
                 WorldEntityManager.Accounts.SetValue(account.Id, account);
 
+                ClientProxy.Login.LoginServerResult(netstate, LoginServerResult.Success);
+
                 //  保存到数据
-                
             }
             else
             {
-                
+                if (account.Password != password)
+                {
+                    //  账户存在，但是密码验证失败，返回错误
+                    ClientProxy.Login.LoginServerResult(netstate, LoginServerResult.PassOrAccountError);
+                    return;
+                }
             }
 
+            netstate.IsVerifyLogin = true;
         }
 
         #region ILogin 成员
@@ -91,7 +100,8 @@ namespace TradeAge.Server.Logic.Login
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="playerName"></param>
-        public void OnCreatePlayer(NetState netstate, string playerName)
+        /// <param name="sex"></param>
+        public void OnCreatePlayer(NetState netstate, string playerName, Sex sex)
         {
             
         }

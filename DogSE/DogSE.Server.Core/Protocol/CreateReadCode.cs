@@ -124,6 +124,9 @@ namespace DogSE.Server.Core.Protocol
 
                 callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
                 callCode.AppendLine("{");
+                if (att.IsVerifyLogin)
+                    callCode.AppendLine("if (!netstate.IsVerifyLogin) return;");
+
                 callCode.AppendFormat(" var package = DogSE.Library.Common.StaticObjectPool<{0}>.AcquireContent();", param[1].ParameterType.FullName);
                 callCode.AppendLine("package.Read(reader);");
                 callCode.AppendFormat("module.{0}(netstate, package);", methodinfo.Name);
@@ -140,6 +143,10 @@ namespace DogSE.Server.Core.Protocol
 
                 callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
                 callCode.AppendLine("{");
+
+                if (att.IsVerifyLogin)
+                    callCode.AppendLine("if (!netstate.IsVerifyLogin) return;");
+
                 for (int i = 1; i < param.Length; i++)
                 {
                     var p = param[i];

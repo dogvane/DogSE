@@ -153,6 +153,7 @@ namespace DogSE.Server.Core
             m_netStateManager.InternalRemoveNetState(netState.Serial);
 
             e.Session.Data = null;
+            netState.ExitWorld();
             netState.Dispose();
         }
 

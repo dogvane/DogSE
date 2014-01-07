@@ -39,6 +39,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\ClientProxy.cs" />
     <Compile Include="Client\ILogin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerLogic\ILogin.cs" />

@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Character\Account.cs" />
+    <Compile Include="Character\Enum.cs" />
     <Compile Include="Character\Player.cs" />
     <Compile Include="Common\SequenceGenerator.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />

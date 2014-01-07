@@ -2,6 +2,7 @@
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using TradeAge.Common.Entity.NetCode;
+using TradeAge.Server.Entity.Character;
 
 namespace TradeAge.Server.Interface.ServerLogic
 {
@@ -25,8 +26,9 @@ namespace TradeAge.Server.Interface.ServerLogic
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="playerName"></param>
+        /// <param name="sex">性别</param>
         [NetMethod((ushort)OpCode.CreatePlayerResult, NetMethodType.SimpleMethod)]
-        void OnCreatePlayer(NetState netstate, string playerName);
+        void OnCreatePlayer(NetState netstate, string playerName, Sex sex);
 
 
     }

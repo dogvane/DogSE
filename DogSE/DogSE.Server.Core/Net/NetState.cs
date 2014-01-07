@@ -172,6 +172,15 @@ namespace DogSE.Server.Core.Net
             set { m_bCheckAlive = value; }
         }
 
+        /// <summary>
+        /// 是否验证过账户
+        /// </summary>
+        public bool IsVerifyLogin { get; set; }
+
+        /// <summary>
+        /// 业务逻辑id（通常是和连接绑定的账户/玩家 id，这个需要由业务逻辑层来进行修改）
+        /// </summary>
+        public int BizId { get; set; }
 
         #region zh-CHS 内部方法 | en Internal Method
         /// <summary>

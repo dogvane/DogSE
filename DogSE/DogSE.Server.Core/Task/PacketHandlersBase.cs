@@ -21,6 +21,7 @@
 
 #region zh-CHS 包含名字空间 | en Include namespace
 
+using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
 
 #endregion
@@ -88,11 +89,18 @@ namespace DogSE.Server.Core.Task
         #endregion
         /// <summary>
         /// 注册数据包的处理调用者
+        /// 注意，如果存在相同的消息id，会进行调用方法的替换操作
         /// </summary>
         /// <param name="iPacketID"></param>
         /// <param name="onPacketReceive"></param>
         public void Register(ushort iPacketID, PacketReceiveCallback onPacketReceive)
         {
+            if (m_Handlers[iPacketID] != null)
+            {
+                //  如果有注册相同的消息id，这里只是进行记录，并不干预运行
+                Logs.Warn("Msgid {0} is replace.", iPacketID);
+            }
+
             m_Handlers[iPacketID] = new PacketHandler(iPacketID, PacketPriority.Normal, onPacketReceive);
         }
 

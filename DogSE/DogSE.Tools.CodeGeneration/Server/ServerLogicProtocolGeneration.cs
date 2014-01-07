@@ -156,37 +156,44 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                     callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
                     callCode.AppendLine("{");
+                    if (att.IsVerifyLogin)
+                        callCode.AppendLine("if (!netstate.IsVerifyLogin) return;");
+
                     for (int i = 1; i < param.Length; i++)
                     {
                         var p = param[i];
-                        if (p.ParameterType == typeof(int))
+                        if (p.ParameterType == typeof (int))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadInt32();\r\n", i);
                         }
-                        else if (p.ParameterType == typeof(long))
+                        else if (p.ParameterType == typeof (long))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadLong64();\r\n", i);
                         }
-                        else if (p.ParameterType == typeof(float))
+                        else if (p.ParameterType == typeof (float))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadFloat();\r\n", i);
                         }
-                        else if (p.ParameterType == typeof(double))
+                        else if (p.ParameterType == typeof (double))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadFloat();\r\n", i);
                         }
-                        else if (p.ParameterType == typeof(bool))
+                        else if (p.ParameterType == typeof (bool))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadBoolean();\r\n", i);
                         }
-                        else if (p.ParameterType == typeof(string))
+                        else if (p.ParameterType == typeof (string))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadUTF8String();\r\n", i);
+                        }
+                        else if (p.ParameterType.IsEnum)
+                        {
+                            callCode.AppendFormat("var p{0} = ({1})reader.ReadByte();\r\n", i, p.ParameterType.FullName);
                         }
                         else
                         {
                             Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
-                                                     classType.Name, methodinfo.Name, p.Name, p.ParameterType.Name));
+                                classType.Name, methodinfo.Name, p.Name, p.ParameterType.Name));
                         }
 
                     }
@@ -194,11 +201,13 @@ namespace DogSE.Tools.CodeGeneration.Server
                     if (param[0].ParameterType != typeof(NetState) && att.IsVerifyLogin)
                     {
                         //  作为验证数据
-                        var componentType = param[0].ParameterType;
-                        callCode.AppendFormat("var {0} = netstate.GetComponent<{1}>({1}.ComponentId);",
-                           componentType.Name.ToLower(), componentType.Name);
+                        //var componentType = param[0].ParameterType;
+                        //callCode.AppendFormat("var {0} = netstate.GetComponent<{1}>({1}.ComponentId);",
+                        //   componentType.Name.ToLower(), componentType.Name);
 
-                        callCode.AppendFormat("module.{0}({1}", methodinfo.Name, componentType.Name.ToLower());
+                        //callCode.AppendFormat("module.{0}({1}", methodinfo.Name, componentType.Name.ToLower());
+
+                        callCode.AppendFormat("module.{0}(netstate", methodinfo.Name);
                     }
                     else
                     {
@@ -261,6 +270,35 @@ namespace DogSE.Tools.CodeGeneration.Server
             }
 
             /// <summary>
+            /// 获得代理注册代码
+            /// </summary>
+            /// <returns></returns>
+            public string CreateRegisterProxyCode()
+            {
+                StringBuilder ret = new StringBuilder();
+                ret.Append(@"                if (m is #FullClassName#)
+                {
+                    IProtoclAutoCode pac = new #ClassName#Access#version#();
+                    list.Add(pac);
+
+                    pac.SetModule(m as #FullClassName#);
+                    pac.PacketHandlerManager = handlers;
+                    pac.Init();
+                }");
+
+                ret.Replace("#ClassName#", classType.Name);
+                ret.Replace("#FullClassName#", classType.FullName);
+                ret.Replace("#version#", Version.ToString());
+                ret.Replace("#InitMethod#", initCode.ToString());
+                ret.Replace("#CallMethod#", callCode.ToString());
+                ret.Replace("#using#", "");
+                ret.Replace("`", "\"");
+
+                return ret.ToString();
+
+            }
+
+            /// <summary>
             /// 编译后生成的组件
             /// </summary>
             public Assembly CompiledAssembly { get; set; }
@@ -309,7 +347,7 @@ namespace DogSE.Tools.CodeGeneration.Server
             StringBuilder codeBuilder = new StringBuilder();
 
             var dll = Assembly.LoadFrom(dllFile);
-
+            StringBuilder proxyregBuilder = new StringBuilder();
 
             foreach(var type in dll.GetTypes())
             {
@@ -318,14 +356,19 @@ namespace DogSE.Tools.CodeGeneration.Server
                     var i = type.GetInterface("DogSE.Server.Core.LogicModule.ILogicModule");
                     if (i != null)
                     {
-                        var code = new CreateReadCode(type).CreateCode();
-                        codeBuilder.Append(code);
+                        var crc = new CreateReadCode(type);
+                        codeBuilder.Append(crc.CreateCode());
+                        proxyregBuilder.Append(crc.CreateRegisterProxyCode());
                     }
                 }
             }
 
-            var fileContext = FileCodeBase.Replace("#code#", codeBuilder.ToString());
-            File.WriteAllText(outFile, fileContext);
+            var fileContext = FileCodeBase
+                .Replace("#code#", codeBuilder.ToString())
+                .Replace("#proxyregister#", proxyregBuilder.ToString())
+                .Replace("`", "\"");
+
+            File.WriteAllText(outFile, fileContext, Encoding.UTF8);
         }
 
 
@@ -345,6 +388,27 @@ using DogSE.Server.Core.LogicModule;
 
 namespace DogSE.Server.Core.Protocol.AutoCode
 {
+    /// <summary>
+    /// 服务器业务逻辑注册管理器
+    /// </summary>
+    public static class ServerLogicProtoclRegister
+    {
+        private static readonly List<IProtoclAutoCode> list = new List<IProtoclAutoCode>();
+
+        /// <summary>
+        /// 注册所有模块的网络消息到包管理器里
+        /// </summary>
+        /// <param name=`modules`></param>
+        /// <param name=`handlers`></param>
+        public static void Register(ILogicModule[] modules, PacketHandlersBase handlers)
+        {
+            foreach (var m in modules)
+            {
+#proxyregister#
+            }
+        }
+    }
+
 #code#
 }
 

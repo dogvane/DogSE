@@ -183,6 +183,11 @@ namespace DogSE.Server.Core.Protocol
                         methonNameCode.AppendFormat("string {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.WriteUTF8Null({0});\r\n", p.Name);
                     }
+                    else if (p.ParameterType.IsEnum)
+                    {
+                        methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
+                        streamWriterCode.AppendFormat("pw.Write((byte){0});\r\n", p.Name);
+                    }
                     else
                     {
                         Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",

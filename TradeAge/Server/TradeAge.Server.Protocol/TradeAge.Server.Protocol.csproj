@@ -34,6 +34,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientProxyProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerLogicProtocol.cs" />
   </ItemGroup>
@@ -49,6 +50,10 @@
     <ProjectReference Include="..\..\TradeAge.Server.Interface\TradeAge.Server.Interface.csproj">
       <Project>{71dc0ea6-94e6-4348-a86f-636ccd449b3b}</Project>
       <Name>TradeAge.Server.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeAge.Server.Entity\TradeAge.Server.Entity.csproj">
+      <Project>{7e2f65e0-1c97-40c9-bdf8-12008bede0ca}</Project>
+      <Name>TradeAge.Server.Entity</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
