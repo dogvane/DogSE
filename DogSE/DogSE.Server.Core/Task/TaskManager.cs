@@ -49,6 +49,21 @@ namespace DogSE.Server.Core.Task
         }
 
         /// <summary>
+        /// 添加一个带参数的任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="obj">参数</param>
+        public void AppentTask<T>(Action<T> action, T obj)
+        {
+            var task = ParamActionTask<T>.AcquireContent(action.Method.Name);
+            task.Action = action;
+            task.Obj = obj;
+
+            AppendTask(task);
+        }
+
+        /// <summary>
         /// 添加一个网络消息任务
         /// </summary>
         /// <param name="netState"></param>

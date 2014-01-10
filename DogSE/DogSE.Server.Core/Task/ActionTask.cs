@@ -59,6 +59,66 @@ namespace DogSE.Server.Core.Task
     }
 
     /// <summary>
+    /// 带参数的任务
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    class ParamActionTask<T> : ITask
+    {
+
+        public Action<T> Action { get; internal set; }
+
+        /// <summary>
+        /// 关联对象
+        /// </summary>
+        public T Obj { get; internal set; }
+
+        #region ITask 成员
+
+        /// <summary>
+        /// 执行任务
+        /// </summary>
+        public void Execute()
+        {
+            Action(Obj);
+        }
+
+        public ITaskProfile TaskProfile { get; internal set; }
+
+        #endregion
+
+        /// <summary>
+        /// 任务的对象池
+        /// </summary>
+        static readonly ObjectPool<ParamActionTask<T>> TaskPool = new ObjectPool<ParamActionTask<T>>(256);
+
+        private bool isRelease;
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        public void Release()
+        {
+            if (!isRelease)
+            {
+                TaskPool.ReleaseContent(this);
+                isRelease = true;
+            }
+        }
+
+        /// <summary>
+        /// 从缓冲池里获得一个对象
+        /// </summary>
+        /// <returns></returns>
+        public static ParamActionTask<T> AcquireContent(string actionName)
+        {
+            var ret = TaskPool.AcquireContent();
+            ret.isRelease = false;
+            ret.TaskProfile = ActionTaskProfile.GetNetTaskProfile(actionName);
+            return ret;
+        }
+    }
+
+    /// <summary>
     /// 非网络消息任务的消息执行
     /// </summary>
     public class ActionTaskProfile : ITaskProfile
