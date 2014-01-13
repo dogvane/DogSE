@@ -55,6 +55,9 @@ namespace DogSE.Server.Core.Task
 
         #endregion
 
+        ushort _packetId;
+
+
         /// <summary>
         /// 任务的对象池
         /// </summary>
@@ -70,6 +73,7 @@ namespace DogSE.Server.Core.Task
             ret.isRelease = false;
             ret.TaskProfile = NetTaskProfile.GetNetTaskProfile(packetId);
             ret.RecvTime = OneServer.NowTime;
+            ret._packetId = packetId;
             return ret;
         }
 
@@ -78,6 +82,21 @@ namespace DogSE.Server.Core.Task
         /// </summary>
         public DateTime RecvTime { get; internal set; }
 
+
+        #region ITask 成员
+
+        /// <summary>
+        /// 写操作日志
+        /// </summary>
+        /// <param name="runTick"></param>
+        /// <param name="isError"></param>
+        public void WriteLog(long runTick, bool isError)
+        {
+            var now = OneServer.NowTime;
+            NetTaskCodeRuntimeWriter.Write(_packetId, NetState.BizId, runTick, now.Ticks - RecvTime.Ticks, isError);
+        }
+
+        #endregion
     }
 
     /// <summary>

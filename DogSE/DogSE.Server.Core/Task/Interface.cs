@@ -19,6 +19,13 @@
         /// 释放和任务相关的资源
         /// </summary>
         void Release();
+
+        /// <summary>
+        /// 写操作日志
+        /// </summary>
+        /// <param name="runTick"></param>
+        /// <param name="isError"></param>
+        void WriteLog(long runTick, bool isError);
     }
 
     /// <summary>

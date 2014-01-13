@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using DogSE.Library.Log;
+using DogSE.Library.Time;
 using DogSE.Server.Core.Net;
 
 namespace DogSE.Server.Core.Task
@@ -38,12 +39,25 @@ namespace DogSE.Server.Core.Task
 
         /// <summary>
         /// 增加一个独立任务
+        /// 推荐使用 public void AppendTask(string name, Action action) 方法，方便记录任务的时间
         /// </summary>
         /// <param name="action"></param>
         public void AppendTask(Action action)
         {
-            var task = ActionTask.AcquireContent(action.Method.Name);
+            var name = action.Method.Name;
+            AppendTask(name, action);
+        }
+
+        /// <summary>
+        /// 添加一个任务
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="action"></param>
+        public void AppendTask(string name, Action action)
+        {
+            var task = ActionTask.AcquireContent(name);
             task.Action = action;
+            task.ActionName = name;
 
             AppendTask(task);
         }
@@ -54,11 +68,26 @@ namespace DogSE.Server.Core.Task
         /// <typeparam name="T"></typeparam>
         /// <param name="action"></param>
         /// <param name="obj">参数</param>
-        public void AppentTask<T>(Action<T> action, T obj)
+        public void AppentdTask<T>(Action<T> action, T obj)
         {
-            var task = ParamActionTask<T>.AcquireContent(action.Method.Name);
+            var name = action.Method.Name;
+
+            AppentdTask<T>(name, action,  obj);
+        }
+
+        /// <summary>
+        /// 添加一个带参数的任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="action"></param>
+        /// <param name="obj"></param>
+        public void AppentdTask<T>(string name, Action<T> action, T obj)
+        {
+            var task = ParamActionTask<T>.AcquireContent(name);
             task.Action = action;
             task.Obj = obj;
+            task.ActionName = name;
 
             AppendTask(task);
         }
@@ -140,6 +169,8 @@ namespace DogSE.Server.Core.Task
             isRuning = true;
             isWorkThreadRun = true;
             Logs.Info("Logic thread {0} start.", taskName_);
+            
+            var start = OneServer.NowTime;
 
             var watch = Stopwatch.StartNew();
             while(isRuning || taskList.Count > 0)
@@ -161,7 +192,16 @@ namespace DogSE.Server.Core.Task
                     watch.Stop();
 
                     task.TaskProfile.Append(watch.ElapsedTicks, isError);
+                    task.WriteLog(watch.ElapsedTicks, isError);
                     task.Release();
+
+                    var now = OneServer.NowTime;
+                    if (now.Ticks - start.Ticks > 10000 * 1000 * 10)
+                    {
+                        start = now;
+                        NetTaskCodeRuntimeWriter.Flush();
+                        ActionTaskCodeRuntimeWriter.Flush();
+                    }
                 }
                 else
                 {
@@ -169,6 +209,9 @@ namespace DogSE.Server.Core.Task
                     Thread.Sleep(1);
                 }
             }
+
+            NetTaskCodeRuntimeWriter.Flush();
+            ActionTaskCodeRuntimeWriter.Flush();
 
             isWorkThreadRun = false;
         }

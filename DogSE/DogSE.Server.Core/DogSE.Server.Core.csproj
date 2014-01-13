@@ -52,6 +52,8 @@
     <Content Include="Protocol\TestClass.txt" />
     <Compile Include="ServerState\IServerState.cs" />
     <Compile Include="ServerState\ServerStateManager.cs" />
+    <Compile Include="Task\ActionTaskCodeRuntimeWriter.cs" />
+    <Compile Include="Task\NetTaskCodeRuntimeWriter.cs" />
     <Compile Include="Timer\DelayCallTimer.cs" />
     <Compile Include="Timer\DelayStateCallTimer.cs" />
     <Compile Include="Timer\Delegate.cs" />

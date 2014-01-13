@@ -156,7 +156,7 @@ namespace DogSE.Server.Core
             {
                 //  如果在管理器里有，则说明netstate已经被业务逻辑初始化过
                 //  所以需要通知业务逻辑进行处理，否则直接清理数据后退出
-                taskManager.AppentTask(RunTaskNetStateDisconnect, netState);
+                taskManager.AppentdTask(RunTaskNetStateDisconnect, netState);
             }
             else
             {
@@ -197,7 +197,7 @@ namespace DogSE.Server.Core
 
             //  网络连接会涉及到一些业务逻辑操作，因此需要把它加到任务队列里进行处理
             //  如果不考虑业务逻辑的处理，则可以不放到任务队列，节约一下处理时间
-            taskManager.AppentTask(RunTaskNetStateConnect, netState);
+            taskManager.AppentdTask(RunTaskNetStateConnect, netState);
         }
 
         void RunTaskNetStateConnect(NetState netState)
