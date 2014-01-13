@@ -118,7 +118,7 @@ namespace DogSE.Server.Net
             {
                 //  传输为0，表示客户端已经被关闭
 
-                if (connectSessions.TryTake(out session))
+                if (!connectSessions.TryTake(out session))
                 {
                     Logs.Error("connectSessions.TryTake(out session) fail.");
                     return;
