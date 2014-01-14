@@ -25,7 +25,6 @@
 
 namespace DogSE.Server.Core.Timer
 {
-    #region zh-CHS 枚举 | en Enum
     /// <summary>
     /// 时间片优先级的枚举定义
     /// </summary>
@@ -34,55 +33,41 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 实时的时间片
         /// </summary>
-        EveryTick = 0x00,
+        EveryTick = 0,
+
         /// <summary>
-        /// 25毫秒的时间片
+        /// 秒级别
+        /// 在秒级队列，100ms检查一次
         /// </summary>
-        TwentyFiveMS = 0x01,
+        Second = 1,
+
         /// <summary>
-        /// 100毫秒的时间片
+        /// 分钟级别
+        /// 检查按照1s一次，检查秒级别的数据
         /// </summary>
-        HundredMS = 0x02,
+        Minute = 2,
+
         /// <summary>
-        /// 500毫秒的时间片
+        /// 大于分钟级别的
+        /// 先放入等待队列，1分钟检查一次，将他移入秒级别等待队列
         /// </summary>
-        FiveHundredMS = 0x03,
-        /// <summary>
-        /// 1秒的时间片
-        /// </summary>
-        OneSecond = 0x04,
-        /// <summary>
-        /// 5秒的时间片
-        /// </summary>
-        FiveSeconds = 0x05,
-        /// <summary>
-        /// 20秒的时间片
-        /// </summary>
-        TwentySeconds = 0x06,
-        /// <summary>
-        /// 1分钟的时间片
-        /// </summary>
-        OneMinute = 0x07
+        LongTime = 3,
     }
 
     /// <summary>
-    /// 指定 TimeSlice 的调度优先级。
+    /// 时间片间隔执行的类型
     /// </summary>
-    public enum TimerPriority
+    public enum TimeSliceRunType
     {
         /// <summary>
-        /// 可以将 TimeSlice 安排在具有任何其他优先级的线程之后。
+        /// 内部线程
         /// </summary>
-        Lowest = 0,
+        None = 0,
+
         /// <summary>
-        /// 可以将 TimeSlice 安排在具有 AboveNormal 优先级的线程之后，在具有 BelowNormal 优先级的线程之前。默认情况下，线程具有 Normal 优先级。
+        /// 业务逻辑线程执行
         /// </summary>
-        Normal = 2,
-        /// <summary>
-        /// 可以将 TimeSlice 安排在具有任何其他优先级的线程之前。
-        /// </summary>
-        Highest = 4,
+        LogicTask = 1,
     }
-    #endregion
 }
 #endregion

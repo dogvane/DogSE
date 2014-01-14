@@ -28,72 +28,6 @@ namespace DogSE.Server.Core.Timer
     /// <summary>
     /// 
     /// </summary>
-    internal class DelayStateCallTimer : TimeSlice
-    {
-        #region zh-CHS 私有成员变量 | en Private Member Variables
-        /// <summary>
-        /// 
-        /// </summary>
-        private TimeSliceStateCallback m_Callback;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private object m_State;
-        #endregion
-
-        #region zh-CHS 构造和初始化和清理 | en Constructors and Initializers and Dispose
-        /// <summary>
-        /// 延迟调用的时间有状态类
-        /// </summary>
-        /// <param name="iTimes">调用的次数</param>
-        /// <param name="delayTimeSpan">延迟的时间</param>
-        /// <param name="intervalTimeSpan">间隔的时间</param>
-        /// <param name="timerStateCallback">委托</param>
-        /// <param name="timeLeft">剩余时间</param>
-        /// <param name="oState">回调的状态类</param>
-        public DelayStateCallTimer(TimeSpan delayTimeSpan, TimeSpan intervalTimeSpan, long iTimes, TimeSpan timeLeft, TimeSliceStateCallback timerStateCallback, object oState )
-            : base(delayTimeSpan, intervalTimeSpan, iTimes, timeLeft )
-        {
-            m_Callback = timerStateCallback;
-            m_State = oState;
-        }
-        #endregion
-
-        #region zh-CHS 属性 | en Properties
-        /// <summary>
-        /// 委托
-        /// </summary>
-        public TimeSliceStateCallback Callback
-        {
-            get { return m_Callback; }
-        }
-        #endregion
-
-        #region zh-CHS 方法 | en Method
-        /// <summary>
-        /// 
-        /// </summary>
-        public override void OnTick()
-        {
-            if ( m_Callback != null )
-                m_Callback( m_State );
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return String.Format( "DelayStateCallTimer[{0}]", FormatDelegate( m_Callback ) );
-        }
-        #endregion
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class DelayStateCallTimer<T> : TimeSlice
     {
@@ -148,14 +82,34 @@ namespace DogSE.Server.Core.Timer
                 m_Callback( m_State );
         }
 
+        private string m_timeSliceName;
+
+        /// <summary>
+        /// 时间回调名字
+        /// </summary>
+        public override string TimeSliceName
+        {
+            get
+            {
+                if (m_timeSliceName == null)
+                    m_timeSliceName = FormatDelegate(m_Callback);
+                return m_timeSliceName;
+            }
+            set
+            {
+                m_timeSliceName = value;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return String.Format( "DelayStateCallTimer<T>[{0}]", FormatDelegate( m_Callback ) );
+            return TimeSliceName;
         }
+
         #endregion
     }
 }

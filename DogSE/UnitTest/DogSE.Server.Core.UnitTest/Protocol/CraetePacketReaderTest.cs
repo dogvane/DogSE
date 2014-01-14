@@ -108,7 +108,7 @@ namespace DogSE.Server.Core.UnitTest.Protocol
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="reader"></param>
-        [NetMethod(1, NetMethodType.PacketReader)]
+        [NetMethod(1, NetMethodType.PacketReader, false)]
         public void OnReadTest(NetState netstate, PacketReader reader)
         {
             IsTouchOnReadTest = true;
@@ -124,7 +124,7 @@ namespace DogSE.Server.Core.UnitTest.Protocol
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="pakcage"></param>
-        [NetMethod(2, NetMethodType.ProtocolStruct)]
+        [NetMethod(2, NetMethodType.ProtocolStruct, false)]
         public void OnReadTest2(NetState netstate, TestPackageReader pakcage)
         {
             if (pakcage.IsTouchRead)
@@ -144,7 +144,7 @@ namespace DogSE.Server.Core.UnitTest.Protocol
         /// <param name="s"></param>
         /// <param name="d"></param>
         /// <param name="b"></param>
-        [NetMethod(3, NetMethodType.SimpleMethod)]
+        [NetMethod(3, NetMethodType.SimpleMethod, false)]
         public void OnReadTest3(NetState netstate, int i, string s, double d, bool b)
         {
             IsTouchSimpleMethod = true;

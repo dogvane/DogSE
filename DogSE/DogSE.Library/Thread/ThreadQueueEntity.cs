@@ -14,18 +14,23 @@ namespace DogSE.Library.Thread
     /// 目的时，如果有新的扩展时，可以在静态类里，自己创建一个静态对象。
     /// 方便后面的代码使用
     /// </remarks>
-    class ThreadQueueEntity
+    public class ThreadQueueEntity
     {
         /// <summary>
         /// 创建队列需要输入名字
         /// </summary>
         /// <param name="queueName"></param>
-        public ThreadQueueEntity(string queueName)
+        internal ThreadQueueEntity(string queueName)
         {
             _queueName = queueName;
         }
 
         private readonly string _queueName = string.Empty;
+
+        /// <summary>
+        /// 线程队列名称
+        /// </summary>
+        public string QueueName { get { return _queueName;} }
 
         readonly Queue<Action> Methods = new Queue<Action>();
         volatile bool _isLockQueue;

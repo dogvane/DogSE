@@ -38,7 +38,7 @@ namespace DogSE.Server.Core.UnitTest.Timer
             //  因为任务队列和时间调度和测试程序不在一个线程里
             //  所以，在这里可以直接用Thead.Sleep()进行睡眠
             bool isCall = false;
-            TimeSlice.StartTimeSlice(TimeSpan.FromMilliseconds(10), () =>
+            TimeSliceUtil.StartTimeSlice(TimeSpan.FromMilliseconds(10), () =>
             {
                 isCall = true;
             });
@@ -60,7 +60,7 @@ namespace DogSE.Server.Core.UnitTest.Timer
         {
             int count = 0;
             bool isStopEvent = false;
-            var timeSlice = TimeSlice.StartTimeSlice(TimeSpan.Zero, TimeSpan.FromMilliseconds(10), 10, () => { count++; });
+            var timeSlice = TimeSliceUtil.StartTimeSlice(TimeSpan.Zero, TimeSpan.FromMilliseconds(10), 10, () => { count++; });
             timeSlice.StopTimeSlice += (o, e) => { isStopEvent = true; };
 
             Thread.Sleep(10*10 + 10);
@@ -80,7 +80,7 @@ namespace DogSE.Server.Core.UnitTest.Timer
         {
             int count = 0;
             bool isStopEvent = false;
-            var timeSlice = TimeSlice.StartTimeSlice(TimeSpan.Zero, TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10 * 10), () => { count++; });
+            var timeSlice = TimeSliceUtil.StartTimeSlice(TimeSpan.Zero, TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10 * 10), () => { count++; });
             timeSlice.StopTimeSlice += (o, e) => { isStopEvent = true; };
 
             Thread.Sleep(10 * 10 + 50);

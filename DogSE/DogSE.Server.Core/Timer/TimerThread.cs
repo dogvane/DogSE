@@ -1,4 +1,7 @@
-﻿#region zh-CHS 2010 - 2010 DemoSoft 团队 | en 2010-2010 DemoSoft Team
+﻿using DogSE.Library.Thread;
+using Org.JQueen.Sanguo.GameWorld.Server.Common;
+
+#region zh-CHS 2010 - 2010 DemoSoft 团队 | en 2010-2010 DemoSoft Team
 
 //     NOTES
 // ---------------
@@ -20,6 +23,7 @@
  ***************************************************************************/
 
 #region zh-CHS 包含名字空间 | en Include namespace
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -46,12 +50,8 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 下一次调用的时间片
         /// </summary>
-        private static readonly DateTime[] s_NextPriorities = new[]
+        private static readonly DateTime[] s_NextPriorities =
             {
-                OneServer.NowTime,
-                OneServer.NowTime,
-                OneServer.NowTime,
-                OneServer.NowTime,
                 OneServer.NowTime,
                 OneServer.NowTime,
                 OneServer.NowTime,
@@ -61,32 +61,25 @@ namespace DogSE.Server.Core.Timer
         /// <summary>
         /// 延迟调用的时间片
         /// </summary>
-        private static readonly TimeSpan[] s_PriorityDelays = new[]
+        private static readonly TimeSpan[] s_PriorityDelays =
 			{
 				TimeSpan.Zero,
-				TimeSpan.FromMilliseconds( 25.0 ),
-				TimeSpan.FromMilliseconds( 100.0 ),
-				TimeSpan.FromMilliseconds( 500.0 ),
-				TimeSpan.FromSeconds( 1.0 ),
-				TimeSpan.FromSeconds( 5.0 ),
-				TimeSpan.FromSeconds( 20.0 ),
+				TimeSpan.FromMilliseconds( 100 ),
+				TimeSpan.FromMilliseconds( 1000 ),
 				TimeSpan.FromMinutes( 1.0 )
 			};
 
         /// <summary>
-        /// 8种时间片的列表
+        /// 4种时间片的列表
         /// </summary>
-        private static readonly HashSet<TimeSlice>[] s_Timers = new[]
+        private static readonly HashSet<TimeSlice>[] s_Timers =
 			{
-				new HashSet<TimeSlice>(),
-				new HashSet<TimeSlice>(),
-				new HashSet<TimeSlice>(),
-				new HashSet<TimeSlice>(),
 				new HashSet<TimeSlice>(),
 				new HashSet<TimeSlice>(),
 				new HashSet<TimeSlice>(),
 				new HashSet<TimeSlice>()
 			};
+
         #endregion
 
         #region zh-CHS 构造和初始化和清理 | en Constructors and Initializers and Dispose
@@ -126,16 +119,6 @@ namespace DogSE.Server.Core.Timer
         }
 
         /// <summary>
-        /// 修改时间片优先级
-        /// </summary>
-        /// <param name="tTimer"></param>
-        /// <param name="newPriority"></param>
-        public static void PriorityChange( TimeSlice tTimer, TimerFrequency newPriority )
-        {
-            Change( tTimer, (long)newPriority, false );
-        }
-
-        /// <summary>
         /// 移去时间片
         /// </summary>
         /// <param name="tTimer"></param>
@@ -151,82 +134,114 @@ namespace DogSE.Server.Core.Timer
         /// 当有新的时间片改动或添加或移去的时候事件发生
         /// </summary>
         private static readonly AutoResetEvent s_Signal = new AutoResetEvent( true );
+
+        private static ThreadQueueEntity s_threadQueue;
+
         #endregion
         /// <summary>
-        /// Timer的主要处理函数,用来计算是否需要处理的时候了
+        /// Timer的时间检测函数，这里是独立线程
+        /// 但只负责检查时间片，不负责任务执行
         /// </summary>
         private static void RunTimerThread()
         {
+            s_threadQueue = ThreadQueue.GetThreadQueue("TimeSlice");
+
             Logs.Info( "Time slice: Time slice thread start!" );
 
             bool bSkipWait = false; // 是否跳过等待
+            const int longTimeIndex = 3;
+            List<TimeSlice> remove = new List<TimeSlice>();
 
-            // 获取时间片
-            HashSet<TimeSlice> fiveHundredTimeSlice = s_Timers[(int)TimerFrequency.FiveHundredMS];
-            HashSet<TimeSlice> hundredTimeSlice = s_Timers[(int)TimerFrequency.HundredMS];
-            HashSet<TimeSlice> twentyFiveTimeSlice = s_Timers[(int)TimerFrequency.TwentyFiveMS];
-
-            while ( OneServer.Closing == false )
+            while (OneServer.Closing == false)
             {
-                if ( bSkipWait )
-                    bSkipWait = false;  // 恢复原始设置
+                if (bSkipWait)
+                    bSkipWait = false; // 恢复原始设置
                 else
-                    s_Signal.WaitOne( 1 );  // 等待让其它的CPU有机会处理
-
-                // 服务已经关闭则退出
-                if ( OneServer.Closing )
-                    break;
+                    s_Signal.WaitOne(1); // 等待让其它的CPU有机会处理
 
                 // 先处理改变了优先级的时间片集合
                 ProcessChangeQueue();
 
-                // 8种时间片
+                // 这里只先处理前3种时间片数据
                 long iIndex;
-                DateTime nowDateTime;
-                for ( iIndex = 0; iIndex < 8; iIndex++ )
+                DateTime nowDateTime = OneServer.NowTime;
+                for (iIndex = 0; iIndex < longTimeIndex; iIndex++)
                 {
-                    nowDateTime = OneServer.NowTime;
-
+                    #region 执行普通的时间片的检查
+                    
                     // 如果小于下一次处理的时间片就跳出
-                    if ( nowDateTime < s_NextPriorities[iIndex] )
+                    if (nowDateTime < s_NextPriorities[iIndex])
                         break;
 
                     // 设置下一次处理的时间片
                     s_NextPriorities[iIndex] = nowDateTime + s_PriorityDelays[iIndex];
 
-                    foreach ( TimeSlice timeSlice in s_Timers[iIndex] )
+                    foreach (TimeSlice timeSlice in s_Timers[iIndex])
                     {
                         // 如果当前时间片已经处理过,已不在先入先出的集合中,并且当前的时间大于下一次调用的时间
-                        if ( timeSlice.InQueued == false && nowDateTime >= timeSlice.NextTime )
+                        if (nowDateTime >= timeSlice.NextTime)
                         {
                             // 将定时任务压入业务逻辑处理线程里
-                            TaskManager.AppendTask(timeSlice.OnTick);
+                            if (timeSlice.RunType == TimeSliceRunType.LogicTask)
+                                TaskManager.AppendTask(timeSlice.OnTick);
+                            else
+                                s_threadQueue.Append(timeSlice.OnTick);
 
                             // 调用次数累加 1
                             timeSlice.m_NumberOfTimes++;
 
                             // 如果运行次数大于等于当前的时间片的运行数量话就停止(如果只运行一次的话就马上调用停止,下次运行将从列表中移去,因为已经加入了TimeSlice.s_TimeSliceQueue集合所以会调用一次的)
-                            if ( timeSlice.Times <= 0 ) // 检测可调用的次数
-                                timeSlice.Stop();
-                            else if ( timeSlice.NumberOfTimes >= timeSlice.Times ) // 检测调用的次数是否大于或等于最大的调用次数
-                                timeSlice.Stop();
-                            else if ( nowDateTime >= timeSlice.StopTime ) //  检测当前时间是否大于或等于最大的停止时间
-                                timeSlice.Stop();
+                            bool needStop = false;
+                            if (timeSlice.Times <= 0) // 检测可调用的次数
+                                needStop = true;
+                            else if (timeSlice.NumberOfTimes >= timeSlice.Times) // 检测调用的次数是否大于或等于最大的调用次数
+                                needStop = true;
+                            else if (nowDateTime >= timeSlice.StopTime) //  检测当前时间是否大于或等于最大的停止时间
+                                needStop = true;
                             else
                                 timeSlice.NextTime = nowDateTime + timeSlice.IntervalTime; // 计算下次调用的时间
+
+                            if (needStop)
+                            {
+                                if (timeSlice.RunType == TimeSliceRunType.LogicTask)
+                                    TaskManager.AppendTask(timeSlice.Stop);
+                                else
+                                    s_threadQueue.Append(timeSlice.Stop);
+
+                                RemoveTimer(timeSlice);
+                            }
+                            if (timeSlice.Frequency == TimerFrequency.LongTime)
+                                remove.Add(timeSlice);
+                        }
+                    }
+
+                    if (remove.Count > 0)
+                    {
+                        //  内部移除，就不必要走线程处理了
+                        remove.ForEach(o => s_Timers[iIndex].Remove(o));
+                    }
+                    #endregion
+                }
+
+                //  长时间操作队列把对象放入1s间隔的检查队列里
+                if (nowDateTime > s_NextPriorities[longTimeIndex])
+                {
+                    s_NextPriorities[longTimeIndex] = nowDateTime + s_PriorityDelays[longTimeIndex];
+                    var checkTime = nowDateTime.AddMinutes(1);
+                    foreach (TimeSlice timeSlice in s_Timers[longTimeIndex])
+                    {
+                        if (timeSlice.NextTime < checkTime)
+                        {
+                            s_Timers[longTimeIndex - 1].Add(timeSlice);
                         }
                     }
                 }
 
                 // 检查是否有马上需要执行的时间片
                 nowDateTime = OneServer.NowTime;
-                if ( s_Timers[(int)TimerFrequency.EveryTick].Count > 0 )
+                if (s_Timers[(int) TimerFrequency.EveryTick].Count > 0)
                     bSkipWait = true;
-                else if ( nowDateTime >= s_NextPriorities[(int)TimerFrequency.FiveHundredMS] && fiveHundredTimeSlice.Count > 0 ) // 检查500毫秒的时间片
-                    bSkipWait = true;
-                else if ( nowDateTime >= s_NextPriorities[(int)TimerFrequency.HundredMS] && hundredTimeSlice.Count > 0 ) // 检查100毫秒的时间片
-                    bSkipWait = true;
-                else if ( nowDateTime >= s_NextPriorities[(int)TimerFrequency.TwentyFiveMS] && twentyFiveTimeSlice.Count > 0 ) // 检查25毫秒的时间片
+                else if (nowDateTime >= s_NextPriorities[1]) // 检查100毫秒的时间片
                     bSkipWait = true;
             }
         }
@@ -264,28 +279,23 @@ namespace DogSE.Server.Core.Timer
         /// </summary>
         private static void ProcessChangeQueue()
         {
-            TimerChangeEntry[] timerChangeEntryArray = null;
+            TimerChangeEntry[] change = null;
 
-            Monitor.Enter( s_LockTimerChangeEntryChangeQueue );
-            try
+            lock(s_LockTimerChangeEntryChangeQueue )
             {
                 if ( s_TimerChangeEntryChangeQueue.Count > 0 )
                 {
-                    timerChangeEntryArray = s_TimerChangeEntryChangeQueue.ToArray();
+                    change = s_TimerChangeEntryChangeQueue.ToArray();
                     s_TimerChangeEntryChangeQueue.Clear();
                 }
             }
-            finally
-            {
-                Monitor.Exit( s_LockTimerChangeEntryChangeQueue );
-            }
 
-            if ( timerChangeEntryArray == null )
+            if ( change == null )
                 return;
 
-            for ( int iIndex = 0; iIndex < timerChangeEntryArray.Length; iIndex++ )
+            for ( int i = 0; i < change.Length; i++ )
             {
-                TimerChangeEntry timerChangeEntry = timerChangeEntryArray[iIndex];
+                TimerChangeEntry timerChangeEntry = change[i];
 
                 TimeSlice nonceTimer = timerChangeEntry.TimerSlice;
                 long newIndex = timerChangeEntry.TimerPriority;
@@ -303,7 +313,7 @@ namespace DogSE.Server.Core.Timer
                 }
 
                 // 如果优先级大于或等于零则添加到新的时间片列表中去,否则置空
-                if ( newIndex >= 0 && newIndex < 8 ) // 8种时间片, -1 将不添加进列表,删除掉
+                if (newIndex >= 0 && newIndex < s_Timers.Length) // 8种时间片, -1 将不添加进列表,删除掉
                 {
                     nonceTimer.TimeSliceHashSet = s_Timers[newIndex];
                     nonceTimer.TimeSliceHashSet.Add( nonceTimer );

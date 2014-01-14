@@ -1,4 +1,6 @@
-﻿#region zh-CHS 2010 - 2010 DemoSoft 团队 | en 2010-2010 DemoSoft Team
+﻿using System.Collections.Generic;
+
+#region zh-CHS 2010 - 2010 DemoSoft 团队 | en 2010-2010 DemoSoft Team
 
 //     NOTES
 // ---------------
@@ -20,6 +22,7 @@
  ***************************************************************************/
 
 #region zh-CHS 包含名字空间 | en Include namespace
+
 using System;
 #endregion
 
@@ -160,6 +163,48 @@ namespace DogSE.Server.Core.Timer
                 m_PeakProcTime = procTime;
         }
         #endregion
+
+
+        #region zh-CHS 私有成员变量 | en Private Member Variables
+        /// <summary>
+        /// TimerProfile处理信息定义,以类型名为关键字共有8种
+        /// </summary>
+        private static readonly Dictionary<string, TimerProfile> s_Profiles = new Dictionary<string, TimerProfile>();
+        #endregion
+
+
+        #region zh-CHS 内部静态属性 | en Internal Static Properties
+
+        /// <summary>
+        /// 时间片的处理信息定义,以类型名为关键字共有8种
+        /// </summary>
+        internal static Dictionary<string, TimerProfile> Profiles
+        {
+            get { return s_Profiles; }
+        }
+        #endregion
+
+
+        /// <summary>
+        /// 给出某种时间片的处理信息
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="name"></param>
+        public static TimerProfile GetProfile(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                name = "null";
+
+            TimerProfile timerProfile;
+            s_Profiles.TryGetValue(name, out timerProfile);
+            if (timerProfile == null)
+            {
+                timerProfile = new TimerProfile();
+                s_Profiles.Add(name, timerProfile);
+            }
+
+            return timerProfile;
+        }
     }
 }
 #endregion

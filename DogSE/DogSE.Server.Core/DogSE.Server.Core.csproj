@@ -62,6 +62,7 @@
     <Compile Include="Timer\TimerProfile.cs" />
     <Compile Include="Timer\TimerThread.cs" />
     <Compile Include="Timer\TimeSlice.cs" />
+    <Compile Include="Timer\TimeSliceUtil.cs" />
     <Compile Include="Util\AssemblyUtil.cs" />
     <Compile Include="WorldBase.cs" />
     <Compile Include="Net\NetState.cs" />

@@ -73,14 +73,35 @@ namespace DogSE.Server.Core.Timer
                 m_Callback();
         }
 
+
+        private string m_timeSliceName;
+
+        /// <summary>
+        /// 时间回调名字
+        /// </summary>
+        public override string TimeSliceName
+        {
+            get
+            {
+                if (m_timeSliceName == null)
+                    m_timeSliceName = FormatDelegate(m_Callback);
+                return m_timeSliceName;
+            }
+            set
+            {
+                m_timeSliceName = value;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return String.Format( "DelayCallTimer[{0}]", FormatDelegate( m_Callback ) );
+            return TimeSliceName;
         }
+
         #endregion
     }
 }

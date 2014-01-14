@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using DogSE.Library.Thread;
+using System.Linq;
 
 namespace Org.JQueen.Sanguo.GameWorld.Server.Common
 {
@@ -38,6 +40,26 @@ namespace Org.JQueen.Sanguo.GameWorld.Server.Common
         public static bool HasQueues
         {
             get { return normalThreadQueue.HasQueues | ioThreadQueue.HasQueues; }
+        }
+
+        private static List<ThreadQueueEntity> s_threadQueueList = new List<ThreadQueueEntity>();
+
+        /// <summary>
+        /// 获得一个指定名称的线程队列
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static ThreadQueueEntity GetThreadQueue(string name)
+        {
+            var ret = s_threadQueueList.FirstOrDefault(o => o.QueueName == name);
+
+            if (ret == null)
+            {
+                ret = new ThreadQueueEntity(name);
+                s_threadQueueList.Add(ret);
+            }
+
+            return ret;
         }
     }
 }
