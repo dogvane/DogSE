@@ -61,6 +61,7 @@ namespace DogSE.Server.Net
 
             if (acceptSocket != null)
             {
+
                 var session = new ClientSession<T>(acceptSocket);
                 var ev = SocketConnect;
                 if (ev != null)
@@ -85,6 +86,8 @@ namespace DogSE.Server.Net
                     }
                     else
                     {
+                        NetProfile.Instatnce.AcceptCount++;
+
                         connectSessions.Add(session);
                         session.Socket.UseOnlyOverlappedIO = true;
 
@@ -124,6 +127,8 @@ namespace DogSE.Server.Net
                     return;
                 }
 
+                NetProfile.Instatnce.DisconnectCount++;
+
                 //  触发关闭连接事件
                 var disconnectTemp = SocketDisconnect;
                 if (disconnectTemp != null)
@@ -154,6 +159,9 @@ namespace DogSE.Server.Net
                 //  在处理逻辑前，先重新抛一个接收的请求到系统，这样就可以及时的收到消息
                 //  不必等系统逻辑完成操作后，才能继续接收消息。
                 session.SyncRecvData();
+                
+                NetProfile.Instatnce.RecvCount++;
+                NetProfile.Instatnce.RecvLength += buff.Length;
 
                 var recvTemp = SocketRecv;
                 if (recvTemp != null)

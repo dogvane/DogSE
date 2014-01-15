@@ -157,7 +157,12 @@ namespace DogSE.Server.Net
         {
             var buff = e.UserToken as DogBuffer;
             if (buff != null)
+            {
+                NetProfile.Instatnce.SendCount++;
+                NetProfile.Instatnce.SendLength += buff.Length;
+
                 buff.Release();
+            }
 
             if (e.BytesTransferred == 0)
             {
