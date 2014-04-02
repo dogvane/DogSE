@@ -16,10 +16,24 @@ namespace DogSE.Server.Core.Config
     public static class StaticConfigFileManager
     {
         /// <summary>
-        /// 
+        /// 是否已经加载过文件
         /// </summary>
-        public static void LoadData()
+        private static bool isLoadData;
+
+
+        /// <summary>
+        /// 加载静态配置文件
+        /// </summary>
+        /// <param name="reLoad">
+        /// 是否重新加载
+        /// 如果reload = true，则不管之前是否加载过配置文件，都重新进行一次加载
+        /// 否则会验证之前是否加载过，如果加载过则不再进行加载
+        /// </param>
+        public static void LoadData(bool reLoad = false)
         {
+            if (!reLoad && isLoadData)
+                return;
+
             var configTypes = AssemblyUtil.GetTypesByAttribute(typeof (StaticXmlConfigRootAttribute));
             foreach(var type in configTypes)
             {
@@ -232,6 +246,8 @@ namespace DogSE.Server.Core.Config
                     }
                 }
             }
+
+            isLoadData = true;
         }
 
         private static Dictionary<string, XmlDocument> xmlDocumentMap = new Dictionary<string, XmlDocument>();

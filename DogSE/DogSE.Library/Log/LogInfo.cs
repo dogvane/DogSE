@@ -5,7 +5,7 @@ namespace DogSE.Library.Log
     /// <summary>
     /// 日志信息
     /// </summary>
-    internal struct LogInfo
+    public struct LogInfo
     {
         #region zh-CHS 构造和初始化和清理 | en Constructors and Initializers and Dispose
 

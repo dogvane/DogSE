@@ -25,7 +25,7 @@ using System;
 
 
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
 
     /// <summary>

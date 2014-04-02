@@ -16,8 +16,9 @@ namespace TradeAge.Server.Interface.Client
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="result"></param>
+        /// <param name="isCreatePlayer">玩家是否创建过角色，如果没有创建过，则客户端需要调用创建角色代码</param>
         [NetMethod((ushort)OpCode.LoginServerResult, NetMethodType.SimpleMethod)]
-        void LoginServerResult(NetState netstate, LoginServerResult result);
+        void LoginServerResult(NetState netstate, LoginServerResult result, bool isCreatePlayer = false);
 
         /// <summary>
         /// 创建玩家返回结果

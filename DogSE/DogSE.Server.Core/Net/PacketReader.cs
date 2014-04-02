@@ -21,6 +21,7 @@
 #region zh-CHS 包含名字空间 | en Include namespace
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using DogSE.Library.Util;
 using DogSE.Server.Net;
@@ -59,7 +60,7 @@ namespace DogSE.Server.Core.Net
         {
             m_Data  = buffer.Bytes;
             m_Size  = buffer.Length;
-            m_Index = 4 + 2;    // 包头的长度和消息码长度
+            m_Index = ReceiveQueue.PacketLengthSize + 2;    // 包头的长度和消息码长度
         }
 
         private DogBuffer m_buffer;
@@ -113,7 +114,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 
         /// </summary>
-        private Endian m_Endian = Endian.LITTLE_ENDIAN;
+        private Endian m_Endian = Endian.BIG_ENDIAN;
         #endregion
         /// <summary>
         /// 
@@ -254,6 +255,35 @@ namespace DogSE.Server.Core.Net
                 return (ushort)(m_Data[m_Index++] | (m_Data[m_Index++] << 8));
         }
 
+        /// <summary>
+        /// 读取一个结构体变量
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T ReadStruct<T>()
+        {
+            Type anytype = typeof(T);
+            int rawsize = Marshal.SizeOf(anytype);
+            if ((m_Index + rawsize) > m_Size)
+                return default(T);
+
+            var buff = DogBuffer.GetFromPool4K();
+            System.Buffer.BlockCopy(m_Data, (int)m_Index, buff.Bytes, 0, rawsize);
+            m_Index += rawsize;
+
+            GCHandle hObject = GCHandle.Alloc(buff.Bytes, GCHandleType.Pinned);
+            IntPtr pObject = hObject.AddrOfPinnedObject();
+            try
+            {
+                return (T) Marshal.PtrToStructure(pObject, anytype);
+            }
+            finally
+            {
+                if (hObject.IsAllocated)
+                    hObject.Free();
+                buff.Release();
+            }
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -427,28 +457,13 @@ namespace DogSE.Server.Core.Net
         }
 
         /// <summary>
-        /// 获得消息包长度
-        /// </summary>
-        /// <returns></returns>
-        public int GetPacketLength()
-        {
-            var index = 0;
-            if ((index + 4) > m_Size)
-                return 0;
-
-            if (m_Endian == Endian.LITTLE_ENDIAN)
-                return (m_Data[index++] << 24) | (m_Data[index++] << 16) | (m_Data[index++] << 8) | m_Data[index];
-            else
-                return m_Data[index++] | (m_Data[index++] << 8) | (m_Data[index++] << 16) | (m_Data[index] << 24);
-        }
-
-        /// <summary>
         /// 获得消息包id
         /// </summary>
         /// <returns></returns>
         public ushort GetPacketID()
         {
-            int index = 4;
+            var index = ReceiveQueue.PacketLengthSize;
+
             if ((index + 2) > m_Size)
                 return 0;
 

@@ -45,6 +45,20 @@ namespace DogSE.Server.Core.Net
                 packetProfile.RegConstruct();
         }
 
+        /// <summary>
+        /// 通过调用EnsureCapacity(...)来产生m_Stream
+        /// </summary>
+        /// <param name="iPacketID"></param>
+        /// <param name="len"></param>
+        public Packet(ushort iPacketID, int len = 0)
+        {
+            m_PacketID = iPacketID;
+            m_Stream = new PacketWriter(iPacketID);
+
+            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile(iPacketID);
+            if (packetProfile != null)
+                packetProfile.RegConstruct();
+        }
         #endregion
 
         #region zh-CHS 属性 | en Properties

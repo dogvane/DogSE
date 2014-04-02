@@ -14,5 +14,10 @@ namespace TradeAge.Server.Interface.Client
         /// 登陆代理接口
         /// </summary>
         public static ILogin Login { get; set; }
+
+        /// <summary>
+        /// 场景的控制器接口
+        /// </summary>
+        public static IScene Scene { get; set; }
     }
 }

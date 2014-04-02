@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using DogSE.Server.Common;
+using DogSE.Common;
 
 namespace DogSE.Server.Database
 {

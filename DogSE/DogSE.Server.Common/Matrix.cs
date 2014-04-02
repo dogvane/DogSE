@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 
 
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>
     /// Defines a matrix.

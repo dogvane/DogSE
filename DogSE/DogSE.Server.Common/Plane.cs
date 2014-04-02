@@ -27,7 +27,7 @@ using System.Globalization;
 
 
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>Defines a plane.</summary>
     public struct Plane : IEquatable<Plane>

@@ -17,7 +17,7 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 客户端连接上的Session组合
         /// </summary>
-        private readonly ConcurrentBag<ClientSession<T>> connectSessions = new ConcurrentBag<ClientSession<T>>();
+        private readonly ConcurrentDictionary<ClientSession<T>, int> connectSessions = new ConcurrentDictionary<ClientSession<T>, int>();
 
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace DogSE.Server.Net
                     {
                         NetProfile.Instatnce.AcceptCount++;
 
-                        connectSessions.Add(session);
+                        connectSessions.GetOrAdd(session, 1);
                         session.Socket.UseOnlyOverlappedIO = true;
 
                         session.ReceiveEventArgs.UserToken = session;
@@ -120,35 +120,7 @@ namespace DogSE.Server.Net
             if (e.BytesTransferred == 0)
             {
                 //  传输为0，表示客户端已经被关闭
-
-                if (!connectSessions.TryTake(out session))
-                {
-                    Logs.Error("connectSessions.TryTake(out session) fail.");
-                    return;
-                }
-
-                NetProfile.Instatnce.DisconnectCount++;
-
-                //  触发关闭连接事件
-                var disconnectTemp = SocketDisconnect;
-                if (disconnectTemp != null)
-                {
-                    var arg = m_disconnectArgsPool.AcquireContent();
-                    arg.Session = session;
-
-                    try
-                    {
-                        disconnectTemp(this, arg);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logs.Error("On socket close event error.", ex);
-                    }
-
-                    m_disconnectArgsPool.ReleaseContent(arg);
-
-                    //  清理工作由内部的发送缓冲检查出错误后内部进行处理
-                }
+                CloseSession(session);
             }
             else
             {
@@ -185,6 +157,40 @@ namespace DogSE.Server.Net
             }
         }
 
+        private void CloseSession(ClientSession<T> session)
+        {
+            int outValue;
+            if (!connectSessions.TryRemove(session, out outValue))
+            {
+                Logs.Error("connectSessions.TryTake(out session) fail.");
+                return;
+            }
+
+            NetProfile.Instatnce.DisconnectCount++;
+            session.ReceiveEventArgs.Completed -= OnRecvCompleted;
+
+            //  触发关闭连接事件
+            var disconnectTemp = SocketDisconnect;
+            if (disconnectTemp != null)
+            {
+                var arg = m_disconnectArgsPool.AcquireContent();
+                arg.Session = session;
+
+                try
+                {
+                    disconnectTemp(this, arg);
+                }
+                catch (Exception ex)
+                {
+                    Logs.Error("On socket close event error.", ex);
+                }
+
+                m_disconnectArgsPool.ReleaseContent(arg);
+
+                //  清理工作由内部的发送缓冲检查出错误后内部进行处理
+            }
+        }
+
         /// <summary>
         /// 关闭所有的客户端连接
         /// </summary>
@@ -192,7 +198,7 @@ namespace DogSE.Server.Net
         {
             var sessions = connectSessions.ToArray();
             foreach (var s in sessions)
-                s.CloseSocket();
+                s.Key.CloseSocket();
         }
 
         /// <summary>

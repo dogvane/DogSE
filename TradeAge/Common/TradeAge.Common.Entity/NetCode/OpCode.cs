@@ -19,7 +19,7 @@
 
         #endregion
 
-        #region 1000  - 1999 登陆相关消息码
+        #region 1000  - 1099 登陆相关消息码
         
         /// <summary>
         /// 客户端登陆服务器
@@ -41,6 +41,37 @@
         /// </summary>
         CreatePlayerResult = 1003,
 
+
+        #endregion
+
+        #region 1100  - 1199 移动相关的代码
+
+        /// <summary>
+        /// 玩家发起的移动请求
+        /// </summary>
+        OnMove = 1100,
+
+        /// <summary>
+        /// 玩家进入场景时返回的基本信息
+        /// </summary>
+        EnterSceneInfo = 1101,
+
+
+        /// <summary>
+        /// 场景里有其他精灵（玩家）进入
+        /// </summary>
+        SpriteEnter = 1102,
+
+        /// <summary>
+        /// 场景里有其他精灵（玩家）进行移动
+        /// </summary>
+        SpriteMove = 1103,
+
+
+        /// <summary>
+        /// 场景里有其他精灵（玩家）进行离开
+        /// </summary>
+        SpriteLeave = 1104,
 
         #endregion
     }

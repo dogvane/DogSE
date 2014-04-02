@@ -1,5 +1,5 @@
 ﻿using DogSE.Library.Thread;
-using Org.JQueen.Sanguo.GameWorld.Server.Common;
+using DogSE.Server.Core;
 
 #region zh-CHS 2010 - 2010 DemoSoft 团队 | en 2010-2010 DemoSoft Team
 
@@ -152,7 +152,7 @@ namespace DogSE.Server.Core.Timer
             const int longTimeIndex = 3;
             List<TimeSlice> remove = new List<TimeSlice>();
 
-            while (OneServer.Closing == false)
+            while (GameServerService.RunType != ServerStateType.Closing)
             {
                 if (bSkipWait)
                     bSkipWait = false; // 恢复原始设置

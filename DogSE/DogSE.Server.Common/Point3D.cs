@@ -23,7 +23,7 @@
 using System;
 #endregion
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>
     /// 

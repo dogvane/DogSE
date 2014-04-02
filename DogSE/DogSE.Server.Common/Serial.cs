@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Threading;
 #endregion
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>
     /// 

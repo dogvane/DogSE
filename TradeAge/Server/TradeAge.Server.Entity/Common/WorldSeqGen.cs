@@ -10,6 +10,11 @@ namespace TradeAge.Server.Entity.Common
     /// </summary>
     public static class WorldSeqGen
     {
+        static WorldSeqGen()
+        {
+            AccountSeq = new IntSequenceGenerator(1);
+        }
+
         /// <summary>
         /// 账号的序列生成器
         /// </summary>

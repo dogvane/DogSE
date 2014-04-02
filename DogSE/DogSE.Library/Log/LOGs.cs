@@ -129,7 +129,7 @@ namespace DogSE.Library.Log
         public static void Error(string message, string param1, Exception ex)
         {
             WriteLine(LogMessageType.MSG_ERROR,
-                      message, new object[] { param1 }, ex);
+                      message + "\r\n[Exception]:{1}", new object[] { param1, ex });
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace DogSE.Library.Log
         /// <param name="messageFlag"></param>
         /// <param name="strFormat"></param>
         /// <param name="arg"></param>
-        private static void WriteLine(LogMessageType messageFlag, string strFormat, params object[] arg)
+        public static void WriteLine(LogMessageType messageFlag, string strFormat, params object[] arg)
         {
             if (appenders.Count == 0)
                 return;
@@ -196,7 +196,7 @@ namespace DogSE.Library.Log
         /// 添加日志的输出适配器
         /// </summary>
         /// <param name="appender"></param>
-        internal static void AddAppender(ILogAppender appender)
+        public static void AddAppender(ILogAppender appender)
         {
             if (appender == null)
                 throw new ArgumentNullException("appender");
@@ -208,7 +208,7 @@ namespace DogSE.Library.Log
         /// 删除某个日志输出适配器
         /// </summary>
         /// <param name="appender"></param>
-        internal static void RemoveAppender(ILogAppender appender)
+        public static void RemoveAppender(ILogAppender appender)
         {
             if (appender == null)
                 throw new ArgumentNullException("appender");
@@ -220,7 +220,7 @@ namespace DogSE.Library.Log
         /// 获得某个适配器类型的日志输出等级
         /// </summary>
         /// <returns></returns>
-        internal static LogMessageType GetMessageType<TLogAppender>() where TLogAppender : ILogAppender
+        public static LogMessageType GetMessageType<TLogAppender>() where TLogAppender : ILogAppender
         {
             foreach (ILogAppender app in appenders)
                 if (app is TLogAppender)
@@ -234,7 +234,7 @@ namespace DogSE.Library.Log
         /// </summary>
         /// <typeparam name="TLogAppender"></typeparam>
         /// <param name="level"></param>
-        internal static void SetMessageLevel<TLogAppender>(LogMessageType level) where TLogAppender : ILogAppender
+        public static void SetMessageLevel<TLogAppender>(LogMessageType level) where TLogAppender : ILogAppender
         {
             foreach (ILogAppender app in appenders)
                 if (app is TLogAppender)

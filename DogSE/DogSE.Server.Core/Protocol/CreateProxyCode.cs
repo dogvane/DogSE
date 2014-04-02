@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Timer;
 using Microsoft.CSharp;
 
 namespace DogSE.Server.Core.Protocol
@@ -314,7 +315,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Timer;
 using DogSE.Server.Core.Task;
 #using#
 

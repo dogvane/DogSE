@@ -6,7 +6,7 @@ namespace DogSE.Library.Log
     /// <summary>
     /// 文件输出的适配器
     /// </summary>
-    internal class FileAppender:ILogAppender
+    public class FileAppender:ILogAppender
     {
         private FileAppender()
         {

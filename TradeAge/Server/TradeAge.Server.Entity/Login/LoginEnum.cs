@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#if Server 
 namespace TradeAge.Server.Entity.Login
+#else
+namespace TradeAge.Client.Entity.Login
+#endif
 {
     /// <summary>
     /// 登陆服务器返回结果

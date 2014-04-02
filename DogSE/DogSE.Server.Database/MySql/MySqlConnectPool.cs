@@ -10,7 +10,7 @@ namespace DogSE.Server.Database.MySQL
     /// <summary>
     /// MySQl的连接池
     /// </summary>
-    class MySqlConnectPool : ObjectPool<MySqlConnection>
+    public class MySqlConnectPool : ObjectPool<MySqlConnection>
     {
 
         /// <summary>

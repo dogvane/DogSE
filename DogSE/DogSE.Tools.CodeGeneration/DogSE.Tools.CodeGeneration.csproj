@@ -36,7 +36,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\ASReturnCodeGeneration.cs" />
+    <Compile Include="Client\AS3\ASReturnCodeGeneration.cs" />
+    <Compile Include="Client\Unity3d\ClientLogicProtocolGeneration.cs" />
+    <Compile Include="Client\Unity3d\ServerProxyProtocolGeneration.cs" />
+    <Compile Include="Client\Unity3d\Utils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\ClientProxyProtocolGeneration.cs" />

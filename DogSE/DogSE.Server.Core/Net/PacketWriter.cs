@@ -1,4 +1,6 @@
-﻿#region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
+﻿using System.Runtime.InteropServices;
+
+#region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
 
 //     NOTES
 // ---------------
@@ -21,6 +23,7 @@
  ***************************************************************************/
 
 #region zh-CHS 包含名字空间 | en Include namespace
+
 using System;
 using System.Text;
 using DogSE.Library.Util;
@@ -60,7 +63,7 @@ namespace DogSE.Server.Core.Net
         {
             buffer = DogBuffer.GetFromPool32K();
             //  先预留2位用于存放消息id
-            buffer.Length = 4;
+            buffer.Length = ReceiveQueue.PacketLengthSize;
             Write(codeId);
         }
 
@@ -79,7 +82,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 
         /// </summary>
-        private Endian m_Endian = Endian.LITTLE_ENDIAN;
+        private Endian m_Endian = Endian.BIG_ENDIAN;
         #endregion
         /// <summary>
         /// 
@@ -305,6 +308,26 @@ namespace DogSE.Server.Core.Net
         }
 
         /// <summary>
+        /// 将一个结构体写入字节流里
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        public void WriteStruct<T>(T value)
+        {
+            Type anytype = typeof(T);
+            int rawsize = Marshal.SizeOf(anytype);
+            FixBuffer(rawsize);
+            unsafe
+            {
+                fixed (byte* p = &buffer.Bytes[buffer.Length])
+                {
+                    Marshal.StructureToPtr(value, new IntPtr(p), false);
+                }
+            }
+            buffer.Length += rawsize;
+        }
+
+        /// <summary>
         /// Writes a dynamic-length ASCII-encoded string value to the underlying stream, followed by a 1-byte null character.
         /// </summary>
         /// <param name="strValue"></param>
@@ -384,19 +407,30 @@ namespace DogSE.Server.Core.Net
 
             if (m_Endian == Endian.LITTLE_ENDIAN)
             {
-                buffer.Bytes[0] = (byte) (intValue >> 24);
-                buffer.Bytes[1] = (byte) (intValue >> 16);
-                buffer.Bytes[2] = (byte) (intValue >> 8);
-                buffer.Bytes[3] = (byte) intValue;
-
+                buffer.Bytes[0] = (byte)(intValue >> 8);
+                buffer.Bytes[1] = (byte)intValue;
             }
             else
             {
-                buffer.Bytes[0] = (byte) intValue;
-                buffer.Bytes[1] = (byte) (intValue >> 8);
-                buffer.Bytes[2] = (byte) (intValue >> 16);
-                buffer.Bytes[3] = (byte) (intValue >> 24);
+                buffer.Bytes[0] = (byte)intValue;
+                buffer.Bytes[1] = (byte)(intValue >> 8);
             }
+
+            //if (m_Endian == Endian.LITTLE_ENDIAN)
+            //{
+            //    buffer.Bytes[0] = (byte) (intValue >> 24);
+            //    buffer.Bytes[1] = (byte) (intValue >> 16);
+            //    buffer.Bytes[2] = (byte) (intValue >> 8);
+            //    buffer.Bytes[3] = (byte) intValue;
+
+            //}
+            //else
+            //{
+            //    buffer.Bytes[0] = (byte) intValue;
+            //    buffer.Bytes[1] = (byte) (intValue >> 8);
+            //    buffer.Bytes[2] = (byte) (intValue >> 16);
+            //    buffer.Bytes[3] = (byte) (intValue >> 24);
+            //}
             return buffer;
         }
 

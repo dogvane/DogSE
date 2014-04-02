@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#if Server 
 namespace TradeAge.Server.Entity.Character
+#else
+namespace TradeAge.Client.Entity.Character
+#endif
 {
     /// <summary>
     /// 性别

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -10,18 +11,6 @@ using DogSE.Server.Core.Task;
 
 namespace DogSE.Tools.CodeGeneration.Server
 {
-
-        /// <summary>
-        /// 协议包读取
-        /// </summary>
-        public interface IPacketReader
-        {
-            /// <summary>
-            /// 数据读取
-            /// </summary>
-            /// <param name="reader"></param>
-            void Read(PacketReader reader);
-        }
 
 
         /// <summary>
@@ -64,6 +53,86 @@ namespace DogSE.Tools.CodeGeneration.Server
 
             private readonly StringBuilder initCode = new StringBuilder();
             private readonly StringBuilder callCode = new StringBuilder();
+
+            /// <summary>
+            /// 读取代理类
+            /// </summary>
+            private readonly StringBuilder readProxyCode = new StringBuilder();
+
+
+            private HashSet<Type> readProxySet = new HashSet<Type>();
+
+            /// <summary>
+            /// 添加一个读取代理类
+            /// </summary>
+            /// <param name="type"></param>
+            private void AddRdadProxy(Type type)
+            {
+                if (readProxySet.Contains(type))
+                    return;
+
+                StringBuilder readCode = new StringBuilder();
+
+                foreach(var p in type.GetProperties())
+                {
+                    if (p.PropertyType == typeof(int))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadInt32();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(long))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadLong64();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(float))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(double))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(bool))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadBoolean();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(string))
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType.IsEnum)
+                    {
+                        readCode.AppendFormat("var ret.{0} = ({1})reader.ReadByte();\r\n", p.Name, p.PropertyType.FullName);
+                    }
+                    else if (p.PropertyType.IsLayoutSequential)
+                    {
+                        readCode.AppendFormat("var ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
+                    }
+                    else
+                    {
+                        Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
+                            classType.Name, type.Name, p.Name, p.PropertyType.Name));
+                    }
+                }
+
+                readProxyCode.AppendLine(
+                    readProxyCodeFormatter.Replace("#TypeName#", type.Name)
+                    .Replace("#TypeFullName#", type.FullName)
+                    .Replace("#ReadCode#", readCode.ToString())
+                    );
+            }
+
+            private string readProxyCodeFormatter = @"
+    public class #TypeName#ReadProxy
+    {
+        public static #TypeFullName# Read(PacketReader reader)
+        {
+            #TypeFullName# ret = new #TypeFullName#();
+
+#ReadCode#
+
+            return ret;
+        }
+    }";
 
             /// <summary>
             /// 添加一个方法
@@ -120,30 +189,45 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                 if (att.MethodType == NetMethodType.ProtocolStruct)
                 {
-                    if (param[1].ParameterType.GetInterface(typeof(IPacketReader).FullName) == null)
-                    {
-                        Logs.Error("{0}.{1} 的第二个参数必须实现 IPacketReader 接口", classType.Name, methodinfo.Name);
-                        return;
-                    }
-
                     if (!param[1].ParameterType.IsClass)
                     {
                         Logs.Error("{0}.{1} 的第二个参数必须是class类型。", classType.Name, methodinfo.Name);
                         return;
                     }
 
-                    string methodName = methodinfo.Name;
-                    initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
-                                          att.OpCode, methodName);
-                    initCode.AppendLine();
+                    if (param[1].ParameterType.GetInterface(typeof (IPacketReader).FullName) == null)
+                    {
+                        Logs.Error("{0}.{1} 的第二个参数必须实现 IPacketReader 接口", classType.Name, methodinfo.Name);
+                        //  自己实现一个对对象的协议读取类
+                        AddRdadProxy(param[1].ParameterType);
+                        string methodName = methodinfo.Name;
+                        initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
+                                              att.OpCode, methodName);
+                        initCode.AppendLine();
 
-                    callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
-                    callCode.AppendLine("{");
-                    callCode.AppendFormat(" var package = DogSE.Library.Common.StaticObjectPool<{0}>.AcquireContent();", param[1].ParameterType.FullName);
-                    callCode.AppendLine("package.Read(reader);");
-                    callCode.AppendFormat("module.{0}(netstate, package);", methodinfo.Name);
-                    callCode.AppendFormat("DogSE.Library.Common.StaticObjectPool<{0}>.ReleaseContent(package);", param[1].ParameterType.FullName);
-                    callCode.AppendLine("}");
+                        callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
+                        callCode.AppendLine("{");
+                        callCode.AppendFormat(" var obj = {0}.Read(reader)", param[1].ParameterType.Name);
+                        callCode.AppendFormat("module.{0}(netstate, obj);", methodinfo.Name);
+                        callCode.AppendLine("}");
+                    }
+                    else
+                    {
+                        //  如果对象实现了 IPacketReader 接口，则直接使用，否则则自己生成协议代码
+                        string methodName = methodinfo.Name;
+                        initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
+                                              att.OpCode, methodName);
+                        initCode.AppendLine();
+
+                        callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", methodName);
+                        callCode.AppendLine("{");
+                        callCode.AppendFormat(" var package = DogSE.Library.Common.StaticObjectPool<{0}>.AcquireContent();", param[1].ParameterType.FullName);
+                        callCode.AppendLine("package.Read(reader);");
+                        callCode.AppendFormat("module.{0}(netstate, package);", methodinfo.Name);
+                        callCode.AppendFormat("DogSE.Library.Common.StaticObjectPool<{0}>.ReleaseContent(package);", param[1].ParameterType.FullName);
+                        callCode.AppendLine("}");
+                    }
+
                 }
 
                 if (att.MethodType == NetMethodType.SimpleMethod)
@@ -189,6 +273,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                         else if (p.ParameterType.IsEnum)
                         {
                             callCode.AppendFormat("var p{0} = ({1})reader.ReadByte();\r\n", i, p.ParameterType.FullName);
+                        }
+                        else if (p.ParameterType.IsLayoutSequential)
+                        {
+                            callCode.AppendFormat("var p{0} = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
                         }
                         else
                         {
@@ -243,6 +331,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                 ret.Replace("#version#", Version.ToString());
                 ret.Replace("#InitMethod#", initCode.ToString());
                 ret.Replace("#CallMethod#", callCode.ToString());
+                ret.Replace("#ReadProxy#", readProxyCode.ToString());
                 ret.Replace("#using#", "");
                 ret.Replace("`", "\"");
 
@@ -329,6 +418,8 @@ namespace DogSE.Tools.CodeGeneration.Server
         }
 
 #CallMethod#
+
+#ReadProxy#
     }
 ";
         }
@@ -356,6 +447,8 @@ namespace DogSE.Tools.CodeGeneration.Server
                     var i = type.GetInterface("DogSE.Server.Core.LogicModule.ILogicModule");
                     if (i != null)
                     {
+                        Console.WriteLine(type.ToString());
+
                         var crc = new CreateReadCode(type);
                         codeBuilder.Append(crc.CreateCode());
                         proxyregBuilder.Append(crc.CreateRegisterProxyCode());

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using DogSE.Library.Log;
+using System.Linq;
 
 namespace DogSE.Library.Thread
 {
@@ -16,6 +17,17 @@ namespace DogSE.Library.Thread
     /// </remarks>
     public class ThreadQueueEntity
     {
+
+        private static List<ThreadQueueEntity> s_queueList = new List<ThreadQueueEntity>();
+
+        /// <summary>
+        /// 参看所有线程队列里是否有任务
+        /// </summary>
+        public static bool HasActionInAllQueue
+        {
+            get { return s_queueList.Any(o => o.HasQueues); }
+        }
+
         /// <summary>
         /// 创建队列需要输入名字
         /// </summary>
@@ -23,6 +35,7 @@ namespace DogSE.Library.Thread
         internal ThreadQueueEntity(string queueName)
         {
             _queueName = queueName;
+            s_queueList.Add(this);
         }
 
         private readonly string _queueName = string.Empty;
@@ -72,7 +85,8 @@ namespace DogSE.Library.Thread
                     {
                         try
                         {
-                            watch.Restart();
+                            watch.Reset();
+                            watch.Start();
 
                             m();
 

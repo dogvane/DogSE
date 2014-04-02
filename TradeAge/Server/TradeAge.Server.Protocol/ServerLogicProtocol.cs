@@ -33,6 +33,14 @@ namespace DogSE.Server.Core.Protocol.AutoCode
                     pac.SetModule(m as TradeAge.Server.Interface.ServerLogic.ILogin);
                     pac.PacketHandlerManager = handlers;
                     pac.Init();
+                }                if (m is TradeAge.Server.Interface.ServerLogic.IScene)
+                {
+                    IProtoclAutoCode pac = new ISceneAccess2();
+                    list.Add(pac);
+
+                    pac.SetModule(m as TradeAge.Server.Interface.ServerLogic.IScene);
+                    pac.PacketHandlerManager = handlers;
+                    pac.Init();
                 }
             }
         }
@@ -77,6 +85,44 @@ var p1 = reader.ReadUTF8String();
 var p2 = (TradeAge.Server.Entity.Character.Sex)reader.ReadByte();
 module.OnCreatePlayer(netstate,p1,p2);
 }
+
+
+
+    }
+
+
+    class ISceneAccess2:IProtoclAutoCode
+    {
+        public PacketHandlersBase PacketHandlerManager {get;set;}
+
+        TradeAge.Server.Interface.ServerLogic.IScene module;
+
+        public void SetModule(ILogicModule m)
+        {
+            if (m == null)
+                throw new ArgumentNullException("ILogicModule");
+            module = (TradeAge.Server.Interface.ServerLogic.IScene)m;
+            if (module == null)
+            {
+                throw new NullReferenceException(string.Format("{0} not TradeAge.Server.Interface.ServerLogic.IScene", m.GetType().FullName));
+            }
+        }
+
+
+        public void Init()
+        {
+PacketHandlerManager.Register(1100, OnMove);
+
+        }
+
+void OnMove(NetState netstate, PacketReader reader){
+if (!netstate.IsVerifyLogin) return;
+var p1 = reader.ReadStruct <DogSE.Common.Vector3>();
+var p2 = reader.ReadStruct <DogSE.Common.Vector3>();
+module.OnMove(netstate,p1,p2);
+}
+
+
 
     }
 

@@ -35,6 +35,9 @@ namespace DogSE.Server.Core.LogicModule
             var dependenceModules = new List<KeyValuePair<InitDependenceAttribute, ILogicModule>>();
             foreach (var type in AssemblyUtil.GetTypesByInterface(typeof(ILogicModule)))
             {
+                if (type.IsInterface)
+                    continue;
+
                 string moduleId = string.Empty;
 
                 try

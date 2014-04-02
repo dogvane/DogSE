@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using DogSE.Server.Common;
+using DogSE.Common;
 using IvyOrm;
 using MySql.Data.MySqlClient;
 
@@ -25,6 +25,12 @@ namespace DogSE.Server.Database.MySQL
 
         #region IDataService Members
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serial"></param>
+        /// <returns></returns>
         public T LoadEntity<T>(int serial) where T : class,  IDataEntity,new()
         {
             var con = conPool.GetConnection();
@@ -34,6 +40,11 @@ namespace DogSE.Server.Database.MySQL
             return ret;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T[] LoadEntitys<T>() where T : class,  IDataEntity, new()
         {
             var con = conPool.GetConnection();
@@ -44,6 +55,12 @@ namespace DogSE.Server.Database.MySQL
         }
 
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public int UpdateEntity<T>(T entity) where T : class,  IDataEntity
         {
             var con = conPool.GetConnection();
@@ -54,7 +71,12 @@ namespace DogSE.Server.Database.MySQL
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public int InsertEntity<T>(T entity) where T : class,  IDataEntity
         {
             var con = conPool.GetConnection();
@@ -63,6 +85,12 @@ namespace DogSE.Server.Database.MySQL
             return 1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public int DeleteEntity<T>(T entity) where T : class, IDataEntity
         {
             var con = conPool.GetConnection();
@@ -72,6 +100,11 @@ namespace DogSE.Server.Database.MySQL
             return 1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
         public int ExecuteSql(string sql)
         {
             var con = conPool.GetConnection();
@@ -80,6 +113,11 @@ namespace DogSE.Server.Database.MySQL
             return ret;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
         public DataSet ExecuteDataSet(string sql)
         {
             var con = conPool.GetConnection();

@@ -18,9 +18,9 @@
  *
  ***************************************************************************/
 
-using IvyOrm;
+//using IvyOrm;
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     #region zh-CHS 接口 | en Interface
     /// <summary>
@@ -42,7 +42,7 @@ namespace DogSE.Server.Common
         /// <summary>
         /// 数据实体类的唯一id标示
         /// </summary>
-        [PrimaryKey(PrimaryKeyOptions.IncludeInInsert)]
+        //[PrimaryKey(PrimaryKeyOptions.IncludeInInsert)]
         int Id { get; set; }
     }
 

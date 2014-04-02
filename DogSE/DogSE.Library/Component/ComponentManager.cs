@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace DogSE.Library.Component
 {
@@ -8,8 +8,8 @@ namespace DogSE.Library.Component
     /// </summary>
     public class ComponentManager:IComponentManager
     {
-        private readonly ConcurrentDictionary<string, object> m_ComponentDictionary =
-            new ConcurrentDictionary<string, object>();
+        private readonly Dictionary<string, object> m_ComponentDictionary =
+            new Dictionary<string, object>();
 
         /// <summary>
         /// 注册一个组件

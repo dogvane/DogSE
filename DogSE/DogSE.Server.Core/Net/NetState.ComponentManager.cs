@@ -44,7 +44,7 @@ namespace DogSE.Server.Core.Net
         /// <param name="component">组件实例（非空）</param>
         public void RegisterComponent<T>(string componentId, T component) where T : class
         {
-            m_componentManager.RegisterComponent<T>(componentId, component);
+            m_componentManager.RegisterComponent(componentId, component);
         }
 
         /// <summary>
@@ -68,6 +68,20 @@ namespace DogSE.Server.Core.Net
         }
 
         #endregion
+
+        /// <summary>
+        /// 和网络连接关联的对象
+        /// </summary>
+        public object Player { get; set; }
+
+        /// <summary>
+        /// 获得网络连接的ip地址
+        /// </summary>
+        /// <returns></returns>
+        public string GetIP()
+        {
+            return m_Socket.RemoteOnlyIP;
+        }
     }
 }
 #endregion

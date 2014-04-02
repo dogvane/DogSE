@@ -12,7 +12,7 @@ namespace DogSE.Library.Log
     /// 虽然这里实现的是实例的接口
     /// 但控制台只有一个，因此这边的数据都是写入一个静态的列表
     /// </remarks>
-    internal class ConsoleAppender : ILogAppender
+    public class ConsoleAppender : ILogAppender
     {
         /// <summary>
         /// 当前需要处理的集合

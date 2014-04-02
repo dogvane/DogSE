@@ -56,9 +56,9 @@
       <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
       <Name>DogSE.Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DogSE.Server.Common\DogSE.Server.Common.csproj">
+    <ProjectReference Include="..\DogSE.Server.Common\DogSE.Common.csproj">
       <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
-      <Name>DogSE.Server.Common</Name>
+      <Name>DogSE.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

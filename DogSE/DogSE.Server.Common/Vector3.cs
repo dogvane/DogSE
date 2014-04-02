@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 #region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
 
 //     NOTES
@@ -20,17 +22,19 @@
  ***************************************************************************/
 
 #region zh-CHS 包含名字空间 | en Include namespace
+
 using System;
 using System.Globalization;
 #endregion
 
 
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>
     /// Defines a vector with three components.
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct Vector3 : IEquatable<Vector3>
     {
 

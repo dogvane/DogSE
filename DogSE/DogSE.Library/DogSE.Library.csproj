@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DogSE.Library</RootNamespace>
     <AssemblyName>DogSE.Library</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -32,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -39,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ConcurrentQueue.cs" />
     <Compile Include="Common\ObjectPool.cs" />
     <Compile Include="Common\ObjectPoolStateInfo.cs" />
     <Compile Include="Common\StaticObjectPool.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Time\OneServer.cs" />
     <Compile Include="Util\ByteChange.cs" />
     <Compile Include="Util\ByteOrder.cs" />
+    <Compile Include="Util\ConsoleUtils.cs" />
     <Compile Include="Util\ConvertByteArray.cs" />
     <Compile Include="Util\ConvertString.cs" />
     <Compile Include="Util\Delegate.cs" />

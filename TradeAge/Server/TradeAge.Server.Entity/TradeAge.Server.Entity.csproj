@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;Server;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,6 +37,7 @@
     <Compile Include="Character\Account.cs" />
     <Compile Include="Character\Enum.cs" />
     <Compile Include="Character\Player.cs" />
+    <Compile Include="Character\SimplePlayer.cs" />
     <Compile Include="Common\SequenceGenerator.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />
     <Compile Include="Login\LoginEnum.cs" />
@@ -50,6 +51,14 @@
     <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.csproj">
       <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
       <Name>DogSE.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Common\DogSE.Common.csproj">
+      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
+      <Name>DogSE.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Core\DogSE.Server.Core.csproj">
+      <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
+      <Name>DogSE.Server.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

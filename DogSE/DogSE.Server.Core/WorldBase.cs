@@ -1,12 +1,10 @@
-﻿using DogSE.Library.Common;
-using DogSE.Library.Log;
-using DogSE.Library.Time;
+﻿using DogSE.Library.Log;
 using DogSE.Server.Core.Config;
 using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Timer;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Task;
-using DogSE.Server.Core.Timer;
 using DogSE.Server.Net;
 using System;
 
@@ -32,7 +30,6 @@ namespace DogSE.Server.Core
             if (m_isStartWorld)
                 return;
             m_isStartWorld = true;
-            OneServer.Closing = false;
 
             StaticConfigFileManager.LoadData();
 
@@ -51,7 +48,6 @@ namespace DogSE.Server.Core
         /// </summary>
         public void StopWorld()
         {
-            OneServer.Closing = true;
             m_isStartWorld = false;
             taskManager.Runing = false;
             //  等待任务线程退出
@@ -73,7 +69,19 @@ namespace DogSE.Server.Core
             var modules = logicModuleManager.GetModules();
 
             //  注册网络消息码
-            new RegisterNetMethod(PacketHandlersManger).Register(modules);
+            if (IsAutoRegisterMessage)
+                new RegisterNetMethod(PacketHandlersManger).Register(modules);
+        }
+
+        private bool isAutoRegisterMessage = true;
+
+        /// <summary>
+        /// 是否自动对逻辑模块自动注册消息处理函数
+        /// </summary>
+        public bool IsAutoRegisterMessage
+        {
+            get { return isAutoRegisterMessage; }
+            set { isAutoRegisterMessage = value; }
         }
 
         /// <summary>
@@ -149,6 +157,8 @@ namespace DogSE.Server.Core
             } while (len > 0);
         }
 
+
+
         private void OnSocketDisconnect(object sender, SocketDisconnectEventArgs<NetState> e)
         {
             NetState netState = e.Session.Data;
@@ -163,12 +173,12 @@ namespace DogSE.Server.Core
                 netState.ExitWorld();
                 netState.Dispose();
             }
-            e.Session.Data = null;
         }
 
         private void RunTaskNetStateDisconnect(NetState netState)
         {
             m_netStateManager.InternalRemoveNetState(netState.Serial);
+
             //  通知业务逻辑有客户端连接上来可以做一些初始化
             //  或者判断是否允许本次连接
             var tempEV = NetStateDisconnect;
@@ -200,6 +210,11 @@ namespace DogSE.Server.Core
             taskManager.AppentdTask(RunTaskNetStateConnect, netState);
         }
 
+        /// <summary>
+        /// NetState的id分配器
+        /// </summary>
+        private volatile int netStateId = 1;
+
         void RunTaskNetStateConnect(NetState netState)
         {
             //  通知业务逻辑有客户端连接上来可以做一些初始化
@@ -219,7 +234,9 @@ namespace DogSE.Server.Core
                     return;
                 }
             }
-            m_netStateManager.InternalAddNetState(0, netState);
+            netState.Serial = netStateId++;
+
+            m_netStateManager.InternalAddNetState(netState.Serial, netState);
             netState.Start();
         }
 
@@ -237,9 +254,34 @@ namespace DogSE.Server.Core
 
         readonly PacketHandlersBase PacketHandlersManger = new PacketHandlersBase();
 
+        /// <summary>
+        /// 包句柄管理器
+        /// </summary>
+        public PacketHandlersBase PacketHandlers
+        {
+            get { return PacketHandlersManger; }
+        }
+
         private readonly TaskManager taskManager = new TaskManager("logic");
 
+        /// <summary>
+        /// 对外公开的任务管理器
+        /// </summary>
+        public TaskManager TaskManager
+        {
+            get { return taskManager; }
+        }
+
         private readonly LogicModuleManager logicModuleManager = new LogicModuleManager();
+
+        /// <summary>
+        /// 获得逻辑模块
+        /// </summary>
+        /// <returns></returns>
+        public ILogicModule[] GetModules()
+        {
+            return logicModuleManager.GetModules();
+        }
     }
 
     /// <summary>

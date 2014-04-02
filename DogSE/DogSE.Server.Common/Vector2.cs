@@ -26,7 +26,7 @@ using System.Globalization;
 
 
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     /// <summary>
     /// Defines a vector with two components.

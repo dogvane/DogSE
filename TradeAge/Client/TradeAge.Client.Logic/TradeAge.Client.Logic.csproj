@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C9507CA5-EBBB-45C2-9A25-9FC6C915DEA5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TradeAge.Client.Logic</RootNamespace>
+    <AssemblyName>TradeAge.Client.Logic</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>E:\My Documents\pp6\Assets\Lib\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controller\Auto\LogicInterface.cs" />
+    <Compile Include="Controller\BaseController.cs" />
+    <Compile Include="Controller\GameController.cs" />
+    <Compile Include="Controller\Login\LoginController.Net.cs" />
+    <Compile Include="Controller\Login\LoginController.Proxy.cs" />
+    <Compile Include="Controller\Login\LoginController.Logic.cs" />
+    <Compile Include="Controller\Scene\SceneController.Net.cs" />
+    <Compile Include="Controller\Scene\SceneController.Logic.cs" />
+    <Compile Include="Controller\Scene\SceneController.Proxy.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.csproj">
+      <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
+      <Name>DogSE.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Common\DogSE.Common.csproj">
+      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
+      <Name>DogSE.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Common\TradeAge.Common.Entity\TradeAge.Common.Entity.csproj">
+      <Project>{22ebede1-f9eb-40ec-97ec-89440f54f690}</Project>
+      <Name>TradeAge.Common.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeAge.Client.Core\DogSE.Client.Core.csproj">
+      <Project>{c9bbbe58-672b-4fec-b66e-b020966186d0}</Project>
+      <Name>DogSE.Client.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeAge.Client.Entity\TradeAge.Client.Entity.csproj">
+      <Project>{82f1aff6-2c00-43ef-b923-bc39311c71a1}</Project>
+      <Name>TradeAge.Client.Entity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

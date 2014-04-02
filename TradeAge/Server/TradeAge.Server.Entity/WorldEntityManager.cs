@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq;
+using DogSE.Library.Log;
 using TradeAge.Server.Entity.Character;
 
 namespace TradeAge.Server.Entity
@@ -15,6 +16,9 @@ namespace TradeAge.Server.Entity
              Accounts = new EntityMap<int, Account>();
              OnlinePlayers = new EntityMap<int, Player>();
              AccountNames = new EntityMap<string, Account>();
+
+             Players = new EntityMap<int, SimplePlayer>();
+             PlayerNames = new EntityMap<string, SimplePlayer>();
          }
 
         /// <summary>
@@ -31,6 +35,16 @@ namespace TradeAge.Server.Entity
         /// 玩家的全局数据
         /// </summary>
         public static EntityMap<int, Player> OnlinePlayers { get; private set; }
+
+        /// <summary>
+        /// 全局的玩家列表
+        /// </summary>
+        public static EntityMap<int, SimplePlayer> Players { get; private set; }
+
+        /// <summary>
+        /// 全局的玩家名字对应的列表
+        /// </summary>
+        public static EntityMap<string, SimplePlayer> PlayerNames { get; private set; }
 
         #region EntityMap
 
@@ -72,6 +86,10 @@ namespace TradeAge.Server.Entity
                     {
                         if (!mapValue.Equals(value))
                             arrayCache = null;
+                    }
+                    else
+                    {
+                        arrayCache = null;
                     }
                 }
                 map[key] = value;

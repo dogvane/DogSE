@@ -39,9 +39,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DogSE\DogSE.Server.Common\DogSE.Server.Common.csproj">
+    <ProjectReference Include="..\..\DogSE\DogSE.Server.Common\DogSE.Common.csproj">
       <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
-      <Name>DogSE.Server.Common</Name>
+      <Name>DogSE.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\DogSE\DogSE.Server.Core\DogSE.Server.Core.csproj">
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>

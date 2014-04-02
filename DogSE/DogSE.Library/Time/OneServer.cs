@@ -19,10 +19,5 @@ namespace DogSE.Library.Time
         /// 服务器当前的时间
         /// </summary>
         public static DateTime NowTime { get { return s_NowTime + s_UpdateTime.Elapsed; } }
-
-        /// <summary>
-        /// 服务器是否处于关闭状态
-        /// </summary>
-        public static bool Closing { get; set; }
     }
 }

@@ -35,5 +35,15 @@ namespace TradeAge.Server.Entity.Character
         /// 服务器id
         /// </summary>
         public int ServerId { get; set; }
+
+        /// <summary>
+        /// 玩家id
+        /// </summary>
+        /// <remarks>
+        /// 因为玩家对象与账号对象是一对一对应的
+        /// 所以这里只用一个 playerId对应
+        /// 如果是一对多则可以改成数组
+        /// </remarks>
+        public int PlayerId { get; set; }
     }
 }

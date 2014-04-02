@@ -22,6 +22,18 @@ namespace DogSE.Server.Core.Protocol
         void Read(PacketReader reader);
     }
 
+    /// <summary>
+    /// 协议包读写入
+    /// </summary>
+    public interface IPacketWriter
+    {
+        /// <summary>
+        /// 数据写入
+        /// </summary>
+        /// <param name="reader"></param>
+        void Write(PacketWriter reader);
+    }
+
 
     /// <summary>
     /// 消息自动创建接口
@@ -296,7 +308,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Timer;
 using DogSE.Server.Core.Task;
 using DogSE.Server.Core.LogicModule;
 #using#

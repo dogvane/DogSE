@@ -1,4 +1,6 @@
 ﻿using System;
+using DogSE.Common;
+using DogSE.Server.Core.Net;
 
 
 namespace TradeAge.Server.Entity.Character
@@ -11,7 +13,7 @@ namespace TradeAge.Server.Entity.Character
         /// <summary>
         /// 玩家的唯一标示
         /// </summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
 
         /// <summary>
@@ -48,5 +50,22 @@ namespace TradeAge.Server.Entity.Character
         /// 毫秒的单位对大的数据来说不会产生偏差影响
         /// </remarks>
         public int OnlineTime { get; set; }
+
+        /// <summary>
+        /// 玩家当前的位置
+        /// </summary>
+        public Vector3 Postion { get; set; }
+
+        /// <summary>
+        /// 方向已经速度
+        /// </summary>
+        public Vector3 Direction { get; set; }
+
+        /// <summary>
+        /// 性别
+        /// </summary>
+        public Sex Sex { get; set; }
+
+        public NetState NetState { get; set; }
     }
 }

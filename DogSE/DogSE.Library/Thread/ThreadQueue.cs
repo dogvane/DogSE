@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DogSE.Library.Thread;
 using System.Linq;
 
-namespace Org.JQueen.Sanguo.GameWorld.Server.Common
+namespace DogSE.Library.Thread
 {
     /// <summary>
     /// 线程队列，用于按照顺序执行方法

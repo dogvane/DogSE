@@ -31,11 +31,7 @@ namespace DogSE.Server.Core.Timer
     /// 时间片的委托
     /// </summary>
     public delegate void TimeSliceCallback();
-    /// <summary>
-    /// 包含对象的时间片的委托
-    /// </summary>
-    /// <param name="oState"></param>
-    public delegate void TimeSliceStateCallback( object oState );
+
     /// <summary>
     /// 包含指定泛行对象的时间片的委托
     /// </summary>

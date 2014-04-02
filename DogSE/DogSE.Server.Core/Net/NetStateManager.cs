@@ -18,7 +18,7 @@
  *
  ***************************************************************************/
 
-using DogSE.Server.Common;
+using DogSE.Common;
 using System.Collections.Concurrent;
 using System.Linq;
 

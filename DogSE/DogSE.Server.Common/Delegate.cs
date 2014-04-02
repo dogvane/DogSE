@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     #region zh-CHS 委托 | en Delegate
     #endregion

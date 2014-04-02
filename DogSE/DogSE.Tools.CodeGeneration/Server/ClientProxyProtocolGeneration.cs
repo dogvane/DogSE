@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -32,6 +33,85 @@ namespace DogSE.Tools.CodeGeneration.Server
         private readonly StringBuilder callCode = new StringBuilder();
 
         /// <summary>
+        /// 读取代理类
+        /// </summary>
+        private readonly StringBuilder writerProxyCode = new StringBuilder();
+
+
+        private HashSet<Type> writerProxySet = new HashSet<Type>();
+
+        /// <summary>
+        /// 添加一个读取代理类
+        /// </summary>
+        /// <param name="type"></param>
+        private void AddWriteProxy(Type type)
+        {
+            if (writerProxySet.Contains(type))
+                return;
+
+            StringBuilder readCode = new StringBuilder();
+
+            foreach (var p in type.GetProperties())
+            {
+                if (p.PropertyType == typeof(int))
+                {
+                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(long))
+                {
+                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(float))
+                {
+                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(double))
+                {
+                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(bool))
+                {
+                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(string))
+                {
+                    readCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType.IsEnum)
+                {
+                    readCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType.IsLayoutSequential)
+                {
+                    readCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+
+                }
+                else
+                {
+                    Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
+                        classType.Name, type.Name, p.Name, p.PropertyType.Name));
+                }
+
+            }
+
+            writerProxyCode.AppendLine(
+                readProxyCodeFormatter.Replace("#TypeName#", type.Name)
+                .Replace("#TypeFullName#", type.FullName)
+                .Replace("#ReadCode#", readCode.ToString())
+                );
+        }
+
+        private string readProxyCodeFormatter = @"
+    public class #TypeName#WriteProxy
+    {
+        public static void Write(#TypeFullName# obj, PacketWriter pw)
+        {
+
+#ReadCode#
+        }
+    }";
+
+        /// <summary>
         /// 添加一个方法
         /// </summary>
         /// <param name="att"></param>
@@ -59,13 +139,85 @@ namespace DogSE.Tools.CodeGeneration.Server
 
             if (att.MethodType == NetMethodType.ProtocolStruct)
             {
-                //  TODO: 稍后补充这种模式
-                Logs.Error("客户端代理类暂时不支持这种模式 {0}", att.MethodType.ToString());
-                return;
+                #region ProtocolStruct
+
+                Type parameterType = param[1].ParameterType;
+
+                if (!parameterType.IsClass)
+                {
+                    Logs.Error("{0}.{1} 的第二个参数必须是class类型。", classType.Name, methodinfo.Name);
+                    return;
+                }
+
+                if (parameterType.GetInterface(typeof(IPacketWriter).FullName) == null)
+                {
+                    //  自己实现一个对对象的协议写入类
+                    AddWriteProxy(parameterType);
+
+                    string methodName = methodinfo.Name;
+                    StringBuilder methonNameCode = new StringBuilder();
+                    StringBuilder streamWriterCode = new StringBuilder();
+                    methonNameCode.AppendFormat("public void {0}(NetState netstate, {1} obj)",
+                        methodName, parameterType.FullName);
+
+                    streamWriterCode.AppendLine("{");
+                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendLine();
+                    streamWriterCode.AppendFormat(
+                        @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
+            if ( packetProfile != null )
+                packetProfile.RegConstruct();
+                ", att.OpCode);
+
+                    streamWriterCode.AppendFormat("{0}WriteProxy.Write(obj, pw);", parameterType.Name);
+
+                    streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("}");
+
+                    methonNameCode.Remove(methonNameCode.Length - 1, 1);
+                    methonNameCode.Append(")");
+
+                    callCode.AppendLine(methonNameCode.ToString());
+                    callCode.AppendLine(streamWriterCode.ToString());
+                }
+                else
+                {
+                    //  如果对象实现了 IPacketWriter 接口，则直接使用，否则则自己生成协议代码
+                    string methodName = methodinfo.Name;
+                    StringBuilder methonNameCode = new StringBuilder();
+                    StringBuilder streamWriterCode = new StringBuilder();
+                    methonNameCode.AppendFormat("public void {0}(NetState netstate, {1} obj)", 
+                        methodName, parameterType.FullName);
+
+                    streamWriterCode.AppendLine("{");
+                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendLine();
+                    streamWriterCode.AppendFormat(
+                        @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
+            if ( packetProfile != null )
+                packetProfile.RegConstruct();
+                ", att.OpCode);
+
+                    streamWriterCode.AppendLine("obj.Write(pw);");
+
+                    streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("}");
+
+                    methonNameCode.Remove(methonNameCode.Length - 1, 1);
+                    methonNameCode.Append(")");
+
+                    callCode.AppendLine(methonNameCode.ToString());
+                    callCode.AppendLine(streamWriterCode.ToString());
+                }
+
+                #endregion
             }
 
             if (att.MethodType == NetMethodType.SimpleMethod)
             {
+                #region SimpleMethod
+                
+
                 string methodName = methodinfo.Name;
                 StringBuilder methonNameCode = new StringBuilder();
                 StringBuilder streamWriterCode = new StringBuilder();
@@ -119,6 +271,12 @@ namespace DogSE.Tools.CodeGeneration.Server
                         methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
                         streamWriterCode.AppendFormat("pw.Write((byte){0});\r\n", p.Name);
                     }
+                    else if (p.ParameterType.IsLayoutSequential)
+                    {
+                        methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
+                        streamWriterCode.AppendFormat("pw.WriteStruct({0});\r\n", p.Name);
+                           
+                    }
                     else
                     {
                         Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
@@ -135,13 +293,12 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                 callCode.AppendLine(methonNameCode.ToString());
                 callCode.AppendLine(streamWriterCode.ToString());
+
+                #endregion
             }
         }
 
         private static int s_version = 1;
-
-
-        readonly int Version = s_version++;
 
         /// <summary>
         /// 
@@ -154,9 +311,10 @@ namespace DogSE.Tools.CodeGeneration.Server
             ret.Append(CodeBase);
             ret.Replace("#ClassName#", classType.Name);
             ret.Replace("#FullClassName#", classType.FullName);
-            ret.Replace("#version#", Version.ToString());
+            ret.Replace("#version#", s_version.ToString());
             ret.Replace("#InitMethod#", initCode.ToString());
             ret.Replace("#CallMethod#", callCode.ToString());
+            ret.Replace("#ProxyCode#", writerProxyCode.ToString());
 
             var nsName = classType.Namespace;
 
@@ -195,6 +353,8 @@ namespace DogSE.Tools.CodeGeneration.Server
     class #ClassName#Proxy#version#:#FullClassName#
     {
         #CallMethod#
+
+#ProxyCode#
     }
 
 ";

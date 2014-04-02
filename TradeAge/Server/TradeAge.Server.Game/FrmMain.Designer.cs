@@ -37,6 +37,8 @@
             this.ClientSize = new System.Drawing.Size(423, 312);
             this.Name = "FrmMain";
             this.Text = "贸易时代";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMain_FormClosing);
+            this.Load += new System.EventHandler(this.FrmMain_Load);
             this.ResumeLayout(false);
 
         }

@@ -22,8 +22,9 @@
 #region zh-CHS 包含名字空间 | en Include namespace
 using System;
 using System.Net;
+using DogSE.Common;
+using DogSE.Library.Log;
 using DogSE.Library.Time;
-using DogSE.Server.Common;
 using DogSE.Server.Net;
 
 #endregion
@@ -41,7 +42,8 @@ namespace DogSE.Server.Core.Net
         /// </summary>
         /// <param name="clientSocket"></param>
         /// <param name="world"></param>
-        internal NetState(ClientSession<NetState> clientSocket, WorldBase world)
+        public NetState(ClientSession<NetState> clientSocket, WorldBase world)
+            :this()
         {
             if (clientSocket == null)
                 throw new ArgumentNullException("clientSocket", "NetState.NetState(...) - clientSocket == null error!");
@@ -76,7 +78,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 网络对象连接到的网络世界
         /// </summary>
-        public WorldBase World { get; private set; }
+        public WorldBase World { get; set; }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
         /// <summary>
@@ -90,6 +92,11 @@ namespace DogSE.Server.Core.Net
         public Serial Serial
         {
             get { return m_Serial; }
+            set
+            {
+                m_Serial = value;
+                m_Socket.Id = (int)value;
+            }
         }
 
         /// <summary>
@@ -214,6 +221,8 @@ namespace DogSE.Server.Core.Net
         {
             // 置空
             m_Serial = Serial.MinusOne;
+            m_Running = false;
+            m_Socket.Data = null;
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables
@@ -373,6 +382,23 @@ namespace DogSE.Server.Core.Net
 
         }
         #endregion
+
+        private static NetState empty;
+
+        /// <summary>
+        /// NetState 的空对象，用来做默认填充物使用的
+        /// </summary>
+        public static NetState Empty
+        
+        {
+            get
+            {
+                if (empty == null)
+                    empty = new NetState();
+
+                return empty;
+            }
+        }
     }
 }
 

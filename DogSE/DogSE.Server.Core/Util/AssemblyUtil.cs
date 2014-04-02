@@ -100,7 +100,7 @@ namespace DogSE.Server.Core.Util
         /// <returns></returns>
         public static Type[] GetTypesByInterface(Type interfaceType)
         {
-            var name = interfaceType.Name;
+            var name = interfaceType.FullName;
             var ret = new List<Type>();
             foreach (var type in GetTypes())
             {

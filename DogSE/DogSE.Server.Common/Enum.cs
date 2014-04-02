@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace DogSE.Server.Common
+namespace DogSE.Common
 {
     #region zh-CHS 枚举 | en Enum
 

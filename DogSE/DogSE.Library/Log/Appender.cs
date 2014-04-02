@@ -7,7 +7,7 @@ namespace DogSE.Library.Log
     /// <summary>
     /// 日志输出的适配器，所有需要接管日志输入的都需要实现这个接口
     /// </summary>
-    interface ILogAppender
+    public interface ILogAppender
     {
         /// <summary>
         /// 输出日志

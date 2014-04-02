@@ -13,6 +13,10 @@ namespace DogSE.Server.Net
     /// </summary>
     public class ClientSession<T>
     {
+        /// <summary>
+        ///  唯一id
+        /// </summary>
+        public int Id { get; set; }
 
         /// <summary>
         /// 发送数据上下文对象
