@@ -132,6 +132,7 @@ namespace DogSE.Server.Core.Task
             thread.Name = "work thread " + taskName_;
             thread.Start();
             workThread = thread;
+            
         }
 
         private bool isRuning;

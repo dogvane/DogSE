@@ -29,18 +29,34 @@ namespace DogSE.Server.Core.Config
             if (string.IsNullOrEmpty(componentId))
                 throw new ArgumentNullException("componentId");
 
-            return s_data.GetComponent<T[]>(componentId);
+            var data = s_data.GetComponent<T[]>(componentId);
+            if (data == null)
+            {
+                Logs.Error("Not find Template {0}", componentId);
+                return new T[0];
+            }
+            return data;
         }
 
         /// <summary>
         /// 初始化配置信息
         /// </summary>
-        internal static void Load()
+        public static void Load()
         {
-            var configTypes = AssemblyUtil.GetTypesByAttribute(typeof(DynamicXmlConfigRootAttribute));
+            LoadXmlConfig();
+            LoadCSVConfig();
+        }
+
+        /// <summary>
+        /// 加载xml的配置文件
+        /// </summary>
+        private static void LoadXmlConfig()
+        {
+            var configTypes = AssemblyUtil.GetTypesByAttribute(typeof (DynamicXmlConfigRootAttribute));
             foreach (var type in configTypes)
             {
-                var rootAttribute = (DynamicXmlConfigRootAttribute)type.GetCustomAttributes(typeof(DynamicXmlConfigRootAttribute), true)[0];
+                var rootAttribute =
+                    (DynamicXmlConfigRootAttribute) type.GetCustomAttributes(typeof (DynamicXmlConfigRootAttribute), true)[0];
                 if (string.IsNullOrEmpty(rootAttribute.FileName))
                 {
                     Logs.Error("Dynamic config class:'{0}' not define file", type.Name);
@@ -57,7 +73,7 @@ namespace DogSE.Server.Core.Config
 
                 if (!File.Exists(fileName))
                 {
-                    Logs.Error("Load dynamic config file:{0} fail.", fileName);
+                    Logs.Error("Not find dynamic config file:{0} fail.", fileName);
                     continue;
                 }
 
@@ -72,10 +88,51 @@ namespace DogSE.Server.Core.Config
                 {
                     Logs.Error("Deserialize dynamic file fail. type:{0} file:{1}", type.Name, fileName, ex);
                 }
-
             }
         }
 
+        /// <summary>
+        /// 加载xml的配置文件
+        /// </summary>
+        private static void LoadCSVConfig()
+        {
+            var configTypes = AssemblyUtil.GetTypesByAttribute(typeof(DynamicCSVConfigRootAttribute));
+            foreach (var type in configTypes)
+            {
+                var rootAttribute =(DynamicCSVConfigRootAttribute)type.GetCustomAttributes(typeof(DynamicCSVConfigRootAttribute), true)[0];
+                if (string.IsNullOrEmpty(rootAttribute.FileName))
+                {
+                    Logs.Error("Dynamic config class:'{0}' not define file", type.Name);
+                    continue;
+                }
 
+                if (string.IsNullOrEmpty(rootAttribute.ComponentName))
+                {
+                    Logs.Error("Dynamic config type:{0} component name is empty.", type.Name);
+                    continue;
+                }
+
+                var fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rootAttribute.FileName);
+
+                if (!File.Exists(fileName))
+                {
+                    Logs.Error("Not find dynamic config file:{0} .", fileName);
+                    continue;
+                }
+
+                var csv = File.ReadAllText(fileName);
+
+                try
+                {
+                    var data = csv.CSVDeserialize(type);
+
+                    s_data.RegisterComponent(rootAttribute.ComponentName, data);
+                }
+                catch (Exception ex)
+                {
+                    Logs.Error("Deserialize dynamic file fail. type:{0} file:{1}", type.Name, fileName, ex);
+                }
+            }
+        }
     }
 }

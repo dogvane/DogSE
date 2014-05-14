@@ -45,11 +45,19 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
         {
             if (readProxySet.Contains(type))
                 return;
+            
+            readProxySet.Add(type);
 
             StringBuilder readCode = new StringBuilder();
-
+            int i = 0;
             foreach (var p in type.GetProperties())
             {
+                if (!p.CanRead || !p.CanWrite)
+                    continue;
+
+                if (p.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
+                    continue;
+
                 if (p.PropertyType == typeof(int))
                 {
                     readCode.AppendFormat("ret.{0} = reader.ReadInt32();\r\n", p.Name);
@@ -81,6 +89,67 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 else if (p.PropertyType.IsLayoutSequential)
                 {
                     readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, Utils.GetFixFullTypeName(p.PropertyType.FullName));
+                }
+                else if (p.PropertyType.IsArray)
+                {
+                    #region 处理数组的读取
+
+                    i++;
+
+                    var arrayType = p.PropertyType.GetElementType();
+
+                    readCode.AppendFormat("var len{0} = reader.ReadInt32();\r\n", i);
+                    readCode.AppendFormat("var p{0} = new {1}[len{0}];", i, Utils.GetFixFullTypeName(arrayType.FullName));   //  这里只创建值类型
+
+                    readCode.AppendFormat("for(int i =0;i< len{0};i++){{\r\n", i);
+                    if (arrayType == typeof(int))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
+                    }
+                    else if (arrayType == typeof(long))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadLong64();\r\n", i);
+                    }
+                    else if (arrayType == typeof(float))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                    }
+                    else if (arrayType == typeof(double))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                    }
+                    else if (arrayType == typeof(bool))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadBoolean();\r\n", i);
+                    }
+                    else if (arrayType == typeof(string))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadUTF8String();\r\n", i);
+                    }
+                    else if (arrayType.IsEnum)
+                    {
+                        readCode.AppendFormat("p{0}[i] = ({1})reader.ReadByte();\r\n", i, Utils.GetFixFullTypeName(p.PropertyType.GetElementType().FullName));
+                    }
+                    else if (arrayType.IsLayoutSequential)
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadStruct <{1}>();\r\n", i, Utils.GetFixFullTypeName(p.PropertyType.FullName));
+                    }
+                    else if (arrayType.IsClass)
+                    {
+                        AddRdadProxy(arrayType);
+                        readCode.AppendFormat("p{1}[i] = {0}ReadProxy.Read(reader);\r\n", arrayType.Name, i);
+                    }
+
+                    readCode.AppendLine("}");
+
+                    readCode.AppendFormat("ret.{0} = p{1};\r\n", p.Name, i);
+
+                    #endregion
+                }
+                else if (p.PropertyType.IsClass)
+                {
+                    AddRdadProxy(p.PropertyType);
+                    readCode.AppendFormat(" ret.{0} = {1}ReadProxy.Read(reader);\r\n", p.Name, p.PropertyType.Name);
                 }
                 else
                 {
@@ -251,6 +320,63 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     else if (p.ParameterType.IsLayoutSequential)
                     {
                         callCode.AppendFormat("var p{0} = reader.ReadStruct <{1}>();\r\n", i, Utils.GetFixFullTypeName(p.ParameterType.FullName));
+                    }
+                    else if (p.ParameterType.IsArray)
+                    {
+                        //  数组
+                        #region 处理数组的读取
+                        var arrayType = p.ParameterType.GetElementType();
+
+                        callCode.AppendFormat("var len{0} = reader.ReadInt32();\r\n", i);
+                        callCode.AppendFormat("var p{0} = new {1}[len{0}];", i, Utils.GetFixFullTypeName(arrayType.FullName));   //  这里只创建值类型
+
+                        callCode.AppendFormat("for(int i =0;i< len{0};i++){{\r\n", i);
+                        if (arrayType == typeof(int))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
+                        }
+                        else if (arrayType == typeof(long))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadLong64();\r\n", i);
+                        }
+                        else if (arrayType == typeof(float))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                        }
+                        else if (arrayType == typeof(double))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                        }
+                        else if (arrayType == typeof(bool))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadBoolean();\r\n", i);
+                        }
+                        else if (arrayType == typeof(string))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadUTF8String();\r\n", i);
+                        }
+                        else if (arrayType.IsEnum)
+                        {
+                            callCode.AppendFormat("p{0}[i] = ({1})reader.ReadByte();\r\n", i, Utils.GetFixFullTypeName(arrayType.FullName));
+                        }
+                        else if (arrayType.IsLayoutSequential)
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadStruct <{1}>();\r\n", i, Utils.GetFixFullTypeName(arrayType.FullName));
+                        }
+                        else if (arrayType.IsClass)
+                        {
+                            AddRdadProxy(arrayType);
+                            callCode.AppendFormat("p{1}[i] = {0}ReadProxy.Read(reader);\r\n", arrayType.Name, i);
+                        }
+
+                        callCode.AppendLine("}");
+
+                        #endregion
+                    }
+                    else if (p.ParameterType.IsClass)
+                    {
+                        AddRdadProxy(p.ParameterType);
+                        callCode.AppendFormat(" var p{1} = {0}ReadProxy.Read(reader);\r\n", p.ParameterType.Name, i);
                     }
                     else
                     {
@@ -502,6 +628,14 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
                     }
+                    else if (p.ParameterType.IsArray)
+                    {
+                        methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
+                    }
+                    else if (p.ParameterType.IsClass)
+                    {
+                        methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
+                    }
                     else
                     {
                         Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
@@ -673,6 +807,10 @@ namespace #namespace#.Controller.#ClassName#
 
     partial class #ClassName#Controller
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name=`net`></param>
         public #ClassName#Controller(NetController net)
         {
             nc = net;

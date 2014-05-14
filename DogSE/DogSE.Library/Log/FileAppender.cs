@@ -134,6 +134,10 @@ namespace DogSE.Library.Log
 
             ret.fileName = fileName;
 
+            var dir = new FileInfo(fileName).Directory;
+            if (!dir.Exists)
+                dir.Create();
+
             return ret;
         } 
 

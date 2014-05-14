@@ -33,12 +33,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IvyOrm">
-      <HintPath>..\..\Lib\IvyOrm.dll</HintPath>
+      <HintPath>..\Lib\IvyOrm.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\..\Lib\MySql.Data.dll</HintPath>
+    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
+      <HintPath>..\Lib\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

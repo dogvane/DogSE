@@ -61,6 +61,34 @@ namespace DogSE.Server.Core.Config
         public string ComponentName { get; set; }
     }
 
+    /// <summary>
+    /// 动态数据的配置节点项
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DynamicCSVConfigRootAttribute : Attribute
+    {
+        /// <summary>
+        /// 动态数据配置文件根节点项
+        /// </summary>
+        /// <param name="fileName">配置文件的文件名</param>
+        /// <param name="componentName">配置名字</param>
+        public DynamicCSVConfigRootAttribute(string fileName, string componentName)
+        {
+            FileName = fileName;
+            ComponentName = componentName;
+        }
+
+        /// <summary>
+        /// 配置文件的文件名
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// 在管理数据里读取的配置名字
+        /// </summary>
+        public string ComponentName { get; set; }
+    }
+
 
     /// <summary>
     /// 配置文件节点项

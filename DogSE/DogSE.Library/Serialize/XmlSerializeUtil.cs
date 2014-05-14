@@ -17,6 +17,7 @@ namespace DogSE.Library.Serialize
         /// <returns></returns>
         public static T XmlDeserialize<T>(this string xmlStr) where T:class
         {
+            if (String.IsNullOrEmpty(xmlStr)) return null as T;
             var ser = new XmlSerializer(typeof(T));
             using (var stream = new MemoryStream())
             {

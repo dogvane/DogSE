@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +49,8 @@
     <Compile Include="Component\ComponentManager.cs" />
     <Compile Include="Component\IComponentManager.cs" />
     <Compile Include="Log\DebugAppender.cs" />
+    <Compile Include="Serialize\CSVReader.cs" />
+    <Compile Include="Serialize\CSVSerializeUtil.cs" />
     <Compile Include="Serialize\XmlSerializeUtil.cs" />
     <Compile Include="Log\Appender.cs" />
     <Compile Include="Log\ConsoleAppender.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Util\Delegate.cs" />
     <Compile Include="Util\DynamicCalls.cs" />
     <Compile Include="Util\Insensitive.cs" />
+    <Compile Include="Util\Lang.cs" />
     <Compile Include="Util\OpCodeNameUtil.cs" />
     <Compile Include="Util\RandomEx.cs" />
     <Compile Include="Util\Struct.cs" />

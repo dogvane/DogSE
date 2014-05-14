@@ -36,9 +36,7 @@ namespace DogSE.Server.Database.MySQL
             if (con.State == ConnectionState.Open)
                 return con;
 
-            if (con.State == ConnectionState.Closed)
-                con.Open();
-
+            con.Open();
             return con;
         }
 

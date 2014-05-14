@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using DogSE.Library.Log;
+using System.Linq;
 
 namespace DogSE.Server.Core.Util
 {
@@ -10,6 +12,24 @@ namespace DogSE.Server.Core.Util
     /// </summary>
     public static class AssemblyUtil
     {
+        /// <summary>
+        /// 加载本地目录下的逻辑文件
+        /// </summary>
+        public static void LoadLogicAssemblyInMem(string logicKeyString = "logic")
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory;
+            var dllFiles = Directory.GetFiles(path, "*.dll");
+            var ass = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var file in dllFiles)
+            {
+                if (file.ToLower().IndexOf(logicKeyString) > -1)
+                {
+                    if (!ass.Any(o=>o.FullName.IndexOf(file.Substring(0, file.Length - 4)) > -1))
+                        Assembly.Load(File.ReadAllBytes(file));
+                }
+            }
+        }
+
         /// <summary>
         /// 获得运行时所有的Assembly
         /// </summary>
@@ -37,11 +57,10 @@ namespace DogSE.Server.Core.Util
 
                 foreach (var name in refAsms)
                 {
-                    // XG: 为了测试而改的, 以后可以改回去
                     Assembly asm = null;
                     try
                     {
-                        asm = AppDomain.CurrentDomain.Load(name); // XG改的代码
+                        asm = AppDomain.CurrentDomain.Load(name);
                     }
                     catch (Exception ex)
                     {
@@ -56,6 +75,7 @@ namespace DogSE.Server.Core.Util
                     }
                 }
             }
+
             return assemblies;
         }
 
@@ -107,6 +127,33 @@ namespace DogSE.Server.Core.Util
                 var customAttribute = type.GetInterface(name, true);
                 if (customAttribute != null)
                     ret.Add(type);
+            }
+
+            return ret.ToArray();
+        }
+
+        /// <summary>
+        /// 根据一个接口，创建实现了这个接口的所有实例
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] CreateFromInterface<T>()
+        {
+            var type = typeof (T);
+            if (!type.IsInterface)
+            {
+                Logs.Error("CreateFromInterface call fail. {0} not interface. ", type.Name);
+                return new T[0];
+            }
+
+            List<T> ret = new List<T>();
+
+            foreach (var t in GetTypesByInterface(type))
+            {
+                if (t.IsInterface)
+                    continue;
+
+                ret.Add(Activator.CreateInstance<T>());
             }
 
             return ret.ToArray();

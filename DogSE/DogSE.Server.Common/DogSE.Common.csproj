@@ -7,8 +7,8 @@
     <ProjectGuid>{512DD013-E7EE-4D11-BF5A-6ED81304AD05}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DogSE.Server.Common</RootNamespace>
-    <AssemblyName>DogSE.Server.Common</AssemblyName>
+    <RootNamespace>DogSE.Common</RootNamespace>
+    <AssemblyName>DogSE.Common</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>

@@ -75,6 +75,9 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                 foreach(var p in type.GetProperties())
                 {
+                    if (!p.CanRead || !p.CanWrite)
+                        continue;
+
                     if (p.PropertyType == typeof(int))
                     {
                         readCode.AppendFormat("var ret.{0} = reader.ReadInt32();\r\n", p.Name);
@@ -122,8 +125,17 @@ namespace DogSE.Tools.CodeGeneration.Server
             }
 
             private string readProxyCodeFormatter = @"
+
+        /// <summary>
+        /// 
+        /// </summary>
     public class #TypeName#ReadProxy
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name=`reader`></param>
+        /// <returns></returns>
         public static #TypeFullName# Read(PacketReader reader)
         {
             #TypeFullName# ret = new #TypeFullName#();
@@ -142,7 +154,7 @@ namespace DogSE.Tools.CodeGeneration.Server
             void AddMethod(NetMethodAttribute att, MethodInfo methodinfo)
             {
                 var param = methodinfo.GetParameters();
-                if (param.Length < 2)
+                if (param.Length < 1)
                 {
                     Logs.Error(string.Format("{0}.{1} 不支持 {2} 个参数", classType.Name, methodinfo.Name, param.Length.ToString()));
                     return;
@@ -277,6 +289,63 @@ namespace DogSE.Tools.CodeGeneration.Server
                         else if (p.ParameterType.IsLayoutSequential)
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
+                        }
+                        else if (p.ParameterType.IsArray)
+                        {
+                            //  数组
+                            #region 处理数组的读取
+                            var arrayType = p.ParameterType.GetElementType();
+
+                            callCode.AppendFormat("var len{0} = reader.ReadInt32();\r\n", i);
+                            callCode.AppendFormat("var p{0} = new {1}[len{0}];", i, arrayType.FullName);   //  这里只创建值类型
+                            
+                            callCode.AppendFormat("for(int i =0;i< len{0};i++){{\r\n", i);
+                            if (arrayType == typeof(int))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
+                            }
+                            else if (arrayType == typeof(long))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadLong64();\r\n", i);
+                            }
+                            else if (arrayType == typeof(float))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                            }
+                            else if (arrayType == typeof(double))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadFloat();\r\n", i);
+                            }
+                            else if (arrayType == typeof(bool))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadBoolean();\r\n", i);
+                            }
+                            else if (arrayType == typeof(string))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadUTF8String();\r\n", i);
+                            }
+                            else if (arrayType.IsEnum)
+                            {
+                                callCode.AppendFormat("p{0}[i] = ({1})reader.ReadByte();\r\n", i, p.ParameterType.FullName);
+                            }
+                            else if (arrayType.IsLayoutSequential)
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
+                            }
+                            else if (arrayType.IsClass)
+                            {
+                                AddRdadProxy(arrayType);
+                                callCode.AppendFormat("p{1}[i] = {0}ReadProxy.Read(reader);\r\n", arrayType.Name, i);
+                            }
+
+                            callCode.AppendLine("}");
+
+                            #endregion
+                        }
+                        else if (p.ParameterType.IsClass)
+                        {
+                            AddRdadProxy(p.ParameterType);
+                            callCode.AppendFormat(" var p{1} = {0}ReadProxy.Read(reader);\r\n", p.ParameterType.Name, i);
                         }
                         else
                         {
@@ -425,7 +494,9 @@ namespace DogSE.Tools.CodeGeneration.Server
         }
     
 
-
+    /// <summary>
+    /// 服务器代理代码创建
+    /// </summary>
     class ServerLogicProtocolGeneration
     {
         /// <summary>

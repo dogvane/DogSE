@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\GMCommand.cs" />
+    <Compile Include="Config\KeyValueConfig.cs" />
+    <Compile Include="Entity\HotDataManager.cs" />
     <Compile Include="GameServerService.cs" />
     <Compile Include="Config\DynamicConfigFileManager.cs" />
     <Compile Include="Config\ServerConfig.cs" />
@@ -98,9 +101,7 @@
       <Name>DogSE.Server.Net</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Net\Package.dgml" />
     <None Include="Task\Task.dgml" />

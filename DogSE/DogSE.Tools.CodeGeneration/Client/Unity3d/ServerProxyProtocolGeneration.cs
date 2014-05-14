@@ -7,6 +7,7 @@ using System.Text;
 using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
+using DogSE.Tools.CodeGeneration.Utils;
 
 namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 {
@@ -17,16 +18,24 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
     {
         private readonly Type classType;
 
+        private List<FunItem> funDoc;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="type">要创建的方法的类</param>
-        public CreateProxyCode(Type type)
+        /// <param name="doc"></param>
+        public CreateProxyCode(Type type, List<FunItem> doc)
         {
             classType = type;
+            funDoc = doc;
         }
 
         private readonly StringBuilder initCode = new StringBuilder();
+
+        /// <summary>
+        /// 调用代码
+        /// </summary>
         private readonly StringBuilder callCode = new StringBuilder();
 
         /// <summary>
@@ -46,42 +55,92 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             if (writerProxySet.Contains(type))
                 return;
 
-            StringBuilder readCode = new StringBuilder();
+            StringBuilder writeCode = new StringBuilder();
 
             foreach (var p in type.GetProperties())
             {
+                if (!p.CanRead || !p.CanWrite)
+                    continue;
+
                 if (p.PropertyType == typeof(int))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(long))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(float))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(double))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(bool))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(string))
                 {
-                    readCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType.IsEnum)
                 {
-                    readCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType.IsLayoutSequential)
                 {
-                    readCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType.IsArray)
+                {
+                    //  数组
+                    #region 数组的处理
 
+                    var arrayType = p.PropertyType.GetElementType();
+
+                    //  先写入长度
+                    writeCode.AppendFormat("pw.Write((int)obj.{0}.Length);\r\n", p.Name);
+                    writeCode.AppendFormat("for(int i = 0;i < obj.{0}.Length){{\r\n", p.Name);
+
+                    if (arrayType == typeof(int))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(long))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(float))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(double))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(bool))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(string))
+                    {
+                        writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsEnum)
+                    {
+                        writeCode.AppendFormat("pw.Write((byte)obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsLayoutSequential)
+                    {
+                        writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+                    }
+
+                    writeCode.AppendLine("}");
+
+                    #endregion
                 }
                 else
                 {
@@ -94,7 +153,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             writerProxyCode.AppendLine(
                 readProxyCodeFormatter.Replace("#TypeName#", type.Name)
                 .Replace("#TypeFullName#", type.FullName)
-                .Replace("#ReadCode#", readCode.ToString())
+                .Replace("#ReadCode#", writeCode.ToString())
                 );
         }
 
@@ -219,6 +278,20 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                 StringBuilder methonNameCode = new StringBuilder();
                 StringBuilder streamWriterCode = new StringBuilder();
+                StringBuilder commentCode = new StringBuilder();
+
+                Console.WriteLine(classType.FullName + "." + methodinfo.Name);
+                var doc =
+                    funDoc.FirstOrDefault(o => o.Name.IndexOf("M:" + classType.FullName + "." + methodinfo.Name) == 0);
+                if (doc == null)
+                    doc = new FunItem();
+
+
+                commentCode.AppendFormat(@"        /// <summary>
+        /// {0}
+        /// </summary>
+", doc.Summary);
+
                 methonNameCode.AppendFormat("public void {0}(", methodName);
 
                 streamWriterCode.AppendLine("{");
@@ -226,49 +299,109 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 streamWriterCode.AppendLine();
 
 
+                
+
                 for (int i = 1; i < param.Length; i++)
                 {
                     var p = param[i];
                     if (p.ParameterType == typeof(int))
                     {
-                        methonNameCode.AppendFormat("int {0},", p.Name);
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
+                        methonNameCode.AppendFormat("int {0},", p.Name);                        
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(long))
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("long {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(float))
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("float {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(double))
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("double {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(bool))
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("bool {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(string))
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("string {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.WriteUTF8Null({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType.IsEnum)
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
                         streamWriterCode.AppendFormat("pw.Write((byte){0});\r\n", p.Name);
                     }
                     else if (p.ParameterType.IsLayoutSequential)
                     {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
                         streamWriterCode.AppendFormat("pw.WriteStruct({0});\r\n", p.Name);
 
+                    }
+                    else if (p.ParameterType.IsArray)
+                    {
+                        #region 数组的处理
+
+                        var arrayType = p.ParameterType.GetElementType();
+
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
+                        methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
+
+                        //  先写入长度
+                        streamWriterCode.AppendFormat("pw.Write((int){0}.Length);\r\n", p.Name);
+                        streamWriterCode.AppendFormat("for(int i = 0;i < {0}.Length;i++){{\r\n", p.Name);
+
+                        if (arrayType == typeof(int))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType == typeof(long))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType == typeof(float))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType == typeof(double))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType == typeof(bool))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType == typeof(string))
+                        {
+                            streamWriterCode.AppendFormat("pw.WriteUTF8Null({0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType.IsEnum)
+                        {
+                            streamWriterCode.AppendFormat("pw.Write((byte){0}[i]);\r\n", p.Name);
+                        }
+                        else if (arrayType.IsLayoutSequential)
+                        {
+                            streamWriterCode.AppendFormat("pw.WriteStruct({0}[i]);\r\n", p.Name);
+                        }
+
+                        streamWriterCode.AppendLine("}");
+
+                        #endregion
                     }
                     else
                     {
@@ -281,9 +414,12 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 streamWriterCode.AppendLine("NetState.Send(pw);");
                 streamWriterCode.AppendLine("}");
 
-                methonNameCode.Remove(methonNameCode.Length - 1, 1);
+                if (param.Length > 1)
+                    methonNameCode.Remove(methonNameCode.Length - 1, 1);
+
                 methonNameCode.Append(")");
 
+                callCode.AppendLine(commentCode.ToString());
                 callCode.AppendLine(methonNameCode.ToString());
                 callCode.AppendLine(streamWriterCode.ToString());
 
@@ -330,7 +466,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             }
 
             var code = GetCode();
-            Console.WriteLine(code);
+            //Console.WriteLine(code);
             return code;
         }
 
@@ -341,6 +477,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
         private const string CodeBase = @"
 
+    /// <summary>
+    /// 
+    /// </summary>
     partial class #ClassName#Controller
     {
         #CallMethod#
@@ -353,6 +492,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
 
 
+    /// <summary>
+    /// 客户端调用服务器的代理代码生成
+    /// </summary>
     class ServerProxyProtocolGeneration
     {
         /// <summary>
@@ -367,6 +509,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
             var dll = Assembly.LoadFrom(dllFile);
 
+            var xmlFile = dllFile.Replace(".dll", ".xml");
+            var xmlDoc = CodeCommentUtils.LoadXmlDocument(xmlFile);
+
             foreach (var type in dll.GetTypes())
             {
                 if (type.IsInterface)
@@ -376,7 +521,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         Console.WriteLine(type.ToString());
 
-                        var crc = new CreateProxyCode(type);
+                        var crc = new CreateProxyCode(type, xmlDoc);
                         var code = crc.CreateCode();
 
                         string typeName = Utils.GetFixInterfaceName(type.Name);

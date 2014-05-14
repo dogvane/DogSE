@@ -13,6 +13,15 @@ namespace DogSE.Server.Core.Protocol
     }
 
     /// <summary>
+    /// 标示忽略不进行序列化的属性
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class IgnoreAttribute : Attribute
+    {
+        
+    }
+
+    /// <summary>
     /// 网络回调方法的参数
     /// </summary>
     public class NetMethodAttribute:Attribute

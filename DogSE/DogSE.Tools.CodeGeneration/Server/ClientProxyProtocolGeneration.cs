@@ -9,6 +9,7 @@ using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Task;
 using System.Linq;
+using DogSE.Tools.CodeGeneration.Client.Unity3d;
 
 namespace DogSE.Tools.CodeGeneration.Server
 {
@@ -49,55 +50,123 @@ namespace DogSE.Tools.CodeGeneration.Server
             if (writerProxySet.Contains(type))
                 return;
 
-            StringBuilder readCode = new StringBuilder();
+            writerProxySet.Add(type);
+
+            StringBuilder writeCode = new StringBuilder();
 
             foreach (var p in type.GetProperties())
             {
+                if (!p.CanRead || !p.CanWrite)
+                    continue;
+
+                if (p.GetCustomAttributes(typeof (IgnoreAttribute), true).Length > 0)
+                    continue;
+
                 if (p.PropertyType == typeof(int))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(long))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(float))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(double))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(bool))
                 {
-                    readCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType == typeof(string))
                 {
-                    readCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType.IsEnum)
                 {
-                    readCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
                 }
                 else if (p.PropertyType.IsLayoutSequential)
                 {
-                    readCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                    writeCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
 
                 }
-                else
+                else if (p.PropertyType.IsArray)
                 {
-                    Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
-                        classType.Name, type.Name, p.Name, p.PropertyType.Name));
+                    //  数组
+                    #region 数组的处理
+
+                    var arrayType = p.PropertyType.GetElementType();
+
+                    //  先写入长度
+                    writeCode.AppendFormat("pw.Write((int)obj.{0}.Length);\r\n", p.Name);
+                    writeCode.AppendFormat("for(int i = 0;i < obj.{0}.Length;i++){{\r\n", p.Name);
+
+                    if (arrayType == typeof(int))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(long))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(float))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(double))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(bool))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(string))
+                    {
+                        writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsEnum)
+                    {
+                        writeCode.AppendFormat("pw.Write((byte)obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsLayoutSequential)
+                    {
+                        writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsClass)
+                    {
+                        AddWriteProxy(arrayType);
+
+                        writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}[i], pw);\r\n", arrayType.Name, p.Name);
+                    }
+
+                    writeCode.AppendLine("}");
+
+                    #endregion
                 }
+                else if (p.PropertyType.IsClass)
+                {
+                    AddWriteProxy(p.PropertyType);
+
+                    writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}, pw);\r\n", p.PropertyType.Name, p.Name);
+                }
+                    else
+                    {
+                        Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
+                            classType.Name, type.Name, p.Name, p.PropertyType.Name));
+                    }
 
             }
 
             writerProxyCode.AppendLine(
                 readProxyCodeFormatter.Replace("#TypeName#", type.Name)
                 .Replace("#TypeFullName#", type.FullName)
-                .Replace("#ReadCode#", readCode.ToString())
+                .Replace("#ReadCode#", writeCode.ToString())
                 );
         }
 
@@ -277,6 +346,67 @@ namespace DogSE.Tools.CodeGeneration.Server
                         streamWriterCode.AppendFormat("pw.WriteStruct({0});\r\n", p.Name);
                            
                     }
+                        else if (p.ParameterType.IsArray)
+                        {
+                            #region 数组的处理
+
+                            var arrayType = p.ParameterType.GetElementType();
+
+                            methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
+
+                            //  先写入长度
+                            streamWriterCode.AppendFormat("pw.Write((int){0}.Length);\r\n", p.Name);
+                            streamWriterCode.AppendFormat("for(int i = 0;i < {0}.Length;i++){{\r\n", p.Name);
+
+                            if (arrayType == typeof(int))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType == typeof(long))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType == typeof(float))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType == typeof(double))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType == typeof(bool))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType == typeof(string))
+                            {
+                                streamWriterCode.AppendFormat("pw.WriteUTF8Null({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType.IsEnum)
+                            {
+                                streamWriterCode.AppendFormat("pw.Write((byte){0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType.IsLayoutSequential)
+                            {
+                                streamWriterCode.AppendFormat("pw.WriteStruct({0}[i]);\r\n", p.Name);
+                            }
+                            else if (arrayType.IsClass)
+                            {
+                                AddWriteProxy(arrayType);
+                                streamWriterCode.AppendFormat("{0}WriteProxy.Write({1}[i], pw);\r\n", arrayType.Name, p.Name);
+                            }
+
+                            streamWriterCode.AppendLine("}");
+
+                            #endregion
+                        }
+                    else if (p.ParameterType.IsClass)
+                    {
+                        AddWriteProxy(p.ParameterType);
+
+                        methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
+                        streamWriterCode.AppendFormat("{0}WriteProxy.Write({1}, pw);\r\n", p.ParameterType.Name, p.Name);
+                    }
                     else
                     {
                         Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
@@ -361,7 +491,9 @@ namespace DogSE.Tools.CodeGeneration.Server
     }
     
 
-
+    /// <summary>
+    /// 服务器上的客户端代理代码创建
+    /// </summary>
     class ClientProxyProtocolGeneration
     {
         /// <summary>

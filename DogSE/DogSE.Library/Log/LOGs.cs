@@ -101,6 +101,16 @@ namespace DogSE.Library.Log
         /// <summary>
         /// 输出Error信息
         /// </summary>
+        /// <param name="format"></param>
+        /// <param name="param"></param>
+        public static void Error(string format, int param)
+        {
+            WriteLine(LogMessageType.MSG_ERROR, format, param);
+        }
+
+        /// <summary>
+        /// 输出Error信息
+        /// </summary>
         /// <param name="message"></param>
         /// <param name="ex"></param>
         public static void Error(string message, Exception ex)
@@ -200,6 +210,11 @@ namespace DogSE.Library.Log
         {
             if (appender == null)
                 throw new ArgumentNullException("appender");
+            foreach (var a in appenders)
+            {
+                if (a.GetType() == appender.GetType())
+                    return;
+            }
 
             appenders.Add(appender);
         }
@@ -260,6 +275,14 @@ namespace DogSE.Library.Log
             }
 
             return LogMessageType.MSG_NONE;
+        }
+
+        /// <summary>
+        /// 添加一个控制台的适配器
+        /// </summary>
+        public static void AddConsoleAppender()
+        {
+            AddAppender(new ConsoleAppender());
         }
     }
 }

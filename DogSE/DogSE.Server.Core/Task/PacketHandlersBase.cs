@@ -112,6 +112,11 @@ namespace DogSE.Server.Core.Task
         /// <param name="onPacketReceive"></param>
         public void Register(ushort iPacketID, PacketPriority priority, PacketReceiveCallback onPacketReceive)
         {
+            if (m_Handlers[iPacketID] != null)
+            {
+                Logs.Warn("Msgid {0} is replace.", iPacketID);
+            }
+
             m_Handlers[iPacketID] = new PacketHandler(iPacketID, priority, onPacketReceive);
         }
 
