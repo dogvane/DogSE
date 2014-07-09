@@ -23,6 +23,7 @@
 
 using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
+using DogSE.Server.Core.Protocol;
 
 #endregion
 
@@ -100,8 +101,31 @@ namespace DogSE.Server.Core.Task
                 //  如果有注册相同的消息id，这里只是进行记录，并不干预运行
                 Logs.Warn("Msgid {0} is replace.", iPacketID);
             }
+            
+            //  这里在初始化的时候就把对应的性能监视的对象给创建好
+            NetTaskProfile.GetNetTaskProfile(iPacketID);
 
             m_Handlers[iPacketID] = new PacketHandler(iPacketID, PacketPriority.Normal, onPacketReceive);
+        }
+
+        /// <summary>
+        /// 任务类型
+        /// </summary>
+        /// <param name="iPacketID"></param>
+        /// <param name="taskType"></param>
+        /// <param name="onPacketReceive"></param>
+        public void Register(ushort iPacketID, TaskType taskType, PacketReceiveCallback onPacketReceive)
+        {
+            if (m_Handlers[iPacketID] != null)
+            {
+                //  如果有注册相同的消息id，这里只是进行记录，并不干预运行
+                Logs.Warn("Msgid {0} is replace.", iPacketID);
+            }
+
+            //  这里在初始化的时候就把对应的性能监视的对象给创建好
+            NetTaskProfile.GetNetTaskProfile(iPacketID);
+
+            m_Handlers[iPacketID] = new PacketHandler(iPacketID, PacketPriority.Normal, taskType, onPacketReceive);
         }
 
         /// <summary>
@@ -116,6 +140,8 @@ namespace DogSE.Server.Core.Task
             {
                 Logs.Warn("Msgid {0} is replace.", iPacketID);
             }
+
+            NetTaskProfile.GetNetTaskProfile(iPacketID);
 
             m_Handlers[iPacketID] = new PacketHandler(iPacketID, priority, onPacketReceive);
         }

@@ -278,6 +278,20 @@ namespace DogSE.Library.Log
         }
 
         /// <summary>
+        /// 设置log等级
+        /// 该设置会把所有的日志输出按照一个等级来操作
+        /// </summary>
+        /// <param name="logLevel"></param>
+        public static void SetLogLevel(string logLevel)
+        {
+            var logType = ParseLogMessageType(logLevel);
+            foreach (var a in appenders)
+            {
+                a.Level = logType;
+            }
+        }
+
+        /// <summary>
         /// 添加一个控制台的适配器
         /// </summary>
         public static void AddConsoleAppender()

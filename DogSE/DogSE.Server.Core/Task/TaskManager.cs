@@ -24,7 +24,12 @@ namespace DogSE.Server.Core.Task
         /// <param name="taskName"></param>
         public TaskManager(string taskName)
         {
+            if (string.IsNullOrEmpty(taskName))
+                throw new ArgumentNullException("taskName");
+
             taskName_ = taskName;
+            NetTaskLogWriter = new NetTaskCodeRuntimeWriter(taskName);
+            ActionTaskLogWriter = new ActionTaskCodeRuntimeWriter(taskName);
         }
 
 
@@ -104,7 +109,9 @@ namespace DogSE.Server.Core.Task
             task.PacketReader = packetreader;
             task.PacketHandler = handler;
             task.NetState = netState;
-
+            if (handler.PacketPriority > PacketPriority.Normal)
+            {
+            }
             AppendTask(task);
         }
 
@@ -192,16 +199,20 @@ namespace DogSE.Server.Core.Task
                     }
                     watch.Stop();
 
-                    task.TaskProfile.Append(watch.ElapsedTicks, isError);
-                    task.WriteLog(watch.ElapsedTicks, isError);
+                    task.Parent = this;
+
+                    var timeTicks = watch.ElapsedTicks;
+
+                    task.TaskProfile.Append(timeTicks, isError);
+                    task.WriteLog(timeTicks, isError);
                     task.Release();
 
                     var now = OneServer.NowTime;
                     if (now.Ticks - start.Ticks > 10000 * 1000 * 10)
                     {
                         start = now;
-                        NetTaskCodeRuntimeWriter.Flush();
-                        ActionTaskCodeRuntimeWriter.Flush();
+                        NetTaskLogWriter.Flush();
+                        ActionTaskLogWriter.Flush();
                     }
                 }
                 else
@@ -211,13 +222,21 @@ namespace DogSE.Server.Core.Task
                 }
             }
 
-            NetTaskCodeRuntimeWriter.Flush();
-            ActionTaskCodeRuntimeWriter.Flush();
+            NetTaskLogWriter.Flush();
+            ActionTaskLogWriter.Flush();
 
             isWorkThreadRun = false;
         }
 
+        internal NetTaskCodeRuntimeWriter NetTaskLogWriter;
+        internal ActionTaskCodeRuntimeWriter ActionTaskLogWriter;
+
         private Thread workThread;
+
+        /// <summary>
+        /// 任务的监控数据
+        /// </summary>
+        public TaskMonitor Monitor;
 
         /// <summary>
         /// 重启线程

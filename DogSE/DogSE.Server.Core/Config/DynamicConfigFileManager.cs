@@ -39,6 +39,27 @@ namespace DogSE.Server.Core.Config
         }
 
         /// <summary>
+        /// 获得一个配置数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] GetConfigData<T>() where T : class
+        {
+            var type = typeof (T);
+            var att = type.GetAttribute<DynamicCSVConfigRootAttribute>();
+            if (att == null)
+                throw new Exception(string.Format("{0} not has DynamicCSVConfigRootAttribute", type.Name));
+
+            var data = s_data.GetComponent<T[]>(att.ComponentName);
+            if (data == null)
+            {
+                Logs.Error("Not find Template {0}", att.ComponentName);
+                return new T[0];
+            }
+            return data;
+        }
+
+        /// <summary>
         /// 初始化配置信息
         /// </summary>
         public static void Load()

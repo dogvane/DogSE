@@ -75,15 +75,33 @@ namespace DogSE.Server.Core.Task
         /// </summary>
         public DateTime CreateTime { get; set; }
 
+
+        private TaskManager parent;
+
+        /// <summary>
+        /// 任务管理器
+        /// </summary>
+        public TaskManager Parent
+        {
+            set { parent = value; }
+        }
+
         /// <summary>
         /// 写日志
         /// </summary>
-        /// <param name="runTick"></param>
+        /// <param name="runTicks"></param>
         /// <param name="isError"></param>
-        public void WriteLog(long runTick, bool isError)
+        public void WriteLog(long runTicks, bool isError)
         {
             var now = OneServer.NowTime;
-            ActionTaskCodeRuntimeWriter.Write(ActionName, runTick, now.Ticks - CreateTime.Ticks, isError);
+            long delayTicks = now.Ticks - CreateTime.Ticks;
+            parent.ActionTaskLogWriter.Write(ActionName, runTicks, delayTicks, isError);
+
+            parent.Monitor.ActionTaskCount++;
+            parent.Monitor.ActionTaskRunTicks = parent.Monitor.ActionTaskRunTicks + runTicks;
+            parent.Monitor.ActionTaskDelayTicks = parent.Monitor.ActionTaskDelayTicks + delayTicks;
+            if (isError)
+                parent.Monitor.ActionTaskErrorCount++;
         }
 
         /// <summary>
@@ -174,12 +192,29 @@ namespace DogSE.Server.Core.Task
         /// <summary>
         /// 写日志
         /// </summary>
-        /// <param name="runTick"></param>
+        /// <param name="runTicks"></param>
         /// <param name="isError"></param>
-        public void WriteLog(long runTick, bool isError)
+        public void WriteLog(long runTicks, bool isError)
         {
             var now = OneServer.NowTime;
-            ActionTaskCodeRuntimeWriter.Write(ActionName, runTick, now.Ticks - CreateTime.Ticks, isError);
+            long delayTicks = now.Ticks - CreateTime.Ticks;
+            parent.ActionTaskLogWriter.Write(ActionName, runTicks, delayTicks, isError);
+
+            parent.Monitor.ActionTaskCount++;
+            parent.Monitor.ActionTaskRunTicks = parent.Monitor.ActionTaskRunTicks + runTicks;
+            parent.Monitor.ActionTaskDelayTicks = parent.Monitor.ActionTaskDelayTicks + delayTicks;
+            if (isError)
+                parent.Monitor.ActionTaskErrorCount++;
+        }
+
+        private TaskManager parent;
+
+        /// <summary>
+        /// 任务管理器
+        /// </summary>
+        public TaskManager Parent
+        {
+            set { parent = value; }
         }
 
         /// <summary>

@@ -52,10 +52,6 @@
       <Project>{797943e1-dd93-4363-be95-8a1758d5bae1}</Project>
       <Name>DogSE.Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Common\DogSE.Common.csproj">
-      <Project>{512dd013-e7ee-4d11-bf5a-6ed81304ad05}</Project>
-      <Name>DogSE.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\DogSE\DogSE.Server.Core\DogSE.Server.Core.csproj">
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
       <Name>DogSE.Server.Core</Name>

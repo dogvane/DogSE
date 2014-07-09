@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DogSE.Library</RootNamespace>
     <AssemblyName>DogSE.Library</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -37,7 +37,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +48,9 @@
     <Compile Include="Component\ComponentManager.cs" />
     <Compile Include="Component\IComponentManager.cs" />
     <Compile Include="Log\DebugAppender.cs" />
+    <Compile Include="Performance\GCNotify.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Serialize\CSVReader.cs" />
     <Compile Include="Serialize\CSVSerializeUtil.cs" />
     <Compile Include="Serialize\XmlSerializeUtil.cs" />

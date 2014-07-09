@@ -70,14 +70,17 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 接收的缓冲区数据，仅用于同底层数据交换时用
         /// </summary>
-        internal DogBuffer32K RecvBuffer { get; private set; }
+        internal DogBuffer RecvBuffer { get; private set; }
 
         /// <summary>
         /// 重新异步开始接受数据
         /// </summary>
         internal void SyncRecvData()
         {
-            var buff = DogBuffer.GetFromPool32K();
+            if (Socket == null || !Socket.Connected)
+                return;
+
+            var buff = DogBuffer.GetFromPool4K();
             RecvBuffer = buff;
             ReceiveEventArgs.SetBuffer(buff.Bytes, 0, buff.Bytes.Length);
             Socket.ReceiveAsync(ReceiveEventArgs);
@@ -99,8 +102,12 @@ namespace DogSE.Server.Net
             if (RecvBuffer != null)
                 RecvBuffer.Release();
 
+            if (SendEventArgs != null)
+                SendEventArgs.Completed -= OnSendCompleted;
+
             SendEventArgs = null;
             ReceiveEventArgs = null;
+
             if (m_PendingBuffer.Count > 0)
             {
                 foreach (var buff in m_PendingBuffer)
@@ -124,8 +131,12 @@ namespace DogSE.Server.Net
         /// 向客户端发送数据
         /// </summary>
         /// <param name="buff"></param>
-        public void SendPackage(DogBuffer buff)
+        /// <param name="isSendNow">是否立即发送</param>
+        public void SendPackage(DogBuffer buff, bool isSendNow = true)
         {
+            if (Socket == null || !Socket.Connected)
+                return;
+
             buff.Use();
 
             lock (m_PendingBuffer)
@@ -133,13 +144,14 @@ namespace DogSE.Server.Net
                 m_PendingBuffer.Enqueue(buff);
             }
 
-            PeekSend();
+            if (isSendNow)
+                PeekSend();
         }
 
         /// <summary>
         /// 检查队列里是否有要发送的数据，如果有则进行发送处理
         /// </summary>
-        private void PeekSend()
+        public void PeekSend()
         {
             lock (m_PendingBuffer)
             {
@@ -149,11 +161,42 @@ namespace DogSE.Server.Net
                 //  TODO 这里要不要考虑进行并报发送处理
                 isSending = true;
 
-                DogBuffer buff;
-                buff = m_PendingBuffer.Dequeue();
-                SendEventArgs.UserToken = buff;
-                SendEventArgs.SetBuffer(buff.Bytes, 0, buff.Length);
-                Socket.SendAsync(SendEventArgs);
+                if (m_PendingBuffer.Count > 1)
+                {
+                    //   2 个包以上，进行拼包后再发送
+                    var buffs = m_PendingBuffer.ToArray();
+                    m_PendingBuffer.Clear();
+
+                    int offSet = 0;
+                    foreach (var b in buffs)
+                        offSet += b.Length;
+
+                    DogBuffer sendBuff;
+
+                    if (offSet < 4000)
+                        sendBuff = DogBuffer.GetFromPool4K();
+                    else
+                        sendBuff = DogBuffer.GetFromPool32K();
+
+                    foreach (var buff in buffs)
+                    {
+                        Buffer.BlockCopy(buff.Bytes, 0, sendBuff.Bytes, sendBuff.Length, buff.Length);
+                        sendBuff.Length += buff.Length;
+                        buff.Release();
+                    }
+
+                    SendEventArgs.UserToken = sendBuff;
+                    SendEventArgs.SetBuffer(sendBuff.Bytes, 0, sendBuff.Length);
+                    Socket.SendAsync(SendEventArgs);
+                }
+                else
+                {
+                    DogBuffer buff;
+                    buff = m_PendingBuffer.Dequeue();
+                    SendEventArgs.UserToken = buff;
+                    SendEventArgs.SetBuffer(buff.Bytes, 0, buff.Length);
+                    Socket.SendAsync(SendEventArgs);
+                }
             }
         }
 

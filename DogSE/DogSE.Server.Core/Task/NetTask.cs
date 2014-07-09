@@ -55,6 +55,16 @@ namespace DogSE.Server.Core.Task
 
         #endregion
 
+        private TaskManager parent;
+
+        /// <summary>
+        /// 任务管理器
+        /// </summary>
+        public TaskManager Parent
+        {
+            set { parent = value; }
+        }
+
         ushort _packetId;
 
 
@@ -88,12 +98,20 @@ namespace DogSE.Server.Core.Task
         /// <summary>
         /// 写操作日志
         /// </summary>
-        /// <param name="runTick"></param>
+        /// <param name="runTicks"></param>
         /// <param name="isError"></param>
-        public void WriteLog(long runTick, bool isError)
+        public void WriteLog(long runTicks, bool isError)
         {
             var now = OneServer.NowTime;
-            NetTaskCodeRuntimeWriter.Write(_packetId, NetState.BizId, runTick, now.Ticks - RecvTime.Ticks, isError);
+            long delayTicks = now.Ticks - RecvTime.Ticks;
+
+            parent.NetTaskLogWriter.Write(_packetId, NetState.BizId, runTicks, delayTicks, isError);
+
+            parent.Monitor.NetTaskCount++;
+            parent.Monitor.NetTaskRunTicks = parent.Monitor.NetTaskRunTicks + runTicks;
+            parent.Monitor.NetTaskDelayTicks = parent.Monitor.NetTaskDelayTicks + delayTicks;
+            if (isError)
+                parent.Monitor.NetTaskErrorCount++;
         }
 
         #endregion
@@ -170,7 +188,8 @@ namespace DogSE.Server.Core.Task
         }
 
         static readonly ConcurrentDictionary<ushort, NetTaskProfile> Map = new ConcurrentDictionary<ushort,NetTaskProfile>();
-
+        private static NetTaskProfile[] profileList;
+        
         /// <summary>
         /// 
         /// </summary>
@@ -188,8 +207,32 @@ namespace DogSE.Server.Core.Task
             ret = new NetTaskProfile(packageId);
             Map.TryAdd(packageId, ret);
 
+            profileList = null;
+
             return ret;
         }
+
+        /// <summary>
+        /// 获得网络性能监控的对象数组
+        /// </summary>
+        /// <returns></returns>
+        public static NetTaskProfile[] GetNetTaskProfile()
+        {
+            if (profileList != null)
+                return profileList;
+
+            profileList = new NetTaskProfile[Map.Count];
+            int index = 0;
+
+            foreach (var data in Map)
+            {
+                profileList[index] = data.Value;
+                index++;
+            }
+
+            return profileList;
+        }
+
     }
 
 }

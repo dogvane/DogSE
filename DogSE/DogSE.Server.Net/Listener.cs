@@ -45,6 +45,8 @@ namespace DogSE.Server.Net
             serverSocket.Start(50);
             serverSocket.Server.UseOnlyOverlappedIO = true;
             serverSocket.BeginAcceptSocket(OnSocketAccept, null);
+
+            isRun = true;
         }
 
 
@@ -54,7 +56,21 @@ namespace DogSE.Server.Net
         /// <param name="result"></param>
         void OnSocketAccept(IAsyncResult result)
         {
-            var acceptSocket = serverSocket.EndAcceptSocket(result);
+            Socket acceptSocket = null;
+
+            try
+            {
+                acceptSocket = serverSocket.EndAcceptSocket(result);
+            }
+            catch (Exception ex)
+            {
+                if (!result.IsCompleted)
+                    Logs.Error(ex.ToString());
+            }
+
+            if (!isRun)
+                return;
+
             //  这里在触发socket开始后，又重新抛一个异步连接，
             //  目的是如果下面的操作就算超时，也不会影响socket的正常连接
             serverSocket.BeginAcceptSocket(OnSocketAccept, null);
@@ -108,52 +124,60 @@ namespace DogSE.Server.Net
             }
         }
 
-        void OnRecvCompleted(object sender, SocketAsyncEventArgs e)
+        private void OnRecvCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var session = e.UserToken as ClientSession<T>;
-            if (session == null)
+            try
             {
-                Logs.Error("OnRecvCompleted UserToken is not " + typeof(ClientSession<T>).Name);
-                return;
-            }
-
-            if (e.BytesTransferred == 0)
-            {
-                //  传输为0，表示客户端已经被关闭
-                CloseSession(session);
-            }
-            else
-            {
-                //  正常收到数据
-                var buff = session.RecvBuffer;
-                buff.Length = e.BytesTransferred;  //  设置buff的有效长度
-
-                //  在处理逻辑前，先重新抛一个接收的请求到系统，这样就可以及时的收到消息
-                //  不必等系统逻辑完成操作后，才能继续接收消息。
-                session.SyncRecvData();
-                
-                NetProfile.Instatnce.RecvCount++;
-                NetProfile.Instatnce.RecvLength += buff.Length;
-
-                var recvTemp = SocketRecv;
-                if (recvTemp != null)
+                var session = e.UserToken as ClientSession<T>;
+                if (session == null)
                 {
-                    var ev = m_recvEventArgsPool.AcquireContent();
-                    ev.Buffer = buff;
-                    ev.Session = session;
-                    try
-                    {
-                        recvTemp(this, ev);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logs.Error("OnSocketRecv event error.", ex);
-                    }
-
-                    m_recvEventArgsPool.ReleaseContent(ev);
+                    Logs.Error("OnRecvCompleted UserToken is not " + typeof (ClientSession<T>).Name);
+                    return;
                 }
 
-                buff.Release();
+                if (e.BytesTransferred == 0)
+                {
+                    //  传输为0，表示客户端已经被关闭
+                    CloseSession(session);
+                }
+                else
+                {
+                    //  正常收到数据
+                    var buff = session.RecvBuffer;
+                    buff.Length = e.BytesTransferred; //  设置buff的有效长度
+
+                    //  在处理逻辑前，先重新抛一个接收的请求到系统，这样就可以及时的收到消息
+                    //  不必等系统逻辑完成操作后，才能继续接收消息。
+
+                    NetProfile.Instatnce.RecvCount++;
+                    NetProfile.Instatnce.RecvLength += buff.Length;
+
+                    var recvTemp = SocketRecv;
+                    if (recvTemp != null)
+                    {
+                        var ev = m_recvEventArgsPool.AcquireContent();
+                        ev.Buffer = buff;
+                        ev.Session = session;
+                        try
+                        {
+                            recvTemp(this, ev);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logs.Error("OnSocketRecv event error.", ex);
+                        }
+
+                        m_recvEventArgsPool.ReleaseContent(ev);
+                    }
+
+                    buff.Release();
+
+                    session.SyncRecvData();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logs.Error("OnRecvCompleted fail. ", ex);
             }
         }
 
@@ -198,15 +222,22 @@ namespace DogSE.Server.Net
         {
             var sessions = connectSessions.ToArray();
             foreach (var s in sessions)
-                s.Key.CloseSocket();
+            {
+                var socket = s.Key.Socket;
+                if (socket != null)
+                    socket.Close();
+            }
         }
 
+        private bool isRun = true;
         /// <summary>
         /// 关闭并停止服务器的socket操作
         /// </summary>
         public void Close()
         {
             DisconnectAll();
+
+            isRun = false;
             serverSocket.Stop();
         }
 

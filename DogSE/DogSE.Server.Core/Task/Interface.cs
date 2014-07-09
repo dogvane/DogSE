@@ -26,6 +26,11 @@
         /// <param name="runTick"></param>
         /// <param name="isError"></param>
         void WriteLog(long runTick, bool isError);
+
+        /// <summary>
+        /// 父节点
+        /// </summary>
+        TaskManager Parent{set;}
     }
 
     /// <summary>

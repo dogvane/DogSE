@@ -31,5 +31,19 @@
         /// 
         /// </summary>
         static public TcpConfig[] Tcp { get; set; }
+
+        /// <summary>
+        /// 服务器id
+        /// </summary>
+        public static int ServerId { get; set; }
+
+        /// <summary>
+        /// 日志等级
+        /// </summary>
+        /// <remarks>
+        /// 注意，这里只是负责从配置文件里读取
+        /// 真正配置日志的时候，需要把这个字符串转为对应的枚举值
+        /// </remarks>
+        public static string LogLevel { get; set; }
     }
 }

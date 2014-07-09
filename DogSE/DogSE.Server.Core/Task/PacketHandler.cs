@@ -19,6 +19,8 @@
  *
  ***************************************************************************/
 
+using DogSE.Server.Core.Protocol;
+
 namespace DogSE.Server.Core.Task
 {
     /// <summary>
@@ -39,6 +41,23 @@ namespace DogSE.Server.Core.Task
             m_PacketPriority = priority;
             m_OnReceive = onPacketReceive;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="iPacketID"></param>
+        /// <param name="priority"></param>
+        /// <param name="taskType"></param>
+        /// <param name="onPacketReceive"></param>
+        internal PacketHandler(ushort iPacketID, PacketPriority priority, TaskType taskType,
+            PacketReceiveCallback onPacketReceive)
+        {
+            m_PacketID = iPacketID;
+            m_PacketPriority = priority;
+            m_OnReceive = onPacketReceive;
+            m_TaskType = taskType;
+        }
+
         #endregion
 
         #region zh-CHS 属性 | en Properties
@@ -92,6 +111,23 @@ namespace DogSE.Server.Core.Task
             get { return m_OnReceive; }
         }
 
+
+        #endregion
+
+                #region zh-CHS 私有成员变量 | en Private Member Variables
+
+        /// <summary>
+        /// 数据包的优先级
+        /// </summary>
+        private readonly TaskType m_TaskType = TaskType.Main;
+
+        /// <summary>
+        /// 数据包的优先级
+        /// </summary>
+        public TaskType TaskType
+        {
+            get { return m_TaskType; }
+        }
 
         #endregion
     }

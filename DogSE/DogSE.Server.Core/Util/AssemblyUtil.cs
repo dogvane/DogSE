@@ -188,5 +188,17 @@ namespace DogSE.Server.Core.Util
                 return ret[0] as T;
             return default(T);
         }
+
+        /// <summary>
+        /// 判断一个类型是否包含某个接口
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="interfaceType"></param>
+        /// <returns></returns>
+        public static bool HasInterface(this Type type, Type interfaceType)
+        {
+            var fullName = interfaceType.FullName;
+            return type.GetInterface(fullName) != null;
+        }
     }
 }

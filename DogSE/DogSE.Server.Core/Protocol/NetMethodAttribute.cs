@@ -40,6 +40,21 @@ namespace DogSE.Server.Core.Protocol
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="opcode"></param>
+        /// <param name="type">消息的处理方法</param>
+        /// <param name="taskType">任务分类</param>
+        /// <param name="isVerifyLogin">是否进行登录验证，默认是进行的，只有登录等极少数的消息是不需要验证的</param>
+        public NetMethodAttribute(ushort opcode, NetMethodType type, TaskType taskType, bool isVerifyLogin = true)
+        {
+            OpCode = opcode;
+            MethodType = type;
+            IsVerifyLogin = isVerifyLogin;
+            TaskType = taskType;
+        }
+
+        /// <summary>
         /// 消息码
         /// </summary>
         public ushort OpCode { get; private set; }
@@ -53,6 +68,11 @@ namespace DogSE.Server.Core.Protocol
         /// 是否进行登录验证
         /// </summary>
         public bool IsVerifyLogin { get; private set; }
+
+        /// <summary>
+        /// 任务类型
+        /// </summary>
+        public TaskType TaskType { get; private set; }
     }
 
     /// <summary>
@@ -76,5 +96,31 @@ namespace DogSE.Server.Core.Protocol
         /// 简单方法，由系统自动帮忙负责解析协议
         /// </summary>
         SimpleMethod = 2,
+    }
+
+    /// <summary>
+    /// 任务类型
+    /// </summary>
+    public enum TaskType
+    {
+        /// <summary>
+        /// 主线程任务
+        /// </summary>
+        Main = 0,
+
+        /// <summary>
+        /// 优先级低的线程
+        /// 会在某些极端或者特殊情况下数据包会抛弃
+        /// 例如：聊天
+        /// </summary>
+        Low = 1,
+
+        /// <summary>
+        /// 负责线程
+        /// 通常和主线程无关的操作，但是又会对主线程产生影响的操作可以放这里
+        /// 但是， 涉及到玩家数据变更的任务，还是需要在主线程里处理
+        /// 或者可以先在这里进行初步处理，然后再把后面的数据修改的操作抛到主线程任务执行
+        /// </summary>
+        Assist = 2,
     }
 }

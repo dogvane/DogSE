@@ -189,6 +189,13 @@ namespace DogSE.Tools.CodeGeneration.Server
                     }
 
                     //string mehtodName = methodinfo.Name;
+
+                    if (att.TaskType != TaskType.Main)
+                    {
+                        initCode.AppendFormat("PacketHandlerManager.Register({0}, TaskType.{2}, module.{1});",
+                      att.OpCode, methodinfo.Name, att.TaskType);
+
+                    }
                     initCode.AppendFormat("PacketHandlerManager.Register({0}, module.{1});",
                                           att.OpCode, methodinfo.Name);
                     initCode.AppendLine();
@@ -245,8 +252,18 @@ namespace DogSE.Tools.CodeGeneration.Server
                 if (att.MethodType == NetMethodType.SimpleMethod)
                 {
                     string methodName = methodinfo.Name;
-                    initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
-                                          att.OpCode, methodName);
+
+                    if (att.TaskType != TaskType.Main)
+                    {
+                        initCode.AppendFormat("PacketHandlerManager.Register({0}, TaskType.{2}, {1});",
+                            att.OpCode, methodinfo.Name, att.TaskType);
+
+                    }
+                    else
+                    {
+                        initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
+                            att.OpCode, methodName);
+                    }
                     initCode.AppendLine();
 
 

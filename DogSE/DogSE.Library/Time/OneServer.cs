@@ -19,5 +19,15 @@ namespace DogSE.Library.Time
         /// 服务器当前的时间
         /// </summary>
         public static DateTime NowTime { get { return s_NowTime + s_UpdateTime.Elapsed; } }
+
+        /// <summary>
+        /// 设置服务器时间
+        /// </summary>
+        /// <param name="serverTime"></param>
+        public static void SetServerTime(DateTime serverTime)
+        {
+            s_NowTime = serverTime;
+            s_UpdateTime = Stopwatch.StartNew();
+        }
     }
 }

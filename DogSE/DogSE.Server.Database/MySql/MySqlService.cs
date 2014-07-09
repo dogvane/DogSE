@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using DogSE.Common;
 using IvyOrm;
 using MySql.Data.MySqlClient;
@@ -30,12 +31,33 @@ namespace DogSE.Server.Database.MySQL
         /// <returns></returns>
         public T LoadEntity<T>(int serial) where T : class, IDataEntity, new()
         {
-            MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where id = {1}", typeof (T).Name, serial);
-            var ret = con.RecordSingleOrDefault<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            var profile = DBEntityProfile<T>.Instance;
+            profile.Load.Watch.Restart();
+
+            try
+            {
+                profile.Load.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                string sql = string.Format("select * from {0} where id = {1}", typeof (T).Name, serial);
+                var ret = con.RecordSingleOrDefault<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch
+            {
+                profile.Load.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Load.Watch.Stop();
+                profile.Load.TotalTime = profile.Load.Watch.ElapsedTicks;
+            }
+
         }
+
+        #region GM用的一些查询工具
 
         /// <summary>
         /// </summary>
@@ -45,7 +67,7 @@ namespace DogSE.Server.Database.MySQL
         public T QueryEntity<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof (T).Name, where);
+            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
             var ret = con.RecordSingleOrDefault<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -72,7 +94,7 @@ namespace DogSE.Server.Database.MySQL
         public T QueryValueEntity<T>(string where) where T : new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof (T).Name, where);
+            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
             var ret = con.ValueSingleOrDefault<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -134,7 +156,7 @@ namespace DogSE.Server.Database.MySQL
         public T[] QueryEntitys<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof (T).Name, where);
+            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
             T[] ret = con.RecordQuery<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -199,6 +221,8 @@ namespace DogSE.Server.Database.MySQL
             return QueryEntitys<T>(string.Format(whereFormatter, param0, param1));
         }
 
+        #endregion
+
         /// <summary>
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -218,13 +242,31 @@ namespace DogSE.Server.Database.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public int UpdateEntity<T>(T entity) where T : class, IDataEntity
+        public int UpdateEntity<T>(T entity) where T : class, IDataEntity, new()
         {
-            MySqlConnection con = ConPool.GetConnection();
-            con.RecordUpdate(entity);
-            ConPool.ReleaseContent(con);
+            var profile = DBEntityProfile<T>.Instance;
+            profile.Update.Watch.Restart();
 
-            return 1;
+            try
+            {
+                profile.Update.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                con.RecordUpdate(entity);
+                ConPool.ReleaseContent(con);
+
+                return 1;
+            }
+            catch
+            {
+                profile.Update.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Update.Watch.Stop();
+                profile.Update.TotalTime = profile.Load.Watch.ElapsedTicks;
+            }
         }
 
 
@@ -233,12 +275,31 @@ namespace DogSE.Server.Database.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public int InsertEntity<T>(T entity) where T : class, IDataEntity
+        public int InsertEntity<T>(T entity) where T : class, IDataEntity,new()
         {
-            MySqlConnection con = ConPool.GetConnection();
-            con.RecordInsert(entity);
-            ConPool.ReleaseContent(con);
-            return entity.Id;
+            var profile = DBEntityProfile<T>.Instance;
+            profile.Insert.Watch.Restart();
+
+            try
+            {
+                profile.Insert.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                con.RecordInsert(entity);
+                ConPool.ReleaseContent(con);
+                return entity.Id;
+            }
+            catch
+            {
+                profile.Insert.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Insert.Watch.Stop();
+                profile.Insert.TotalTime = profile.Load.Watch.ElapsedTicks;
+            }
+
         }
 
         /// <summary>
@@ -246,13 +307,31 @@ namespace DogSE.Server.Database.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public int DeleteEntity<T>(T entity) where T : class, IDataEntity
+        public int DeleteEntity<T>(T entity) where T : class, IDataEntity,new()
         {
-            MySqlConnection con = ConPool.GetConnection();
-            con.RecordDelete(entity);
-            ConPool.ReleaseContent(con);
+            var profile = DBEntityProfile<T>.Instance;
+            profile.Delete.Watch.Restart();
 
-            return 1;
+            try
+            {
+                profile.Insert.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                con.RecordDelete(entity);
+                ConPool.ReleaseContent(con);
+
+                return 1;
+            }
+            catch
+            {
+                profile.Delete.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Delete.Watch.Stop();
+                profile.Delete.TotalTime = profile.Load.Watch.ElapsedTicks;
+            }
         }
 
         /// <summary>

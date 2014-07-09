@@ -42,8 +42,10 @@ namespace DogSE.Server.Core.Timer
     {
         /// <summary>
         /// 任务管理器
+        /// 从外面赋值的任务管理器，视为游戏的主任务队列
+        /// 时间调度执行的时候会抛任务到这个主任务队里里
         /// </summary>
-        static internal TaskManager TaskManager {private get; set; }
+        static internal TaskManager MainTask {private get; set; }
 
 
         #region zh-CHS 私有静态成员变量 | en Private Static Member Variables
@@ -183,7 +185,7 @@ namespace DogSE.Server.Core.Timer
                         {
                             // 将定时任务压入业务逻辑处理线程里
                             if (timeSlice.RunType == TimeSliceRunType.LogicTask)
-                                TaskManager.AppendTask(timeSlice.OnTick);
+                                MainTask.AppendTask(timeSlice.OnTick);
                             else
                                 s_threadQueue.Append(timeSlice.OnTick);
 
@@ -204,7 +206,7 @@ namespace DogSE.Server.Core.Timer
                             if (needStop)
                             {
                                 if (timeSlice.RunType == TimeSliceRunType.LogicTask)
-                                    TaskManager.AppendTask(timeSlice.Stop);
+                                    MainTask.AppendTask(timeSlice.Stop);
                                 else
                                     s_threadQueue.Append(timeSlice.Stop);
 

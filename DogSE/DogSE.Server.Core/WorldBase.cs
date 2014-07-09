@@ -37,10 +37,16 @@ namespace DogSE.Server.Core
 
             StartServerSocket();
 
-            TimerThread.TaskManager = taskManager;
+            TimerThread.MainTask = mainTask;
             TimerThread.StartTimerThread();
 
-            taskManager.StartThread();
+            mainTask.StartThread();
+
+            if (UseManyTaskThread)
+            {
+                lowTask.StartThread();
+                assistTask.StartThread();
+            }
         }
 
         /// <summary>
@@ -48,8 +54,14 @@ namespace DogSE.Server.Core
         /// </summary>
         public void StopWorld()
         {
+            //  先退出socket，关闭连接
+            StopServerSocket();
+
             m_isStartWorld = false;
-            taskManager.Runing = false;
+            mainTask.Runing = false;
+            lowTask.Runing = false;
+            assistTask.Runing = false;
+
             //  等待任务线程退出
 
             foreach (var module in logicModuleManager.GetModules())
@@ -112,7 +124,19 @@ namespace DogSE.Server.Core
             }
         }
 
-        /// <summary>
+        private void StopServerSocket()
+        {
+            foreach (var linster in Listeners)
+            {
+                linster.Close();
+
+                linster.SocketConnect -= OnSocketConnect;
+                linster.SocketDisconnect -= OnSocketDisconnect;
+                linster.SocketRecv -= OnSocketRecv;
+            }
+        }
+
+    /// <summary>
         /// 收到网络消息包
         /// </summary>
         /// <param name="sender"></param>
@@ -140,15 +164,35 @@ namespace DogSE.Server.Core
                         readBuffer.Length = len;
 
                         var packageReader = new PacketReader(readBuffer);
-                        var packetHandler = PacketHandlersManger.GetHandler(packageReader.GetPacketID());
+                        var packageId = packageReader.GetPacketID();
+                        var packetHandler = PacketHandlersManger.GetHandler(packageId);
                         if (packetHandler != null)
                         {
                             //  加入网络消息处理
-                            taskManager.AppendTask(netState, packetHandler, packageReader);
+                            if (_useManyTaskThread)
+                            {
+                                switch (packetHandler.TaskType)
+                                {
+                                    case TaskType.Low:
+                                        lowTask.AppendTask(netState, packetHandler, packageReader);
+                                        break;
+                                    case TaskType.Assist:
+                                        Logs.Debug("assist task.");
+                                        assistTask.AppendTask(netState, packetHandler, packageReader);
+                                        break;
+                                    default:
+                                        mainTask.AppendTask(netState, packetHandler, packageReader);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                mainTask.AppendTask(netState, packetHandler, packageReader);
+                            }
                         }
                         else
                         {
-                            Logs.Error("unknow packetid. code={0}", packageReader.GetPacketID().ToString());
+                            Logs.Error("unknow packetid. code={0}", packageId);
                         }
                     }
                 }
@@ -166,7 +210,7 @@ namespace DogSE.Server.Core
             {
                 //  如果在管理器里有，则说明netstate已经被业务逻辑初始化过
                 //  所以需要通知业务逻辑进行处理，否则直接清理数据后退出
-                taskManager.AppentdTask(RunTaskNetStateDisconnect, netState);
+                mainTask.AppentdTask(RunTaskNetStateDisconnect, netState);
             }
             else
             {
@@ -207,7 +251,7 @@ namespace DogSE.Server.Core
 
             //  网络连接会涉及到一些业务逻辑操作，因此需要把它加到任务队列里进行处理
             //  如果不考虑业务逻辑的处理，则可以不放到任务队列，节约一下处理时间
-            taskManager.AppentdTask(RunTaskNetStateConnect, netState);
+            mainTask.AppentdTask(RunTaskNetStateConnect, netState);
         }
 
         /// <summary>
@@ -262,14 +306,49 @@ namespace DogSE.Server.Core
             get { return PacketHandlersManger; }
         }
 
-        private readonly TaskManager taskManager = new TaskManager("logic");
+        private readonly TaskManager mainTask = new TaskManager("mainLogicTask");
 
         /// <summary>
         /// 对外公开的任务管理器
         /// </summary>
-        public TaskManager TaskManager
+        public TaskManager MainTask
         {
-            get { return taskManager; }
+            get { return mainTask; }
+        }
+
+        private readonly TaskManager lowTask = new TaskManager("lowLogicTask");
+
+        /// <summary>
+        /// 低级别的任务
+        /// </summary>
+        public TaskManager LowTask
+        {
+            get { return lowTask; }
+        }
+
+        private readonly TaskManager assistTask = new TaskManager("assistLogicTask");
+
+        /// <summary>
+        /// 辅助的任务队列
+        /// </summary>
+        public TaskManager AssistTask
+        {
+            get { return assistTask; }
+        }
+
+        private bool _useManyTaskThread;
+
+
+        /// <summary>
+        /// 是否使用多线程（3个）来处理任务
+        /// false 的话只会存在一个线程队列
+        /// true 会有3个线程队列
+        /// 默认是 false
+        /// </summary>
+        public bool UseManyTaskThread
+        {
+            get { return _useManyTaskThread; }
+            set { _useManyTaskThread = value; }
         }
 
         private readonly LogicModuleManager logicModuleManager = new LogicModuleManager();

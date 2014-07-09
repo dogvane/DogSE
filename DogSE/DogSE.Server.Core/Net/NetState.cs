@@ -260,9 +260,11 @@ namespace DogSE.Server.Core.Net
         {
             if (Running == false)
                 return;
-            
-            // 防止发送的顺序出错
-            m_Socket.SendPackage(packet.WriterStream.GetBuffer());
+
+            if (IsBatchNow)
+                m_Socket.SendPackage(packet.WriterStream.GetBuffer(), false);
+            else
+                m_Socket.SendPackage(packet.WriterStream.GetBuffer());
             packet.Release();
         }
 
@@ -275,8 +277,32 @@ namespace DogSE.Server.Core.Net
             if (Running == false)
                 return;
 
-            // 防止发送的顺序出错
-            m_Socket.SendPackage(writer.GetBuffer());
+            if (IsBatchNow)
+                m_Socket.SendPackage(writer.GetBuffer(), false);
+            else
+                m_Socket.SendPackage(writer.GetBuffer());
+        }
+
+        /// <summary>
+        /// 是否处于批量发送中
+        /// </summary>
+        public bool IsBatchNow { get; private set; }
+
+        /// <summary>
+        /// 开始进行批量发送
+        /// </summary>
+        public void BeginBatch()
+        {
+            IsBatchNow = true;
+        }
+
+        /// <summary>
+        /// 结束批量发送
+        /// </summary>
+        public void EndBatch()
+        {
+            IsBatchNow = false;
+            m_Socket.PeekSend();
         }
 
 

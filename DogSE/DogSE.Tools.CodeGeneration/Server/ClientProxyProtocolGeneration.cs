@@ -354,9 +354,11 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                             methonNameCode.AppendFormat("{0} {1},", p.ParameterType.FullName, p.Name);
 
+                            streamWriterCode.AppendFormat("int {0}len = {0} == null ? 0:{0}.Length;", p.Name);
+
                             //  先写入长度
-                            streamWriterCode.AppendFormat("pw.Write((int){0}.Length);\r\n", p.Name);
-                            streamWriterCode.AppendFormat("for(int i = 0;i < {0}.Length;i++){{\r\n", p.Name);
+                            streamWriterCode.AppendFormat("pw.Write({0}len);\r\n", p.Name);
+                            streamWriterCode.AppendFormat("for(int i = 0;i < {0}len ;i++){{\r\n", p.Name);
 
                             if (arrayType == typeof(int))
                             {

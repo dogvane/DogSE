@@ -7,15 +7,26 @@ namespace DogSE.Server.Core.Task
     /// <summary>
     /// 函数任务执行耗时记录
     /// </summary>
-    static class ActionTaskCodeRuntimeWriter
+    internal class ActionTaskCodeRuntimeWriter
     {
-        private static DateTime _nextDay;
-        private static StreamWriter _writer;
+        private DateTime _nextDay;
+        private StreamWriter _writer;
+        private string _taskName;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="taskName"></param>
+        public ActionTaskCodeRuntimeWriter(string taskName)
+        {
+            _taskName = taskName;
+            Init();
+        }
 
         /// <summary>
         /// 初始化
         /// </summary>
-        public static void Init()
+        public void Init()
         {
             var now = DateTime.Now;
 
@@ -27,9 +38,10 @@ namespace DogSE.Server.Core.Task
         /// 按照某个时间打开一个新的时间文件
         /// </summary>
         /// <param name="now"></param>
-        private static void OpenFile(DateTime now)
+        private void OpenFile(DateTime now)
         {
-            var fileName = string.Format(@"data\{0}\ActionTaskTime {1}.csv", now.ToString("yyyy-MM"), now.ToString("yyyy-MM-dd"));
+            var fileName = string.Format(@"data\{0}\{2} ActionTaskTime {1}.csv", now.ToString("yyyy-MM"),
+                now.ToString("yyyy-MM-dd"), _taskName);
 
             if (_writer != null)
                 _writer.Close();
@@ -40,14 +52,14 @@ namespace DogSE.Server.Core.Task
 
                 //  纯数字和英文的数据记录，因此开ascii的编码写入
                 //  开一个2M的缓冲区，应该够日志数据的收集了。
-                _writer = new StreamWriter(fileName, true, Encoding.ASCII, 1024*1024*2);
+                _writer = new StreamWriter(fileName, true, Encoding.UTF8, 1024*1024*2);
                 _writer.WriteLine("TimeTick,Fun,RunTime,WaitTime,IsException");
                 //  不用自动刷新，我们有一个定时器每隔1s进行一次刷新，正常些日志时，数据会先些在写入流的缓冲区里的
                 _writer.AutoFlush = false;
             }
             else
             {
-                _writer = new StreamWriter(fileName, true, Encoding.ASCII, 1024*1024*2); //  开一个2M的缓冲区，应该够日志数据的收集了。
+                _writer = new StreamWriter(fileName, true, Encoding.UTF8, 1024*1024*2); //  开一个2M的缓冲区，应该够日志数据的收集了。
                 _writer.AutoFlush = false;
             }
         }
@@ -56,10 +68,10 @@ namespace DogSE.Server.Core.Task
         /// 记录数据
         /// </summary>
         /// <param name="actonName"></param>
-        /// <param name="runTime"></param>
-        /// <param name="waitTime"></param>
+        /// <param name="runTimeTicks"></param>
+        /// <param name="waitTimeTicks"></param>
         /// <param name="isException">是否抛出异常</param>
-        public static void Write(string actonName, long runTime, long waitTime, bool isException)
+        public void Write(string actonName, long runTimeTicks, long waitTimeTicks, bool isException)
         {
             try
             {
@@ -75,9 +87,9 @@ namespace DogSE.Server.Core.Task
                 _writer.Write(',');
                 _writer.Write(actonName);
                 _writer.Write(',');
-                _writer.Write(runTime);
+                _writer.Write(runTimeTicks);
                 _writer.Write(',');
-                _writer.Write(waitTime);
+                _writer.Write(waitTimeTicks);
                 _writer.Write(',');
                 _writer.Write(isException ? 1 : 0);
                 _writer.Write("\r\n");
@@ -91,7 +103,7 @@ namespace DogSE.Server.Core.Task
         /// <summary>
         /// 刷新日志文件
         /// </summary>
-        public static void Flush()
+        public void Flush()
         {
             try
             {
@@ -108,7 +120,7 @@ namespace DogSE.Server.Core.Task
         /// <summary>
         /// 关闭文件
         /// </summary>
-        public static void Close()
+        public void Close()
         {
             try
             {

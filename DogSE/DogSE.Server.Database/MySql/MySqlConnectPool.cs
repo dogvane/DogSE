@@ -30,13 +30,18 @@ namespace DogSE.Server.Database.MySQL
         public MySqlConnection GetConnection()
         {
             var con = AcquireContent();
-            if (string.IsNullOrEmpty(con.ConnectionString))
-                con.ConnectionString = m_connectStr;
 
             if (con.State == ConnectionState.Open)
-                return con;
+            {
+                if (con.Ping())
+                    return con;
 
+                con = new MySqlConnection();
+            }
+
+            con.ConnectionString = m_connectStr;
             con.Open();
+
             return con;
         }
 

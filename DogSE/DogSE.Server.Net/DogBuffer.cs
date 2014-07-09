@@ -34,9 +34,16 @@ namespace DogSE.Server.Net
     /// </summary>
     public class DogBuffer
     {
-        //private static int s_id = 0;
+        ~DogBuffer()
+        {
 
-        //private int m_id = 0;
+        }
+
+#if DEBUG
+        private static int s_id = 0;
+
+        private int m_id = 0;
+#endif
 
         /// <summary>
         /// 
@@ -45,7 +52,9 @@ namespace DogSE.Server.Net
         {
             m_buffer = new byte[1024*4];
             BuffSizeType = DogBufferType._4K;
-            //m_id = s_id++;
+#if DEBUG
+            m_id = s_id++;
+#endif
         }
 
         internal DogBufferType BuffSizeType { get; set; }
@@ -112,6 +121,11 @@ namespace DogSE.Server.Net
             {
                 Logs.Error("重复释放。");
                 referenceCounter = 0;
+
+#if DEBUG
+                var stack = new System.Diagnostics.StackTrace(0);
+                Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, stack.GetFrame(1).GetMethod().Name);
+#endif
                 return;
             }
 

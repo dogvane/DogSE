@@ -31,7 +31,7 @@ namespace DogSE.Server.Database
         /// <param name="entity"></param>
         /// <returns>
         /// </returns>
-        int UpdateEntity<T>(T entity) where T : class, IDataEntity;
+        int UpdateEntity<T>(T entity) where T : class, IDataEntity, new();
 
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace DogSE.Server.Database
         /// <param name="entity"></param>
         /// <returns>
         /// </returns>
-        int InsertEntity<T>(T entity) where T : class, IDataEntity;
+        int InsertEntity<T>(T entity) where T : class, IDataEntity, new();
 
         /// <summary>
         /// 删除某个实体数据
@@ -49,7 +49,7 @@ namespace DogSE.Server.Database
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        int DeleteEntity<T>(T entity) where T : class, IDataEntity;
+        int DeleteEntity<T>(T entity) where T : class, IDataEntity, new();
 
         /// <summary>
         /// 执行一组sql语句
