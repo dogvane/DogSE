@@ -116,6 +116,15 @@ namespace DogSE.Server.Core.Task
             ret.CreateTime = OneServer.NowTime;
             return ret;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("task name:{0}", ActionName);
+        }
     }
 
     /// <summary>
@@ -228,6 +237,11 @@ namespace DogSE.Server.Core.Task
             ret.TaskProfile = ActionTaskProfile.GetNetTaskProfile(actionName);
             ret.CreateTime = OneServer.NowTime;
             return ret;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("task name:{0} obj:{1}", _actionName, Obj);
         }
     }
 

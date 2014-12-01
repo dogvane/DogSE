@@ -29,23 +29,23 @@ TradeAge.Server.Interface.Client.ClientProxy.Scene = new ISceneProxy1();
     {
         public void LoginServerResult(NetState netstate,TradeAge.Server.Entity.Login.LoginServerResult result,bool isCreatePlayer)
 {
-var pw = new PacketWriter(1001);
+var pw = PacketWriter.AcquireContent(1001);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1001 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write((byte)result);
 pw.Write(isCreatePlayer);
-netstate.Send(pw);pw.Dispose();
+netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
 public void CreatePlayerResult(NetState netstate,TradeAge.Server.Entity.Login.CraetePlayerResult result)
 {
-var pw = new PacketWriter(1003);
+var pw = PacketWriter.AcquireContent(1003);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1003 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write((byte)result);
-netstate.Send(pw);pw.Dispose();
+netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
 
@@ -56,50 +56,62 @@ netstate.Send(pw);pw.Dispose();
 
     class ISceneProxy1:TradeAge.Server.Interface.Client.IScene
     {
-        public void EnterSceneInfo(NetState netstate,DogSE.Common.Vector3 postion,DogSE.Common.Vector3 direction)
+        public void EnterSceneInfo(NetState netstate,TradeAge.Server.Entity.Common.Vector3 postion,TradeAge.Server.Entity.Common.Vector3 direction)
 {
-var pw = new PacketWriter(1101);
+var pw = PacketWriter.AcquireContent(1101);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1101 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
-                pw.WriteStruct(postion);
-pw.WriteStruct(direction);
-netstate.Send(pw);pw.Dispose();
+                Vector3WriteProxy.Write(postion, pw);
+Vector3WriteProxy.Write(direction, pw);
+netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
 public void SpriteEnter(NetState netstate, TradeAge.Server.Entity.Character.SimplePlayer obj)
 {
-var pw = new PacketWriter(1102);
+var pw = PacketWriter.AcquireContent(1102);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1102 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
-                SimplePlayerWriteProxy.Write(obj, pw);netstate.Send(pw);pw.Dispose();
+                SimplePlayerWriteProxy.Write(obj, pw);netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
-public void SpriteMove(NetState netstate,int playerId,DogSE.Common.Vector3 postion,DogSE.Common.Vector3 direction)
+public void SpriteMove(NetState netstate,int playerId,TradeAge.Server.Entity.Common.Vector3 postion,TradeAge.Server.Entity.Common.Vector3 direction)
 {
-var pw = new PacketWriter(1103);
+var pw = PacketWriter.AcquireContent(1103);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1103 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write(playerId);
-pw.WriteStruct(postion);
-pw.WriteStruct(direction);
-netstate.Send(pw);pw.Dispose();
+Vector3WriteProxy.Write(postion, pw);
+Vector3WriteProxy.Write(direction, pw);
+netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
 public void SpriteLeave(NetState netstate,int playerId)
 {
-var pw = new PacketWriter(1104);
+var pw = PacketWriter.AcquireContent(1104);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1104 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write(playerId);
-netstate.Send(pw);pw.Dispose();
+netstate.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
 
 
+
+    public class Vector3WriteProxy
+    {
+        public static void Write(TradeAge.Server.Entity.Common.Vector3 obj, PacketWriter pw)
+        {
+
+pw.Write(obj.X);
+pw.Write(obj.Y);
+pw.Write(obj.Z);
+
+        }
+    }
 
     public class SimplePlayerWriteProxy
     {
@@ -107,8 +119,8 @@ netstate.Send(pw);pw.Dispose();
         {
 
 pw.WriteUTF8Null(obj.Name);
-pw.WriteStruct(obj.Postion);
-pw.WriteStruct(obj.Direction);
+Vector3WriteProxy.Write(obj.Postion, pw);
+Vector3WriteProxy.Write(obj.Direction, pw);
 pw.Write(obj.Id);
 pw.Write(obj.AccountId);
 pw.Write((byte)obj.Sex);

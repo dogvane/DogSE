@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DogSE.Library.Common;
+using DogSE.Library.Log;
 using MySql.Data.MySqlClient;
 
 namespace DogSE.Server.Database.MySQL
@@ -38,7 +39,7 @@ namespace DogSE.Server.Database.MySQL
 
                 con = new MySqlConnection();
             }
-
+            Logs.Info("set connestring {0}", m_connectStr);
             con.ConnectionString = m_connectStr;
             con.Open();
 

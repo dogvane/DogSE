@@ -3,6 +3,7 @@ using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.LogicModule;
 using TradeAge.Common.Entity.NetCode;
+using TradeAge.Server.Entity.Common;
 
 namespace TradeAge.Server.Interface.ServerLogic
 {

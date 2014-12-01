@@ -25,7 +25,20 @@ namespace DogSE.Library.Thread
         /// </summary>
         public static bool HasActionInAllQueue
         {
-            get { return s_queueList.Any(o => o.HasQueues); }
+            get
+            {
+                bool result = true;
+                for (var i = 0; i < s_queueList.Count; i++) 
+                {
+                    if (!s_queueList[i].HasQueues) 
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+
+                return result;
+            }
         }
 
         /// <summary>

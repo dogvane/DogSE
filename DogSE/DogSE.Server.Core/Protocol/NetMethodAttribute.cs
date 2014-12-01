@@ -1,7 +1,25 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace DogSE.Server.Core.Protocol
 {
+
+    /// <summary>
+    /// 网络返回的描叙信息
+    /// </summary>
+    public class NetReturnDescription : DescriptionAttribute
+    {
+        /// <summary>
+        /// 网络返回的描叙信息
+        /// </summary>
+        /// <param name="description"></param>
+        public NetReturnDescription(string description)
+            : base(description)
+        {
+
+        }
+    }
+
     /// <summary>
     /// 客户端的接口定义标签
     /// 只用来标记，给协议生成工具找到对应的接口

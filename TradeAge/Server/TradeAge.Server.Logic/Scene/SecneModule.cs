@@ -3,6 +3,7 @@ using DogSE.Common;
 using DogSE.Server.Core.Net;
 using TradeAge.Server.Entity;
 using TradeAge.Server.Entity.Character;
+using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Interface.Client;
 using IScene = TradeAge.Server.Interface.ServerLogic.IScene;
 

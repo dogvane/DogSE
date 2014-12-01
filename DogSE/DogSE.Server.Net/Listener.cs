@@ -105,7 +105,7 @@ namespace DogSE.Server.Net
                         NetProfile.Instatnce.AcceptCount++;
 
                         connectSessions.GetOrAdd(session, 1);
-                        session.Socket.UseOnlyOverlappedIO = true;
+                        //session.Socket.UseOnlyOverlappedIO = true;
 
                         session.ReceiveEventArgs.UserToken = session;
                         session.ReceiveEventArgs.Completed += OnRecvCompleted;

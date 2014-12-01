@@ -117,12 +117,36 @@ PacketHandlerManager.Register(1100, OnMove);
 
 void OnMove(NetState netstate, PacketReader reader){
 if (!netstate.IsVerifyLogin) return;
-var p1 = reader.ReadStruct <DogSE.Common.Vector3>();
-var p2 = reader.ReadStruct <DogSE.Common.Vector3>();
+ var p1 = Vector3ReadProxy.Read(reader);
+ var p2 = Vector3ReadProxy.Read(reader);
 module.OnMove(netstate,p1,p2);
 }
 
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+    public class Vector3ReadProxy
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static TradeAge.Server.Entity.Common.Vector3 Read(PacketReader reader)
+        {
+            TradeAge.Server.Entity.Common.Vector3 ret = new TradeAge.Server.Entity.Common.Vector3();
+
+ret.X = reader.ReadFloat();
+ret.Y = reader.ReadFloat();
+ret.Z = reader.ReadFloat();
+
+
+            return ret;
+        }
+    }
 
     }
 

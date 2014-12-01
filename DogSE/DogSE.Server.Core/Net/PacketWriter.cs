@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using DogSE.Library.Common;
+using DogSE.Library.Log;
 
 #region zh-CHS 2006 - 2010 DemoSoft 团队 | en 2006-2010 DemoSoft Team
 
@@ -36,7 +38,7 @@ namespace DogSE.Server.Core.Net
     /// <summary>
     /// Provides functionality for writing primitive binary data.
     /// </summary>
-    public class PacketWriter:IDisposable
+    public class PacketWriter
     {
         private DogBuffer32K buffer;
 
@@ -55,16 +57,66 @@ namespace DogSE.Server.Core.Net
         #endregion
 
         #region zh-CHS 构造和初始化和清理 | en Constructors and Initializers and Dispose
+
+
         /// <summary>
         /// 数据包写入器
         /// </summary>
         /// <param name="codeId">消息报的id</param>
-        public PacketWriter(ushort codeId)
+        private PacketWriter(ushort codeId)
         {
             buffer = DogBuffer.GetFromPool32K();
             //  先预留2位用于存放消息id
             buffer.Length = ReceiveQueue.PacketLengthSize;
             Write(codeId);
+        }
+
+        /// <summary>
+        /// 写入留包
+        /// </summary>
+        public PacketWriter()
+        {
+            
+        }
+
+        /// <summary>
+        /// 设置网络消息码
+        /// </summary>
+        /// <param name="codeId"></param>
+        public void SetNetCode(ushort codeId)
+        {
+            if (buffer != null)
+                buffer.Release();
+
+            buffer = DogBuffer.GetFromPool32K();
+            //  先预留2位用于存放消息id
+            buffer.Length = ReceiveQueue.PacketLengthSize;
+            Write(codeId);
+        }
+
+
+        private static ObjectPool<PacketWriter> s_pool = new ObjectPool<PacketWriter>(256);
+
+        /// <summary>
+        /// 从缓冲池里分配一个消息包
+        /// </summary>
+        /// <param name="codeId"></param>
+        /// <returns></returns>
+        public static PacketWriter AcquireContent(ushort codeId)
+        {
+            var ret = s_pool.AcquireContent();
+            ret.SetNetCode(codeId);
+            return ret;
+        }
+
+        /// <summary>
+        /// 回收一个写留包
+        /// </summary>
+        /// <param name="packat"></param>
+        public static void ReleaseContent(PacketWriter packat)
+        {
+            packat.Release();
+            s_pool.ReleaseContent(packat);
         }
 
         #endregion
@@ -405,32 +457,33 @@ namespace DogSE.Server.Core.Net
         {
             var intValue = buffer.Length;
 
+            //if (m_Endian == Endian.LITTLE_ENDIAN)
+            //{
+            //    buffer.Bytes[0] = (byte)(intValue >> 8);
+            //    buffer.Bytes[1] = (byte)intValue;
+            //}
+            //else
+            //{
+            //    buffer.Bytes[0] = (byte)intValue;
+            //    buffer.Bytes[1] = (byte)(intValue >> 8);
+            //}
+            //Logs.Info("bufflength:{0}", intValue);
+
             if (m_Endian == Endian.LITTLE_ENDIAN)
             {
-                buffer.Bytes[0] = (byte)(intValue >> 8);
-                buffer.Bytes[1] = (byte)intValue;
+                buffer.Bytes[0] = (byte)(intValue >> 24);
+                buffer.Bytes[1] = (byte)(intValue >> 16);
+                buffer.Bytes[2] = (byte)(intValue >> 8);
+                buffer.Bytes[3] = (byte)intValue;
+
             }
             else
             {
                 buffer.Bytes[0] = (byte)intValue;
                 buffer.Bytes[1] = (byte)(intValue >> 8);
+                buffer.Bytes[2] = (byte)(intValue >> 16);
+                buffer.Bytes[3] = (byte)(intValue >> 24);
             }
-
-            //if (m_Endian == Endian.LITTLE_ENDIAN)
-            //{
-            //    buffer.Bytes[0] = (byte) (intValue >> 24);
-            //    buffer.Bytes[1] = (byte) (intValue >> 16);
-            //    buffer.Bytes[2] = (byte) (intValue >> 8);
-            //    buffer.Bytes[3] = (byte) intValue;
-
-            //}
-            //else
-            //{
-            //    buffer.Bytes[0] = (byte) intValue;
-            //    buffer.Bytes[1] = (byte) (intValue >> 8);
-            //    buffer.Bytes[2] = (byte) (intValue >> 16);
-            //    buffer.Bytes[3] = (byte) (intValue >> 24);
-            //}
             return buffer;
         }
 
@@ -441,28 +494,13 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 资源释放
         /// </summary>
-        public void Dispose(bool t)
+        private void Release()
         {
-            if (!t)
-                return;
-
             if (buffer != null)
             {
                 buffer.Release();
                 buffer = null;
             }   
-        }
-
-        #endregion
-
-        #region IDisposable 成员
-
-        /// <summary>
-        /// 资源释放
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

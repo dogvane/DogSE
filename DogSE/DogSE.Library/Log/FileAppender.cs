@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DogSE.Library.Log
@@ -135,8 +136,21 @@ namespace DogSE.Library.Log
             ret.fileName = fileName;
 
             var dir = new FileInfo(fileName).Directory;
+            if (dir == null)
+                return null;
+
             if (!dir.Exists)
-                dir.Create();
+            {
+                try
+                {
+                    dir.Create();
+                }
+                catch (Exception ex)
+                {
+                    Logs.Error(ex.ToString());
+                    return null;
+                }
+            }
 
             return ret;
         } 

@@ -62,6 +62,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 {
                     readCode.AppendFormat("ret.{0} = reader.ReadInt32();\r\n", p.Name);
                 }
+                else if (p.PropertyType == typeof(byte))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadByte();\r\n", p.Name);
+                }
                 else if (p.PropertyType == typeof(long))
                 {
                     readCode.AppendFormat("ret.{0} = reader.ReadLong64();\r\n", p.Name);
@@ -106,6 +110,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         readCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
                     }
+                    else if (arrayType == typeof(byte))
+                    {
+                        readCode.AppendFormat("p{0}[i] = reader.ReadByte();\r\n", i);
+                    }
                     else if (arrayType == typeof(long))
                     {
                         readCode.AppendFormat("p{0}[i] = reader.ReadLong64();\r\n", i);
@@ -145,6 +153,61 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     readCode.AppendFormat("ret.{0} = p{1};\r\n", p.Name, i);
 
                     #endregion
+                }
+                else if (p.PropertyType.IsGenericType)
+                {
+                    if (p.PropertyType.Name.IndexOf("List") > -1)
+                    {
+                        //  泛型的列表
+                        var gType = p.PropertyType.GetGenericArguments()[0];
+                        readCode.AppendFormat("ret.{0} = new System.Collections.Generic.List<{1}>();\r\n", p.Name, Utils.GetFixFullTypeName(gType.FullName));
+                        readCode.AppendFormat("var len{0} = reader.ReadInt32();;\r\n", i);
+                        readCode.AppendFormat("for(int i =0;i< len{0};i++){{\r\n", i);
+                        if (gType == typeof(int))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadInt32();\r\n", i);
+                        }
+                        else if (gType == typeof(byte))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadByte();\r\n", i);
+                        }
+                        else if (gType == typeof(long))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadLong64();\r\n", i);
+                        }
+                        else if (gType == typeof(float))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadFloat();\r\n", i);
+                        }
+                        else if (gType == typeof(double))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadFloat();\r\n", i);
+                        }
+                        else if (gType == typeof(bool))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadBoolean();\r\n", i);
+                        }
+                        else if (gType == typeof(string))
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadUTF8String();\r\n", i);
+                        }
+                        else if (gType.IsEnum)
+                        {
+                            readCode.AppendFormat("var newData = ({1})reader.ReadByte();\r\n", i, Utils.GetFixFullTypeName(p.PropertyType.GetElementType().FullName));
+                        }
+                        else if (gType.IsLayoutSequential)
+                        {
+                            readCode.AppendFormat("var newData = reader.ReadStruct <{1}>();\r\n", i, Utils.GetFixFullTypeName(p.PropertyType.FullName));
+                        }
+                        else if (gType.IsClass)
+                        {
+                            AddRdadProxy(gType);
+                            readCode.AppendFormat("var newData = {0}ReadProxy.Read(reader);\r\n", gType.Name);
+                        }
+
+                        readCode.AppendFormat("ret.{0}.Add(newData);\r\n", p.Name);
+                        readCode.AppendLine("}");
+                    }
                 }
                 else if (p.PropertyType.IsClass)
                 {
@@ -186,7 +249,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
         void AddMethod(NetMethodAttribute att, MethodInfo methodinfo)
         {
             var param = methodinfo.GetParameters();
-            if (param.Length < 2)
+            if (param.Length < 1)
             {
                 Logs.Error(string.Format("{0}.{1} 不支持 {2} 个参数", classType.Name, methodinfo.Name, param.Length.ToString()));
                 return;
@@ -208,12 +271,12 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     Logs.Error("{0}.{1} 必须包含一个 ComponentId 的常量字符串作为登录验证后和NetState绑定的组件。");
                     return;
                 }
-
-
             }
 
             if (att.MethodType == NetMethodType.PacketReader)
             {
+                #region PacketReader
+
                 if (param[1].ParameterType != typeof(PacketReader))
                 {
                     Logs.Error("{0}.{1} 的第二个参数必须是 PacketReader 对象", classType.Name, methodinfo.Name);
@@ -228,11 +291,15 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 //callCode.AppendFormat("void {0}(NetState netstate, PacketReader reader)", mehtodName);
                 //callCode.AppendLine("{");
                 //callCode.AppendFormat("module.{0}(netstate, reader);", methodinfo.Name);
-                //callCode.AppendLine("}");
+                //callCode.AppendLine("}"); 
+
+                #endregion
             }
 
             if (att.MethodType == NetMethodType.ProtocolStruct)
             {
+                #region ProtocolStruct
+
                 if (!param[1].ParameterType.IsClass)
                 {
                     Logs.Error("{0}.{1} 的第二个参数必须是class类型。", classType.Name, methodinfo.Name);
@@ -272,10 +339,14 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     callCode.AppendLine("}");
                 }
 
+
+                #endregion
             }
 
             if (att.MethodType == NetMethodType.SimpleMethod)
             {
+                #region SimpleMethod
+		
                 string methodName = Utils.GetFixBeCallProxyName(methodinfo.Name);
 
                 initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
@@ -292,6 +363,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     if (p.ParameterType == typeof(int))
                     {
                         callCode.AppendFormat("var p{0} = reader.ReadInt32();\r\n", i);
+                    }
+                    else if (p.ParameterType == typeof(byte))
+                    {
+                        callCode.AppendFormat("var p{0} = reader.ReadByte();\r\n", i);
                     }
                     else if (p.ParameterType == typeof(long))
                     {
@@ -334,6 +409,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         if (arrayType == typeof(int))
                         {
                             callCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
+                        }
+                        else if (arrayType == typeof(byte))
+                        {
+                            callCode.AppendFormat("p{0}[i] = reader.ReadByte();\r\n", i);
                         }
                         else if (arrayType == typeof(long))
                         {
@@ -406,10 +485,14 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                 for (int i = 1; i < param.Length; i++)
                     callCode.AppendFormat("p{0},", i);
-                callCode.Remove(callCode.Length - 1, 1);
+
+                if (param.Length > 1)
+                    callCode.Remove(callCode.Length - 1, 1);
+
                 callCode.AppendLine(");");
                 callCode.AppendLine("}");
 
+	#endregion
             }
         }
 
@@ -451,7 +534,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             }
 
             var code = GetCode();
-            Console.WriteLine(code);
+            //Console.WriteLine(code);
             return code;
         }
 
@@ -600,6 +683,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         methonNameCode.AppendFormat("int {0},", p.Name);
                     }
+                    else if (p.ParameterType == typeof(byte))
+                    {
+                        methonNameCode.AppendFormat("byte {0},", p.Name);
+                    }
                     else if (p.ParameterType == typeof(long))
                     {
                         methonNameCode.AppendFormat("long {0},", p.Name);
@@ -643,8 +730,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     }
 
                 }
+                if (param.Length > 1)
+                    methonNameCode.Remove(methonNameCode.Length - 1, 1);
 
-                methonNameCode.Remove(methonNameCode.Length - 1, 1);
                 methonNameCode.Append(");");
 
                 callCode.AppendLine(methonNameCode.ToString());
@@ -692,7 +780,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             }
 
             var code = GetCode();
-            Console.WriteLine(code);
+            //Console.WriteLine(code);
             return code;
         }
 

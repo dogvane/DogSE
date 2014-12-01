@@ -62,16 +62,18 @@ namespace DogSE.Server.Core.Config
         /// <summary>
         /// 初始化配置信息
         /// </summary>
-        public static void Load()
+        /// <param name="folder">配置文件的目录，不填写时，采用项目的根目录</param>
+        public static void Load(string folder = null)
         {
-            LoadXmlConfig();
-            LoadCSVConfig();
+            LoadXmlConfig(folder);
+            LoadCSVConfig(folder);
         }
 
         /// <summary>
         /// 加载xml的配置文件
         /// </summary>
-        private static void LoadXmlConfig()
+        /// <param name="folder">配置文件的目录，不填写时，采用项目的根目录</param>
+        private static void LoadXmlConfig(string folder = null)
         {
             var configTypes = AssemblyUtil.GetTypesByAttribute(typeof (DynamicXmlConfigRootAttribute));
             foreach (var type in configTypes)
@@ -90,7 +92,9 @@ namespace DogSE.Server.Core.Config
                     continue;
                 }
 
-                var fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rootAttribute.FileName);
+                if (folder == null)
+                    folder = AppDomain.CurrentDomain.BaseDirectory;
+                var fileName = Path.Combine(folder, rootAttribute.FileName);
 
                 if (!File.Exists(fileName))
                 {
@@ -113,9 +117,10 @@ namespace DogSE.Server.Core.Config
         }
 
         /// <summary>
-        /// 加载xml的配置文件
+        /// 加载csv的配置文件
         /// </summary>
-        private static void LoadCSVConfig()
+        /// <param name="folder">配置文件的目录，不填写时，采用项目的根目录</param>
+        private static void LoadCSVConfig(string folder = null)
         {
             var configTypes = AssemblyUtil.GetTypesByAttribute(typeof(DynamicCSVConfigRootAttribute));
             foreach (var type in configTypes)
@@ -133,7 +138,9 @@ namespace DogSE.Server.Core.Config
                     continue;
                 }
 
-                var fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rootAttribute.FileName);
+                if (folder == null)
+                    folder = AppDomain.CurrentDomain.BaseDirectory;
+                var fileName = Path.Combine(folder, rootAttribute.FileName);
 
                 if (!File.Exists(fileName))
                 {

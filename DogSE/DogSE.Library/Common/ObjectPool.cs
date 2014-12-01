@@ -20,7 +20,13 @@
 
 
 using System;
+#if NET40
+using System.Collections.Concurrent;
+#endif
+
+using System.Text;
 using System.Threading;
+using DogSE.Library.Log;
 
 namespace DogSE.Library.Common
 {
@@ -43,6 +49,11 @@ namespace DogSE.Library.Common
         /// </summary>
         private ConcurrentQueue<T> m_FreePool = new ConcurrentQueue<T>();
 
+
+#if NET40 && DEBUG
+        private ConcurrentBag<T> checkPool = new ConcurrentBag<T>();
+#endif
+
         /// <summary>
         /// 内存池的容量不足时再次请求数据的次数
         /// </summary>
@@ -56,7 +67,7 @@ namespace DogSE.Library.Common
         /// 初始化内存池
         /// </summary>
         /// <param name="iInitialCapacity">初始化内存池对象的数量</param>
-        public ObjectPool(long iInitialCapacity = 1024)
+        public ObjectPool(long iInitialCapacity = 64)
         {
             m_InitialCapacity = iInitialCapacity;
 
@@ -64,6 +75,34 @@ namespace DogSE.Library.Common
                 m_FreePool.Enqueue(new T());
 
             ObjectPoolStateInfo.Add(this);
+        }
+
+        /// <summary>
+        /// 扩展数据
+        /// </summary>
+        private void Extend()
+        {
+            for (int iIndex = 0; iIndex < m_InitialCapacity; ++iIndex)
+            {
+                newCount++;
+                m_FreePool.Enqueue(new T());
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ~ObjectPool()
+        {            
+            StringBuilder ret = new StringBuilder(512);
+            ret.AppendFormat("{0}\r\n", Name);
+            ret.AppendFormat("FreeCount:{0}\r\n", m_FreePool.Count);
+            ret.AppendFormat("InitialCapacity:{0}\r\n", m_InitialCapacity);
+            ret.AppendFormat("NewCount:{0}\r\n", newCount);
+            ret.AppendFormat("AcquireCount:{0}\r\n", acquireCount);
+            ret.AppendFormat("ReleaseCount:{0}\r\n", releaseCount);
+            Logs.Info(ret.ToString());
+            Console.WriteLine(ret.ToString());
         }
 
         /// <summary>
@@ -79,6 +118,12 @@ namespace DogSE.Library.Common
 
         #endregion
 
+        private int acquireCount;
+
+        private int releaseCount;
+
+        private int newCount;
+
         #region zh-CHS 共有方法 | en Public Methods
 
         /// <summary>
@@ -87,62 +132,61 @@ namespace DogSE.Library.Common
         /// <returns></returns>
         public T AcquireContent()
         {
-            T returnT;
-
-            long iMaxTryAcquireCount = m_InitialCapacity/2;
-
-            bool bIsCompareExchange = false;
-            bool bCompareExchangeResult = false;
-            int iTryAcquireCount = 0;
-            long iMisses = m_Misses;
-            do
+            //lock (this)
             {
-                if (m_FreePool.TryDequeue(out returnT))
-                    break;
+                T returnT;
 
-                ++iTryAcquireCount;
-
-                if (bIsCompareExchange == false)
+                do
                 {
-                    if (Interlocked.CompareExchange(ref m_Misses, iMisses + 1, iMisses) == iMisses)
-                        bCompareExchangeResult = true;
+                    if (m_FreePool.TryDequeue(out returnT))
+                        break;
 
-                    bIsCompareExchange = true;
-                }
+                    lock (m_FreePool)
+                    {
+                        m_Misses++;
+                        Extend();
+                    }
 
-                // 申请缓存
-                if (iTryAcquireCount >= iMaxTryAcquireCount || bCompareExchangeResult)
-                {
-                    for (int iIndex = 0; iIndex < m_InitialCapacity; ++iIndex)
-                        m_FreePool.Enqueue(new T());
-                }
-                else
-                    continue;
+                } while (true);
 
-                if (m_FreePool.TryDequeue(out returnT))
-                    break;
+                Interlocked.Increment(ref acquireCount);
 
-                // 重置数据
-                bIsCompareExchange = false;
-                bCompareExchangeResult = false;
-                iTryAcquireCount = 0;
-                iMisses = m_Misses;
-            } while (true);
 
-            return returnT;
+#if NET40 && DEBUG
+                checkPool.Add(returnT);
+#endif
+                return returnT;
+            }
         }
 
+        
         /// <summary>
         /// 内存池释放数据
         /// </summary>
-        /// <param name="contentT"></param>
-        public void ReleaseContent(T contentT)
+        /// <param name="content"></param>
+        public void ReleaseContent(T content)
         {
-            if (contentT == null)
-                throw new ArgumentNullException("contentT",
-                                                "MemoryPool.ReleasePoolContent(...) - contentT == null error!");
+            //lock (this)
+            {
+                if (content == null)
+                    throw new ArgumentNullException("content",
+                        "MemoryPool.ReleasePoolContent(...) - contentT == null error!");
+                //releaseCount++;
+                Interlocked.Increment(ref releaseCount);
+                m_FreePool.Enqueue(content);
 
-            m_FreePool.Enqueue(contentT);
+#if NET40 && DEBUG
+
+                if (!checkPool.TryTake(out content))
+                {
+                    Logs.Error("重复释放");
+
+                    var stack = new System.Diagnostics.StackTrace(0);
+                    Logs.Error("dog buffer is used. strace = {0}", stack.ToString());
+                }
+
+#endif
+            }
         }
 
         /// <summary>
@@ -165,7 +209,7 @@ namespace DogSE.Library.Common
                        {
                            FreeCount = m_FreePool.Count,
                            InitialCapacity = m_InitialCapacity,
-                           CurrentCapacity = m_InitialCapacity*(1 + m_Misses) /* m_Misses是从零开始计算的因此需加1*/,
+                           CurrentCapacity = m_InitialCapacity + newCount,
                            Misses = m_Misses
                        };
         }
@@ -184,7 +228,17 @@ namespace DogSE.Library.Common
             get
             {
                 if (m_Name == null)
-                    m_Name = typeof (T).Name;
+                {
+                    var type = typeof (T);
+                    if (type.IsGenericType)
+                    {
+                        m_Name = type.Name + type.GetGenericArguments()[0].Name;
+                    }
+                    else
+                    {
+                        m_Name = type.Name;
+                    }
+                }
                 return m_Name;
             }
         }

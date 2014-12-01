@@ -27,7 +27,7 @@ namespace TradeAge.Server.Game
 
             ServerConfig.Tcp = new[]
             {
-                new ServerConfig.TcpConfig
+                new TcpConfig
                 {
                     Host = "127.0.0.1",
                     Port = 4530,

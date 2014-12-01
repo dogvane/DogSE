@@ -1,0 +1,1301 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>IvyOrm</name>
+    </assembly>
+    <members>
+        <member name="T:IvyOrm.ColumnAttribute">
+            <summary>
+            Specifies additional column specific options for IvyOrm methods.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.ColumnAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.ColumnAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="columnName">The name of the Column in the database. When Null will use the properties name.</param>
+        </member>
+        <member name="M:IvyOrm.ColumnAttribute.#ctor(System.String,System.Type)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="columnName">The name of the Column in the database. When null will use the properties name.</param>
+            <param name="databaseType">The target database type used in Insert, Updates and Deletes. When Null will use the type of the property (no conversion).</param>
+        </member>
+        <member name="M:IvyOrm.ColumnAttribute.#ctor(System.String,System.Type,System.Type)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="columnName">The name of the Column in the database. When null will use the properties name.</param>
+            <param name="databaseType">The target database type used in Insert, Updates and Deletes. When Null will use the type of the property (no conversion).</param>
+            <param name="converterFactoryType">Overrides the default converter, type must be a valid ValueConverterFactory. When Null will use the default factory.</param>
+        </member>
+        <member name="P:IvyOrm.ColumnAttribute.ColumnName">
+            <summary>
+            The name of the Column in the database. When null will use the properties name.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.ColumnAttribute.DatabaseType">
+            <summary>
+            The target database type used in Insert, Updates and Deletes. When Null will use the type of the property (no conversion).
+            </summary>
+        </member>
+        <member name="P:IvyOrm.ColumnAttribute.ConverterFactoryType">
+            <summary>
+            Overrides the default converter, type must be a valid ValueConverterFactory. When Null will use the default factory.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.ExcludeColumnAttribute">
+            <summary>
+            Specifies the column is not to be used with IvyOrm functions.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.DataModificationExtension">
+            <summary>
+            Provides RecordInsert, RecordUpdate and RecordDelete extensions to the DbConnection and DbTransaction object.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordInsert(System.Data.Common.DbConnection,System.Object)">
+            <summary>
+            Executes a SQL insert for the provided record.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordInsert(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL insert for the provided record.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordInsert(System.Data.Common.DbTransaction,System.Object)">
+            <summary>
+            Executes a SQL insert for the provided record.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordInsert(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL insert for the provided record.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordUpdate(System.Data.Common.DbConnection,System.Object)">
+            <summary>
+            Executes a SQL update for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. Will only update fields without 
+            PrimaryKeyAttribute. If no records are updated then an exception will be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordUpdate(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL update for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. Will only update fields without 
+            PrimaryKeyAttribute. If no records are updated then an exception will be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordUpdate(System.Data.Common.DbTransaction,System.Object)">
+            <summary>
+            Executes a SQL update for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. Will only update fields without 
+            PrimaryKeyAttribute. If no records are updated then an exception will be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordUpdate(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL update for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. Will only update fields without 
+            PrimaryKeyAttribute. If no records are updated then an exception will be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordDelete(System.Data.Common.DbConnection,System.Object)">
+            <summary>
+            Executes a SQL delete for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. If no records are updated then an exception will
+            be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordDelete(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL delete for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. If no records are updated then an exception will
+            be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordDelete(System.Data.Common.DbTransaction,System.Object)">
+            <summary>
+            Executes a SQL delete for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. If no records are updated then an exception will
+            be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="M:IvyOrm.DataModificationExtension.RecordDelete(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.Object)">
+            <summary>
+            Executes a SQL delete for the provided record. The record must be have one or more 
+            fields with PrimaryKeyAttribute set. If no records are updated then an exception will
+            be raised.
+            
+            Additional options can be specified using TableAttribute, ColumnAttribute and 
+            PrimaryKeyAttribute on the record type.
+            </summary>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="record">
+            The object that will be used to generate the SQL command and parameters.
+            </param>
+        </member>
+        <member name="T:IvyOrm.IvyOrmException">
+            <summary>
+            Represents errors that occur during IvyOrm execution.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.IvyOrmException.#ctor">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.IvyOrmException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the class with serialized data.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:IvyOrm.IvyOrmException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the class with a specified
+            error message and a reference to the inner exception that is the cause of
+            this exception.
+            </summary>
+            <param name="message"></param>
+            <param name="innerException"></param>
+        </member>
+        <member name="M:IvyOrm.IvyOrmException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the class with serialized
+            data.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.IvyOrmOptions">
+            <summary>
+            Specifies additional options to be used with the operation. 
+            </summary>
+        </member>
+        <member name="M:IvyOrm.IvyOrmOptions.Defaults(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions)">
+            <summary>
+            Returns options loading using the default for the connection type where not provided.
+            </summary>
+            <param name="connection">Used to determine if there is a provider specific default</param>
+            <param name="baseOptions">Used as the basis for the options, will use the options specified in the baseOptions if provided</param>
+            <returns>A new IvyOrmOptions object with all options set</returns>
+        </member>
+        <member name="M:IvyOrm.IvyOrmOptions.Clone">
+            <summary>
+            Creates a clone of current object
+            </summary>
+            <returns>A clone of the current object</returns>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.ValueConverterFactory">
+            <summary>
+            Will be used as the default ValueConverterFactory. When not provided will 
+            use <see cref="F:IvyOrm.ValueConverterFactory.Default"/>.
+            When set to null the default will be used.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.ModificationOptions">
+            <summary>
+            Additional options for the method. When not provided will 
+            use <see cref="F:IvyOrm.ModificationOptions.ProviderDefault"/>.
+            When set to null the default for the provider will be used.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.RecordQueryOptions">
+            <summary>
+            Specifies options when performing a record query operation. 
+            When set to null the default for the provider will be used.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.DbProviderFactory">
+            <summary>
+            Overrides the default ProviderFactory used to create DbCommands and 
+            DbParameters. 
+            When set to null the default for the provider will be used.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.LoggingFunction">
+            <summary>
+            Provides standard output to be used for logging. 
+            (in addition to the IvyOrm.Tracing.TraceSource)
+            </summary>
+        </member>
+        <member name="P:IvyOrm.IvyOrmOptions.OutputToTraceSource">
+            <summary>
+            Enables/disables output to IvyOrm.Tracing.TraceSource
+            </summary>
+        </member>
+        <member name="T:IvyOrm.KnownConnectionTypes">
+            <summary>
+            DbConnection object's type names, used to determine provider specific behavior. 
+            Unknown connection types will use default options and may have limited functionality.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.FbConnection">
+            <summary>
+            Firebird
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.SqlConnection">
+            <summary>
+            Microsoft SQL Server
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.SqlCeConnection">
+            <summary>
+            Microsoft SQL Server Compact Edition
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.SQLiteConnection">
+            <summary>
+            SQLite
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.NpgsqlConnection">
+            <summary>
+            PostgreSQL
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.PgSqlConnection">
+            <summary>
+            PostreSQL
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.OracleConnection">
+            <summary>
+            Oracle Database
+            </summary>
+        </member>
+        <member name="F:IvyOrm.KnownConnectionTypes.MySqlConnection">
+            <summary>
+            MySQL
+            </summary>
+        </member>
+        <member name="M:IvyOrm.Logging.Log(IvyOrm.IvyOrmOptions,System.Diagnostics.TraceEventType,System.Int32,System.String,System.Exception)">
+            <summary>
+            Logs a message to the TraceSource and/or the LoggingFunction based on how IvyOrmOptions is configured.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.ModificationOptions">
+            <summary>
+            Specify options for Insert, Update and Delete commands
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ModificationOptions.None">
+            <summary>
+            Will not apply any of the options.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ModificationOptions.ProviderDefault">
+            <summary>
+            Will use the providers default where available.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ModificationOptions.UppercaseIdentifiers">
+            <summary>
+            Converts the table name and column names to uppercase for database commands.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ModificationOptions.LowercaseIdentifiers">
+            <summary>
+            Converts the table name and column names to lowercase for database commands.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ModificationOptions.DoNotThrowExceptionOnNoRecordsUpdated">
+            <summary>
+            Ignores the returned record update count. If not specified an exception will be 
+            thrown if no records are updated.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.PrimaryKeyAttribute">
+            <summary>
+            Designates a column as primary key for Insert, Update and Delete operations
+            </summary>
+        </member>
+        <member name="M:IvyOrm.PrimaryKeyAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.PrimaryKeyAttribute.#ctor(IvyOrm.PrimaryKeyOptions)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="P:IvyOrm.PrimaryKeyAttribute.Options">
+            <summary>
+            Provides additional options for columns designated with the PrimaryKeyAttribute
+            </summary>
+        </member>
+        <member name="T:IvyOrm.PrimaryKeyOptions">
+            <summary>
+            Provides additional options for columns designated with the PrimaryKeyAttribute
+            </summary>
+        </member>
+        <member name="F:IvyOrm.PrimaryKeyOptions.None">
+            <summary>
+            Default option
+            </summary>
+        </member>
+        <member name="F:IvyOrm.PrimaryKeyOptions.ReturnKeyValueOnInsert">
+            <summary>
+            Indicates that the column should be populated after inserts. 
+            Note, support for this feature is only available with some providers
+            </summary>
+        </member>
+        <member name="F:IvyOrm.PrimaryKeyOptions.ExcludeFromInsert">
+            <summary>
+            Indicates the column should not excluded when performing an insert.
+            This is the default if ReturnKeyValueOnInsert is set.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.PrimaryKeyOptions.IncludeInInsert">
+            <summary>
+            Indicates the column should be included when performing insert. 
+            This is the on by default unless ReturnKeyValueOnInsert is set.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.RecordQueryExtension">
+            <summary>
+            Provides RecordQuery, RecordSingle and RecordSingleOrDefault extensions to the DbConnection and DbTransaction object.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordQuery``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result set to an array of 
+            type T with each column in the result set mapping to a property or field in type T.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordQuery``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result set to an array of 
+            type T with each column in the result set mapping to a property or field in type T.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordQuery``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result set to an array of 
+            type T with each column in the result set mapping to a property or field in type T.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordQuery``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result set to an array of 
+            type T with each column in the result set mapping to a property or field in type T.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingle``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond an IvyOrmException is thrown
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingle``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond an IvyOrmException is thrown
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingle``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond an IvyOrmException is thrown
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingle``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond an IvyOrmException is thrown
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingleOrDefault``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond a default(T) is returned.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingleOrDefault``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond a default(T) is returned.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingleOrDefault``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond a default(T) is returned.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="M:IvyOrm.RecordQueryExtension.RecordSingleOrDefault``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the specified command and converts the result to an object of type T with each column in 
+            the result set mapping to a property or field in type T. If no results are fond a default(T) is returned.
+            </summary>
+            <typeparam name="T">The target value to return. Must be a class or a struct</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Array of new objects derived from the result set</returns>
+        </member>
+        <member name="T:IvyOrm.TableAttribute">
+            <summary>
+            Specifies additional table specific options for IvyOrm methods.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.TableAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.TableAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="tableName">The name of the database table, used by IvyOrm for Inserts, Updates and Deletes</param>
+        </member>
+        <member name="M:IvyOrm.TableAttribute.#ctor(IvyOrm.TableOptions)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="options">Addional table level options for IvyOrm</param>
+        </member>
+        <member name="M:IvyOrm.TableAttribute.#ctor(System.String,IvyOrm.TableOptions)">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="tableName">The name of the database table, used by IvyOrm for Inserts, Updates and Deletes</param>
+            <param name="options">Addional table level options for IvyOrm</param>
+        </member>
+        <member name="P:IvyOrm.TableAttribute.TableName">
+            <summary>
+            The name of the database table, used by IvyOrm for Inserts, Updates and Deletes
+            </summary>
+        </member>
+        <member name="P:IvyOrm.TableAttribute.Options">
+            <summary>
+            Addional table level options for IvyOrm
+            </summary>
+        </member>
+        <member name="T:IvyOrm.TableOptions">
+            <summary>
+            Additional table level options for IvyOrm
+            </summary>
+        </member>
+        <member name="F:IvyOrm.TableOptions.None">
+            <summary>
+            Default table options (ColumnOptOut)
+            </summary>
+        </member>
+        <member name="F:IvyOrm.TableOptions.ColumnsOptIn">
+            <summary>
+            Specifies that the  columns must be explicitly defined using the ColumnAttribute on public fields or properties in order to be included.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.TableOptions.ColumnsOptOut">
+            <summary>
+            Specifies that the all public fields or properties are included as columns unless the ExcludeColumnAttribute is set.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.RecordQueryOptions">
+            <summary>
+            Specifies options when performing a RecordQuery
+            </summary>
+        </member>
+        <member name="F:IvyOrm.RecordQueryOptions.None">
+            <summary>
+            Uses default row.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.RecordQueryOptions.SingleRow">
+            <summary>
+            Returns only the first row or a blank array if no records are returned.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.RecordQueryOptions.ThrowErrorOnExtraFields">
+            <summary>
+            Will throw an error if the result set has fields not mappable to the class.
+            </summary>
+        </member>
+        <member name="F:IvyOrm.RecordQueryOptions.ThrowErrorOnMissingFields">
+            <summary>
+            Will throw an error if class has fields that are not present in the result set.
+            </summary>
+        </member>
+        <member name="T:IvyOrm.Tracing">
+            <summary>
+            Provides default tracing provider
+            </summary>
+        </member>
+        <member name="P:IvyOrm.Tracing.TraceSource">
+            <summary>
+            The default trace source used for the various commands
+            </summary>
+        </member>
+        <member name="T:IvyOrm.ValueConverterFactory">
+            <summary>
+            Provides conversion functions from a sourceType to a destinationType
+            </summary>
+        </member>
+        <member name="F:IvyOrm.ValueConverterFactory.Default">
+            <summary>
+            Returns the global default converter factory.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.ValueConverterFactory.TryGetConverter(System.Type,System.Type,System.Converter{System.Object,System.Object}@)">
+            <summary>
+            Provides a converter that handles objects of sourceType and returns objects of destinationType.
+            </summary>
+            <returns>True if converter is available, False if converter is not available</returns>
+            <exception cref="T:System.ArgumentNullException"/>
+        </member>
+        <member name="M:IvyOrm.ValueConverterFactory.GetToDatabaseConverter(System.Type,System.Type)">
+            <summary>
+            Returns a converter from the sourceType to the destinationType to be used when converting from a .net object to the database. 
+            Throws a NotSupportedException if converter is not found.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.NotSupportedException"/>
+        </member>
+        <member name="M:IvyOrm.ValueConverterFactory.GetFromDatabaseConverter(System.Type,System.Type)">
+            <summary>
+            Returns a converter from the sourceType to the destinationType to be used when converting from a database result set to a .net object. 
+            Throws a NotSupportedException if converter is not found.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.NotSupportedException"/>
+        </member>
+        <member name="M:IvyOrm.ValueConverterFactory.GetConverter(System.Type,System.Type)">
+            <summary>
+            Returns a converter from the sourceType to the destinationType.
+            Throws a NotSupportedException if converter is not found.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.NotSupportedException"/>
+        </member>
+        <member name="T:IvyOrm.ExecuteCommandExtension">
+            <summary>
+            Provides ExecuteNonQuery, ExecuteReader and ExecuteScalar extensions to the DbConnection and DbTransaction object.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteNonQuery(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The number of rows affected.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteNonQuery(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The number of rows affected.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteNonQuery(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The number of rows affected.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteNonQuery(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The number of rows affected.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbConnection,System.Data.CommandBehavior,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="behavior">One of the System.Data.CommandBehavior values.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbTransaction,System.Data.CommandBehavior,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="behavior">One of the System.Data.CommandBehavior values.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.Data.CommandBehavior,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="behavior">One of the System.Data.CommandBehavior values.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteReader(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.Data.CommandBehavior,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object and returns a reader.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="behavior">One of the System.Data.CommandBehavior values.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>A System.Data.Common.DbDataReader object.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteScalar(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The first column of the first row in the result set.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteScalar(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The first column of the first row in the result set.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteScalar(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The first column of the first row in the result set.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="M:IvyOrm.ExecuteCommandExtension.ExecuteScalar(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes a SQL statement against a connection object.
+            </summary>
+            <param name="transaction">The transaction to execute the command on.</param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>The first column of the first row in the result set.</returns>
+            <exception cref="T:System.Data.Common.DbException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+            <exception cref="T:System.FormatException"/>
+        </member>
+        <member name="T:IvyOrm.GetFactoryExtension">
+            <summary>
+            Provides a GetFactory() extensions to the DbConnection object
+            </summary>
+        </member>
+        <member name="M:IvyOrm.GetFactoryExtension.GetFactory(System.Data.Common.DbConnection)">
+            <summary>
+            Returns an  factory instance associated with the specified connection type by looking in the assembly for class that derives from DbProviderFactory.
+            </summary>
+            <param name="connection"></param>
+            <returns>Associated factory instance</returns>
+            <exception cref="T:System.NotSupportedException"/>
+            <exception cref="T:System.ArgumentNullException"/>
+        </member>
+        <member name="T:IvyOrm.GetParameterPlaceholderExtension">
+            <summary>
+            Exposes the protected method GetParameterPlaceholder to the DbCommandBuilder as an extension.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.GetParameterPlaceholderExtension.GetParameterPlaceholder(System.Data.Common.DbCommandBuilder,System.Int32)">
+            <summary>
+             Returns the placeholder for the parameter in the associated SQL statement.
+            </summary>
+            <param name="commandBuilder">The builder that provides the format of the placeholder</param>
+            <param name="parameterOrdinal">The number to be included as part of the parameter's name.</param>
+            <returns>The name of the parameter with the specified number appended.</returns>
+        </member>
+        <member name="T:IvyOrm.ValueQueryExtension">
+            <summary>
+            Provides ValueQuery, ValueSingle and ValueSingleOrDefault extensions to the DbConnection and DbTransaction object.
+            </summary>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueQuery``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueQuery``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueQuery``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueQuery``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingle``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>        
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingle``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>        
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingle``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingle``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingleOrDefault``1(System.Data.Common.DbConnection,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingleOrDefault``1(System.Data.Common.DbTransaction,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingleOrDefault``1(System.Data.Common.DbConnection,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="connection">Connection to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+        <member name="M:IvyOrm.ValueQueryExtension.ValueSingleOrDefault``1(System.Data.Common.DbTransaction,IvyOrm.IvyOrmOptions,System.String,System.Object[])">
+            <summary>
+            Executes the query and returns the value from the first 
+            column of the result set. All other columns are ignored. Value is converted 
+            to T.
+            
+            ValueQuery returns all rows.
+            ValueSingle returns only the first row and throws an exception if no rows are returned.
+            ValueSingleOrDefault returns only the first row and returns default(T) when no rows are returned.
+            </summary>
+            <typeparam name="T">The target value to return</typeparam>
+            <param name="transaction">Transaction to execute the command on.</param>
+            <param name="commandText">
+            The command to execute including parameters placeholders formatted as @0, @1, ... placeholders will be
+            converted to placeholders compatible with the database.
+            </param>
+            <param name="options">
+            Specifies additional options to be used with the operation.
+            </param>
+            <param name="args">An object array that contains zero or more objects to as database parameters values.</param>
+            <returns>Value(s) converted from the data set to type T</returns>
+        </member>
+    </members>
+</doc>

@@ -1,4 +1,5 @@
-﻿using DogSE.Library.Log;
+﻿using System.Threading;
+using DogSE.Library.Log;
 using DogSE.Server.Core.Config;
 using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
@@ -7,6 +8,7 @@ using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Task;
 using DogSE.Server.Net;
 using System;
+using System.Diagnostics;
 
 namespace DogSE.Server.Core
 {
@@ -54,6 +56,8 @@ namespace DogSE.Server.Core
         /// </summary>
         public void StopWorld()
         {
+            Logs.Info("stop world.");
+
             //  先退出socket，关闭连接
             StopServerSocket();
 
@@ -68,6 +72,19 @@ namespace DogSE.Server.Core
             {
                 module.Release();
             }
+        }
+
+
+        /// <summary>
+        /// 检查正在执行的任务是否有异常
+        /// 如果有异常，则杀掉任务现场
+        /// 争取从异常里恢复
+        /// </summary>
+        public void CheckRunTask()
+        {
+            mainTask.CheckAndRestart();
+            lowTask.CheckAndRestart();
+            assistTask.CheckAndRestart();
         }
 
         /// <summary>
@@ -130,11 +147,18 @@ namespace DogSE.Server.Core
             {
                 linster.Close();
 
+                while (m_netStateManager.Count > 0)
+                {
+                    Thread.Sleep(100);
+                }
+
                 linster.SocketConnect -= OnSocketConnect;
                 linster.SocketDisconnect -= OnSocketDisconnect;
                 linster.SocketRecv -= OnSocketRecv;
             }
         }
+
+        private const int MaxPackageSize = 32*1024;
 
     /// <summary>
         /// 收到网络消息包
@@ -145,10 +169,38 @@ namespace DogSE.Server.Core
         {
             var netState = e.Session.Data;
             netState.ReceiveBuffer.Enqueue(e.Buffer.Bytes, 0, e.Buffer.Length);
-
-            var len = netState.ReceiveBuffer.GetPacketLength();
-            do
+            if (netState.ReceiveBuffer.Length > MaxPackageSize)
             {
+                //  缓冲区过多，一定发送了某种异常情况
+                Logs.Error("client recv buff is full.");
+                netState.NetSocket.CloseSocket();
+                return;
+            }
+
+            while (netState.ReceiveBuffer.Length > 2)   // 大于包头长度才具备解析的需求
+            {
+                var len = netState.ReceiveBuffer.GetPacketLength();
+                if (len == 0)
+                {
+                    Logs.Error("get package len is zero.");
+                    netState.NetSocket.CloseSocket(); 
+                    return;
+                }
+
+                if (len < 4)
+                {
+                    Logs.Error("get package len is min 4.");
+                    netState.NetSocket.CloseSocket();
+                    return;
+                }
+
+                if (len > MaxPackageSize)
+                {
+                    Logs.Error("get package len is error. size:{0}", len);
+                    netState.NetSocket.CloseSocket();
+                    return;
+                }
+
                 if (len <= netState.ReceiveBuffer.Length)
                 {
 
@@ -163,8 +215,10 @@ namespace DogSE.Server.Core
                     {
                         readBuffer.Length = len;
 
-                        var packageReader = new PacketReader(readBuffer);
+                        var packageReader = PacketReader.AcquireContent(readBuffer);
                         var packageId = packageReader.GetPacketID();
+                        Debug.Write("msgId = " + packageId.ToString());
+
                         var packetHandler = PacketHandlersManger.GetHandler(packageId);
                         if (packetHandler != null)
                         {
@@ -195,10 +249,10 @@ namespace DogSE.Server.Core
                             Logs.Error("unknow packetid. code={0}", packageId);
                         }
                     }
+                    continue;
                 }
-                //  一次网络消息可能会对应多个消息包，因此这里用循环获得消息包
-                len = netState.ReceiveBuffer.GetPacketLength();
-            } while (len > 0);
+                break;
+            }
         }
 
 
@@ -239,13 +293,22 @@ namespace DogSE.Server.Core
             netState.Dispose();
         }
 
-    /// <summary>
+        /// <summary>
         /// 触发Socket的连接事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnSocketConnect(object sender, SocketConnectEventArgs<NetState> e)
+        private void OnSocketConnect(object sender, SocketConnectEventArgs<NetState> e)
         {
+            if (WhiteList.IsEnable)
+            {
+                var ip = e.Session.RemoteOnlyIP;
+                if (!WhiteList.Contains(ip))
+                {
+                    e.AllowConnection = false;
+                    return;
+                }
+            }
             var netState = new NetState(e.Session, this);
             e.Session.Data = netState;
 

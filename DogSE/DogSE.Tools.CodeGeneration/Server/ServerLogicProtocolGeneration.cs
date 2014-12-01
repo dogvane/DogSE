@@ -71,6 +71,8 @@ namespace DogSE.Tools.CodeGeneration.Server
                 if (readProxySet.Contains(type))
                     return;
 
+                readProxySet.Add(type);
+
                 StringBuilder readCode = new StringBuilder();
 
                 foreach(var p in type.GetProperties())
@@ -80,35 +82,39 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                     if (p.PropertyType == typeof(int))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadInt32();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadInt32();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(byte))
+                    {
+                        readCode.AppendFormat("ret.{0} = reader.ReadByte();\r\n", p.Name);
                     }
                     else if (p.PropertyType == typeof(long))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadLong64();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadLong64();\r\n", p.Name);
                     }
                     else if (p.PropertyType == typeof(float))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadFloat();\r\n", p.Name);
                     }
                     else if (p.PropertyType == typeof(double))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadFloat();\r\n", p.Name);
                     }
                     else if (p.PropertyType == typeof(bool))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadBoolean();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadBoolean();\r\n", p.Name);
                     }
                     else if (p.PropertyType == typeof(string))
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
+                        readCode.AppendFormat("ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
                     }
                     else if (p.PropertyType.IsEnum)
                     {
-                        readCode.AppendFormat("var ret.{0} = ({1})reader.ReadByte();\r\n", p.Name, p.PropertyType.FullName);
+                        readCode.AppendFormat("ret.{0} = ({1})reader.ReadByte();\r\n", p.Name, p.PropertyType.FullName);
                     }
                     else if (p.PropertyType.IsLayoutSequential)
                     {
-                        readCode.AppendFormat("var ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
+                        readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
                     }
                     else
                     {
@@ -279,6 +285,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadInt32();\r\n", i);
                         }
+                        else if (p.ParameterType == typeof (byte))
+                        {
+                            callCode.AppendFormat("var p{0} = reader.ReadByte();\r\n", i);
+                        }
                         else if (p.ParameterType == typeof (long))
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadLong64();\r\n", i);
@@ -320,6 +330,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                             if (arrayType == typeof(int))
                             {
                                 callCode.AppendFormat("p{0}[i] = reader.ReadInt32();\r\n", i);
+                            }
+                            else if (arrayType == typeof(byte))
+                            {
+                                callCode.AppendFormat("p{0}[i] = reader.ReadByte();\r\n", i);
                             }
                             else if (arrayType == typeof(long))
                             {
@@ -440,7 +454,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                 }
 
                 var code = GetCode();
-                Console.WriteLine(code);
+                //Console.WriteLine(code);
                 return code;
             }
 

@@ -38,7 +38,7 @@ namespace DogSE.Server.Core.Net
         public Packet( ushort iPacketID )
         {
             m_PacketID  = iPacketID;
-            m_Stream = new PacketWriter(iPacketID);
+            m_Stream = PacketWriter.AcquireContent(iPacketID);
 
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( iPacketID );
             if ( packetProfile != null )
@@ -53,7 +53,7 @@ namespace DogSE.Server.Core.Net
         public Packet(ushort iPacketID, int len = 0)
         {
             m_PacketID = iPacketID;
-            m_Stream = new PacketWriter(iPacketID);
+            m_Stream = PacketWriter.AcquireContent(iPacketID);
 
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile(iPacketID);
             if (packetProfile != null)
@@ -121,7 +121,8 @@ namespace DogSE.Server.Core.Net
 
             if ( m_Stream != null )
             {
-                m_Stream.Dispose();
+                PacketWriter.ReleaseContent(m_Stream);
+                //m_Stream.Release();
                 m_Stream = null;
             }
         }

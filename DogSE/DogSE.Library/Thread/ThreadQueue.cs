@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using DogSE.Library.Thread;
 using System.Linq;
+using DogSE.Library.Log;
 
 namespace DogSE.Library.Thread
 {
@@ -33,6 +33,49 @@ namespace DogSE.Library.Thread
             ioThreadQueue.Append(method);
         }
 
+        /// <summary>
+        /// 添加一个io缓存方法
+        /// 在没有调用 flushIoCache 方法前会先缓存在内部
+        /// 等合适的时间再flush到队列里
+        /// </summary>
+        /// <param name="hasdCode"></param>
+        /// <param name="method"></param>
+        /// <returns>
+        /// true 表示缓存里没有类似的实体数据，缓存添加成功
+        /// false 表示缓存里有相同的实体，不再进行添加
+        /// </returns>
+        public static bool AppendIOCache(int hasdCode, Action method)
+        {
+            lock (ioCache)
+            {
+                if (!ioCache.ContainsKey(hasdCode))
+                {
+                    ioCache.Add(hasdCode, method);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        private static readonly Dictionary<int, Action> ioCache = new Dictionary<int,Action>();
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void FlushIOCache()
+        {
+            lock (ioCache)
+            {
+                var mehtods = ioCache.Values.ToArray();
+                ioCache.Clear();
+                if (mehtods.Length > 0)
+                {
+                    Logs.Debug("flush db entity {0}", mehtods.Length);
+                    foreach (var m in mehtods)
+                        ioThreadQueue.Append(m);
+                }
+            }
+        }
 
         /// <summary>
         /// 当前队列里是否还有正在执行的任务
@@ -42,7 +85,7 @@ namespace DogSE.Library.Thread
             get { return normalThreadQueue.HasQueues | ioThreadQueue.HasQueues; }
         }
 
-        private static List<ThreadQueueEntity> s_threadQueueList = new List<ThreadQueueEntity>();
+        private static readonly List<ThreadQueueEntity> s_threadQueueList = new List<ThreadQueueEntity>();
 
         /// <summary>
         /// 获得一个指定名称的线程队列

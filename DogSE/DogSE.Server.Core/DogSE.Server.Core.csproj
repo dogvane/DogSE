@@ -40,24 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\BoundingBox.cs" />
-    <Compile Include="Common\BoundingFrustum.cs" />
-    <Compile Include="Common\BoundingSphere.cs" />
-    <Compile Include="Common\Delegate.cs" />
-    <Compile Include="Common\Enum.cs" />
     <Compile Include="Common\GMCommand.cs" />
-    <Compile Include="Common\MathHelper.cs" />
-    <Compile Include="Common\Matrix.cs" />
-    <Compile Include="Common\Plane.cs" />
-    <Compile Include="Common\Point2D.cs" />
-    <Compile Include="Common\Point3D.cs" />
-    <Compile Include="Common\Quaternion.cs" />
-    <Compile Include="Common\Ray.cs" />
-    <Compile Include="Common\Rectangle2D.cs" />
-    <Compile Include="Common\Rectangle3D.cs" />
-    <Compile Include="Common\Vector2.cs" />
-    <Compile Include="Common\Vector3.cs" />
-    <Compile Include="Common\Vector4.cs" />
     <Compile Include="Config\KeyValueConfig.cs" />
     <Compile Include="Entity\HotDataManager.cs" />
     <Compile Include="GameServerService.cs" />
@@ -70,6 +53,7 @@
     <Compile Include="LogicModule\ILogicModule.cs" />
     <Compile Include="LogicModule\LogicModuleManager.cs" />
     <Compile Include="Net\NetState.ComponentManager.cs" />
+    <Compile Include="Net\WhiteList.cs" />
     <Compile Include="Protocol\CreateProxyCode.cs" />
     <Compile Include="Protocol\CreateReadCode.cs" />
     <Compile Include="Protocol\NetMethodAttribute.cs" />

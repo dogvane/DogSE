@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using DogSE.Library.Common;
 using DogSE.Library.Util;
 using DogSE.Server.Net;
 
@@ -48,7 +49,7 @@ namespace DogSE.Server.Core.Net
     /// <summary>
     /// 数据包的数据读取
     /// </summary>
-    public class PacketReader:IDisposable
+    public class PacketReader
     {
         #region zh-CHS 构造和初始化和清理 | en Constructors and Initializers and Dispose
 
@@ -56,12 +57,47 @@ namespace DogSE.Server.Core.Net
         /// 
         /// </summary>
         /// <param name="buffer"></param>
-        public PacketReader(DogBuffer buffer)
+        public void SetBuffer(DogBuffer buffer)
         {
-            m_Data  = buffer.Bytes;
-            m_Size  = buffer.Length;
+            m_Data = buffer.Bytes;
+            m_Size = buffer.Length;
             m_Index = ReceiveQueue.PacketLengthSize + 2;    // 包头的长度和消息码长度
+            m_buffer = buffer;
         }
+
+
+        /// <summary>
+        /// 写入留包
+        /// </summary>
+        public PacketReader()
+        {
+
+        }
+
+        private static ObjectPool<PacketReader> s_pool = new ObjectPool<PacketReader>(256);
+
+        /// <summary>
+        /// 从缓冲池里分配一个消息包
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static PacketReader AcquireContent(DogBuffer buffer)
+        {
+            var ret = s_pool.AcquireContent();
+            ret.SetBuffer(buffer);
+            return ret;
+        }
+
+        /// <summary>
+        /// 回收一个写留包
+        /// </summary>
+        /// <param name="packat"></param>
+        public static void ReleaseContent(PacketReader packat)
+        {
+            packat.Dispose();
+            s_pool.ReleaseContent(packat);
+        }
+
 
         private DogBuffer m_buffer;
 
@@ -481,7 +517,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 释放资源
         /// </summary>
-        public void Dispose()
+        private void Dispose()
         {
             if (m_buffer != null)
             {

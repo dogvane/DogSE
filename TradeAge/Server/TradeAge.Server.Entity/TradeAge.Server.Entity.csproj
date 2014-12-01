@@ -39,6 +39,7 @@
     <Compile Include="Character\Player.cs" />
     <Compile Include="Character\SimplePlayer.cs" />
     <Compile Include="Common\SequenceGenerator.cs" />
+    <Compile Include="Common\Vector3.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />
     <Compile Include="Login\LoginEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -33,10 +33,12 @@ namespace DogSE.Server.Database.MySQL
         {
             var profile = DBEntityProfile<T>.Instance;
             profile.Load.Watch.Restart();
+            var proMySql = MySQL.Instance;
 
             try
             {
                 profile.Load.TotalCount++;
+                proMySql.Load.TotalCount++;
 
                 MySqlConnection con = ConPool.GetConnection();
                 string sql = string.Format("select * from {0} where id = {1}", typeof (T).Name, serial);
@@ -47,12 +49,14 @@ namespace DogSE.Server.Database.MySQL
             catch
             {
                 profile.Load.ErrorCount++;
+                proMySql.Load.ErrorCount++;
                 throw;
             }
             finally
             {
                 profile.Load.Watch.Stop();
-                profile.Load.TotalTime = profile.Load.Watch.ElapsedTicks;
+                profile.Load.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Load.TotalTime+= profile.Load.Watch.ElapsedTicks;
             }
 
         }
@@ -246,10 +250,12 @@ namespace DogSE.Server.Database.MySQL
         {
             var profile = DBEntityProfile<T>.Instance;
             profile.Update.Watch.Restart();
+            var proMySql = MySQL.Instance;
 
             try
             {
                 profile.Update.TotalCount++;
+                proMySql.Update.TotalCount++;
 
                 MySqlConnection con = ConPool.GetConnection();
                 con.RecordUpdate(entity);
@@ -260,12 +266,14 @@ namespace DogSE.Server.Database.MySQL
             catch
             {
                 profile.Update.ErrorCount++;
+                proMySql.Update.ErrorCount++;
                 throw;
             }
             finally
             {
                 profile.Update.Watch.Stop();
-                profile.Update.TotalTime = profile.Load.Watch.ElapsedTicks;
+                profile.Update.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Update.TotalTime += profile.Load.Watch.ElapsedTicks;
             }
         }
 
@@ -279,10 +287,12 @@ namespace DogSE.Server.Database.MySQL
         {
             var profile = DBEntityProfile<T>.Instance;
             profile.Insert.Watch.Restart();
+            var proMySql = MySQL.Instance;
 
             try
             {
                 profile.Insert.TotalCount++;
+                proMySql.Insert.TotalCount++;
 
                 MySqlConnection con = ConPool.GetConnection();
                 con.RecordInsert(entity);
@@ -292,12 +302,15 @@ namespace DogSE.Server.Database.MySQL
             catch
             {
                 profile.Insert.ErrorCount++;
+                proMySql.Insert.ErrorCount++;
+
                 throw;
             }
             finally
             {
                 profile.Insert.Watch.Stop();
-                profile.Insert.TotalTime = profile.Load.Watch.ElapsedTicks;
+                profile.Insert.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Insert.TotalTime += profile.Load.Watch.ElapsedTicks;
             }
 
         }
@@ -311,10 +324,12 @@ namespace DogSE.Server.Database.MySQL
         {
             var profile = DBEntityProfile<T>.Instance;
             profile.Delete.Watch.Restart();
+            var proMySql = MySQL.Instance;
 
             try
             {
-                profile.Insert.TotalCount++;
+                profile.Delete.TotalCount++;
+                proMySql.Delete.TotalCount++;
 
                 MySqlConnection con = ConPool.GetConnection();
                 con.RecordDelete(entity);
@@ -325,12 +340,15 @@ namespace DogSE.Server.Database.MySQL
             catch
             {
                 profile.Delete.ErrorCount++;
+                proMySql.Delete.ErrorCount++;
+
                 throw;
             }
             finally
             {
                 profile.Delete.Watch.Stop();
-                profile.Delete.TotalTime = profile.Load.Watch.ElapsedTicks;
+                profile.Delete.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Delete.TotalTime  += profile.Load.Watch.ElapsedTicks;
             }
         }
 
@@ -340,10 +358,32 @@ namespace DogSE.Server.Database.MySQL
         /// <returns></returns>
         public int ExecuteSql(string sql)
         {
-            MySqlConnection con = ConPool.GetConnection();
-            int ret = con.ExecuteNonQuery(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            var profile = DBEntityProfile<MySqlService>.Instance;
+            profile.Query.Watch.Restart();
+            var proMySql = MySQL.Instance;
+
+            try
+            {
+                profile.Query.TotalCount++;
+                proMySql.Query.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                int ret = con.ExecuteNonQuery(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch
+            {
+                profile.Query.ErrorCount++;
+                proMySql.Query.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Query.Watch.Stop();
+                profile.Query.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Query.TotalTime += profile.Load.Watch.ElapsedTicks;
+            }
         }
 
         /// <summary>
@@ -352,12 +392,42 @@ namespace DogSE.Server.Database.MySQL
         /// <returns></returns>
         public DataSet ExecuteDataSet(string sql)
         {
-            MySqlConnection con = ConPool.GetConnection();
-            DataSet ret = MySqlHelper.ExecuteDataset(con, sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            var profile = DBEntityProfile<MySqlService>.Instance;
+            profile.Query.Watch.Restart();
+            var proMySql = MySQL.Instance;
+
+            try
+            {
+                profile.Query.TotalCount++;
+                proMySql.Query.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                DataSet ret = MySqlHelper.ExecuteDataset(con, sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch
+            {
+                profile.Query.ErrorCount++;
+                proMySql.Query.ErrorCount++;
+                throw;
+            }
+            finally
+            {
+                profile.Query.Watch.Stop();
+                profile.Query.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Query.TotalTime += profile.Load.Watch.ElapsedTicks;
+            }
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class MySQL : DBEntityProfile<MySQL>
+    {
+        
     }
 }

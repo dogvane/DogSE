@@ -16,6 +16,9 @@ namespace DogSE.Library.Log
         public static void ConfigLogFile(string logFile, LogMessageType msgType = LogMessageType.MSG_INFO)
         {
             var append = FileAppender.GetAppender(logFile);
+            if (append == null)
+                return;
+
             append.Level = msgType;
             AddAppender(append);
         }
@@ -264,7 +267,7 @@ namespace DogSE.Library.Log
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        internal static LogMessageType ParseLogMessageType(string str)
+        public static LogMessageType ParseLogMessageType(string str)
         {
             string level = str.ToLower();
             string[] names = Enum.GetNames(typeof (LogMessageType));

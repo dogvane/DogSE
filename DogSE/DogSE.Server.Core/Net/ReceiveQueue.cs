@@ -197,7 +197,7 @@ namespace DogSE.Server.Core.Net
         /// <summary>
         /// 包的长度
         /// </summary>
-        public const int PacketLengthSize = 2;
+        public const int PacketLengthSize = 4;
 
         /// <summary>
         /// 给出数据包的长度
@@ -217,16 +217,16 @@ namespace DogSE.Server.Core.Net
                     //  保证要读取的数据在字节数组里
                     var index = m_Head;
 
-                    ////  读四字节长度
-                    //if (m_Endian == Endian.LITTLE_ENDIAN)
-                    //    return (m_Buffer[index] << 24) | (m_Buffer[index+1] << 16) | (m_Buffer[index+2] << 8) | m_Buffer[index+3];
-                    //else
-                    //    return m_Buffer[index] | (m_Buffer[index + 1] << 8) | (m_Buffer[index + 2] << 16) | (m_Buffer[index + 3] << 24);
-
+                    //  读四字节长度
                     if (m_Endian == Endian.LITTLE_ENDIAN)
-                        return (m_Buffer[index] << 8) | (m_Buffer[index + 1]);
+                        return (m_Buffer[index] << 24) | (m_Buffer[index + 1] << 16) | (m_Buffer[index + 2] << 8) | m_Buffer[index + 3];
                     else
-                        return m_Buffer[index] | (m_Buffer[index + 1] << 8);
+                        return m_Buffer[index] | (m_Buffer[index + 1] << 8) | (m_Buffer[index + 2] << 16) | (m_Buffer[index + 3] << 24);
+
+                    //if (m_Endian == Endian.LITTLE_ENDIAN)
+                    //    return (m_Buffer[index] << 8) | (m_Buffer[index + 1]);
+                    //else
+                    //    return m_Buffer[index] | (m_Buffer[index + 1] << 8);
                 }
             }
 

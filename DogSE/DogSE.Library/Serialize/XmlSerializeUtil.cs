@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using DogSE.Library.Log;
 
 namespace DogSE.Library.Serialize
 {
@@ -38,6 +39,10 @@ namespace DogSE.Library.Serialize
         /// <returns></returns>
         public static object XmlDeserialize(this string xmlStr, Type type)
         {
+            try
+            {
+
+
             var ser = new XmlSerializer(type);
             using (var stream = new MemoryStream())
             {
@@ -47,6 +52,13 @@ namespace DogSE.Library.Serialize
                 stream.Position = 0;
                 var obj = ser.Deserialize(stream);
                 return obj;
+            }
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("Deserialize {0} fail.xml={1} ex={2}", type.Name, xmlStr, ex.ToString()));
+
+                throw;
             }
         }
 

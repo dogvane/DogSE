@@ -8,6 +8,7 @@ using DogSE.Server.Core.Timer;
 using DogSE.Common;
 using TradeAge.Common.Entity.NetCode;
 using TradeAge.Server.Entity.Character;
+using TradeAge.Server.Entity.Common;
 
 namespace TradeAge.Server.Interface.Client
 {

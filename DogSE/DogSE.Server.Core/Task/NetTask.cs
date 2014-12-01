@@ -34,6 +34,7 @@ namespace DogSE.Server.Core.Task
         public void Execute()
         {
             PacketHandler.OnReceive(NetState, PacketReader);
+            
         }
 
         public ITaskProfile TaskProfile { get; internal set; }
@@ -47,9 +48,10 @@ namespace DogSE.Server.Core.Task
         {
             if (!isRelease)
             {
-                TaskPool.ReleaseContent(this);
                 isRelease = true;
-                PacketReader.Dispose();
+
+                TaskPool.ReleaseContent(this);
+                PacketReader.ReleaseContent(PacketReader);
             }
         }
 
@@ -115,6 +117,15 @@ namespace DogSE.Server.Core.Task
         }
 
         #endregion
+
+        /// <summary>
+        /// 输出一些网络状态数据
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("package id:{0} bizId:{1}", _packetId, NetState.BizId);
+        }
     }
 
     /// <summary>

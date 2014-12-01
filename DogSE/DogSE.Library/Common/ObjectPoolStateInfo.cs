@@ -31,6 +31,17 @@ namespace DogSE.Library.Common
         /// </summary>
         public long Misses { get; internal set; }
 
+#if DEBUG
+        /// <summary>
+        /// 输出当前数据
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+
+            return string.Format("FreeCount={0} CurrentCapacity={1} Misses={2}", FreeCount, CurrentCapacity, Misses);
+        }
+#endif
         #endregion
     }
 

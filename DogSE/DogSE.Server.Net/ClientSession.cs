@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using DogSE.Library.Log;
 using DogSE.Library.Time;
@@ -84,6 +85,20 @@ namespace DogSE.Server.Net
             RecvBuffer = buff;
             ReceiveEventArgs.SetBuffer(buff.Bytes, 0, buff.Bytes.Length);
             Socket.ReceiveAsync(ReceiveEventArgs);
+        }
+
+        /// <summary>
+        /// 只关闭Socket
+        /// </summary>
+        public void Close()
+        {
+            if (Socket != null)
+            {
+                if (Socket.Connected)
+                    Socket.Close();
+
+                Socket = null;
+            }
         }
 
         /// <summary>
@@ -178,10 +193,16 @@ namespace DogSE.Server.Net
                     else
                         sendBuff = DogBuffer.GetFromPool32K();
 
+                    if (offSet >= sendBuff.Bytes.Length)
+                        sendBuff.UpdateCapacity(offSet);
+
                     foreach (var buff in buffs)
                     {
+
+
                         Buffer.BlockCopy(buff.Bytes, 0, sendBuff.Bytes, sendBuff.Length, buff.Length);
                         sendBuff.Length += buff.Length;
+
                         buff.Release();
                     }
 
@@ -202,26 +223,34 @@ namespace DogSE.Server.Net
 
         void OnSendCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var buff = e.UserToken as DogBuffer;
-            if (buff != null)
+            try
             {
-                NetProfile.Instatnce.SendCount++;
-                NetProfile.Instatnce.SendLength += buff.Length;
+                var buff = e.UserToken as DogBuffer;
+                if (buff != null)
+                {
+                    NetProfile.Instatnce.SendCount++;
+                    NetProfile.Instatnce.SendLength += buff.Length;
 
-                buff.Release();
-            }
+                    buff.Release();
+                }
 
-            if (e.BytesTransferred == 0)
-            {
-                //  发送传输为0，目标方应该断开连接了，这里进入断开环节。
+                if (e.BytesTransferred == 0)
+                {
+                    //  发送传输为0，目标方应该断开连接了，这里进入断开环节。
+                    isSending = false;
+                    CloseSocket();
+                    return;
+                }
+
+                //  发送完成后，再检查一下还有没有没发送的接着发送
                 isSending = false;
-                CloseSocket();
-                return;
+                PeekSend();
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(ex.ToString());
             }
 
-            //  发送完成后，再检查一下还有没有没发送的接着发送
-            isSending = false;
-            PeekSend();
         }
 
         /// <summary>
@@ -229,7 +258,19 @@ namespace DogSE.Server.Net
         /// </summary>
         public string RemoteOnlyIP
         {
-            get { return Socket.RemoteEndPoint.ToString(); }
+            get
+            {
+
+                if (Socket != null)
+                {
+                    var ipPoint = Socket.RemoteEndPoint as IPEndPoint;
+                    if (ipPoint != null)
+                    {
+                        return ipPoint.Address.ToString();
+                    }
+                }
+                return string.Empty;
+            }
         }
 
         /// <summary>
@@ -237,7 +278,18 @@ namespace DogSE.Server.Net
         /// </summary>
         public int RemotePort
         {
-            get { return 0; }
+            get
+            {
+                if (Socket != null)
+                {
+                    var ipPoint = Socket.RemoteEndPoint as IPEndPoint;
+                    if (ipPoint != null)
+                    {
+                        return ipPoint.Port;
+                    }
+                }
+                return -1;
+            }
         }
     }
 }

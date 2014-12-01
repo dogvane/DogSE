@@ -50,10 +50,13 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
         /// 添加一个读取代理类
         /// </summary>
         /// <param name="type"></param>
-        private void AddWriteProxy(Type type)
+        /// <param name="doc">文档注解</param>
+        private void AddWriteProxy(Type type, string doc = null)
         {
             if (writerProxySet.Contains(type))
                 return;
+
+            writerProxySet.Add(type);
 
             StringBuilder writeCode = new StringBuilder();
 
@@ -63,6 +66,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     continue;
 
                 if (p.PropertyType == typeof(int))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(byte))
                 {
                     writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
@@ -109,6 +116,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
                     }
+                    else if (arrayType == typeof(byte))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
                     else if (arrayType == typeof(long))
                     {
                         writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
@@ -152,14 +163,22 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
             writerProxyCode.AppendLine(
                 readProxyCodeFormatter.Replace("#TypeName#", type.Name)
-                .Replace("#TypeFullName#", type.FullName)
+                .Replace("#TypeFullName#", Utils.GetFixFullTypeName(type.FullName))
                 .Replace("#ReadCode#", writeCode.ToString())
+                .Replace("#doc#", doc)
                 );
         }
 
         private string readProxyCodeFormatter = @"
+
+    /// <summary>
+    /// #doc#
+    /// </summary>
     public class #TypeName#WriteProxy
     {
+    /// <summary>
+    /// #doc#
+    /// </summary>
         public static void Write(#TypeFullName# obj, PacketWriter pw)
         {
 
@@ -217,7 +236,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         methodName, parameterType.FullName);
 
                     streamWriterCode.AppendLine("{");
-                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                     streamWriterCode.AppendLine();
                     streamWriterCode.AppendFormat(
                         @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
@@ -227,7 +246,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                     streamWriterCode.AppendFormat("{0}WriteProxy.Write(obj, pw);", parameterType.Name);
 
-                    streamWriterCode.AppendLine("NetState.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("NetState.Send(pw);PacketWriter.ReleaseContent(pw);");
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -246,7 +265,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         methodName, parameterType.FullName);
 
                     streamWriterCode.AppendLine("{");
-                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                     streamWriterCode.AppendLine();
                     streamWriterCode.AppendFormat(
                         @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
@@ -256,7 +275,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                     streamWriterCode.AppendLine("obj.Write(pw);");
 
-                    streamWriterCode.AppendLine("NetState.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("NetState.Send(pw);PacketWriter.ReleaseContent(pw);");
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -295,12 +314,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 methonNameCode.AppendFormat("public void {0}(", methodName);
 
                 streamWriterCode.AppendLine("{");
-                streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                 streamWriterCode.AppendLine();
-
-
                 
-
                 for (int i = 1; i < param.Length; i++)
                 {
                     var p = param[i];
@@ -308,6 +324,12 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("int {0},", p.Name);                        
+                        streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
+                    }
+                    else if (p.ParameterType == typeof(byte))
+                    {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
+                        methonNameCode.AppendFormat("byte {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.Write({0});\r\n", p.Name);
                     }
                     else if (p.ParameterType == typeof(long))
@@ -370,6 +392,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         {
                             streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
                         }
+                        else if (arrayType == typeof(byte))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                        }
                         else if (arrayType == typeof(long))
                         {
                             streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
@@ -403,6 +429,14 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                         #endregion
                     }
+                    else if (p.ParameterType.IsClass)
+                    {
+                        AddWriteProxy(p.ParameterType, doc.GetParamSummary(p.Name));
+
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
+                        methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
+                        streamWriterCode.AppendFormat("{0}WriteProxy.Write({1}, pw);\r\n", p.ParameterType.Name, p.Name);
+                    }
                     else
                     {
                         Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
@@ -411,7 +445,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                 }
 
-                streamWriterCode.AppendLine("NetState.Send(pw);");
+                streamWriterCode.AppendLine("NetState.Send(pw);PacketWriter.ReleaseContent(pw);");
                 streamWriterCode.AppendLine("}");
 
                 if (param.Length > 1)

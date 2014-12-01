@@ -223,6 +223,8 @@ namespace DogSE.Server.Core.Net
             m_Serial = Serial.MinusOne;
             m_Running = false;
             m_Socket.Data = null;
+            Player = null;
+            World = null;
         }
 
         #region zh-CHS 私有成员变量 | en Private Member Variables

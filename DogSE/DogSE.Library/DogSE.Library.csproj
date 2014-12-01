@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -40,8 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ConcurrentQueue.cs" />
-    <Compile Include="Common\ObjectPool.cs" />
+    <Compile Include="Common\ObjectPool.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\ObjectPoolStateInfo.cs" />
     <Compile Include="Common\StaticObjectPool.cs" />
     <Compile Include="Common\TInstance.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Util\ConvertString.cs" />
     <Compile Include="Util\Delegate.cs" />
     <Compile Include="Util\DynamicCalls.cs" />
+    <Compile Include="Util\InfoSplit.cs" />
     <Compile Include="Util\Insensitive.cs" />
     <Compile Include="Util\Lang.cs" />
     <Compile Include="Util\OpCodeNameUtil.cs" />

@@ -171,6 +171,10 @@ namespace DogSE.Server.Core.Task
             }
         }
 
+        private Stopwatch watch = new Stopwatch();
+
+        private ITask lastTask;
+
         private bool isWorkThreadRun = false;
         void WorkThread()
         {
@@ -180,12 +184,12 @@ namespace DogSE.Server.Core.Task
             
             var start = OneServer.NowTime;
 
-            var watch = Stopwatch.StartNew();
             while(isRuning || taskList.Count > 0)
             {
                 ITask task;
                 if(taskList.TryDequeue(out task))
                 {
+                    lastTask = task;
                     watch.Restart();
                     bool isError = false;
                     try
@@ -214,6 +218,8 @@ namespace DogSE.Server.Core.Task
                         NetTaskLogWriter.Flush();
                         ActionTaskLogWriter.Flush();
                     }
+
+                    lastTask = null;
                 }
                 else
                 {
@@ -260,6 +266,19 @@ namespace DogSE.Server.Core.Task
             }
 
             StartThread();
+        }
+
+        /// <summary>
+        /// 检查任务线程是否有异常，有的话杀掉重来
+        /// </summary>
+        public void CheckAndRestart()
+        {
+            if (watch.IsRunning && watch.Elapsed.TotalSeconds > 10)
+            {
+
+                Logs.Error("thread {0} is lock. task:{1}", taskName_, lastTask == null ? string.Empty : lastTask.ToString());
+                RestartThread();
+            }
         }
     }
 }

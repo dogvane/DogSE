@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using DogSE.Library.Common;
 using DogSE.Library.Log;
 
@@ -81,13 +83,33 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 扩大缓冲数据的大小(注意，扩大后，Byte返回的数组的引用将不同)
         /// </summary>
-        public void UpdateCapacity()
+        /// <param name="minSize">扩大的最小尺寸</param>
+        public void UpdateCapacity(int minSize = 0)
         {
-            var newBuffer = new byte[m_buffer.Length * 2];
+            int newSize;
+            if (minSize == 0)
+                newSize = m_buffer.Length * 2;
+            else
+            {
+                newSize = FixSize(minSize);
+                Logs.Info("UpdateCapacity size={0} newsize={1}", minSize, newSize);
+            }
+
+            var newBuffer = new byte[newSize];
 
             Buffer.BlockCopy(m_buffer, 0, newBuffer, 0, m_buffer.Length);
 
             m_buffer = newBuffer;
+        }
+
+        /// <summary>
+        /// 按照4K对齐
+        /// </summary>
+        /// <param name="minSize"></param>
+        /// <returns></returns>
+        private int FixSize(int minSize)
+        {
+            return (minSize/4096 + 1)*4096;
         }
 
         private int referenceCounter;
@@ -99,7 +121,12 @@ namespace DogSE.Server.Net
         /// </summary>
         public void Use()
         {
+            //if (referenceCounter == 0)
+            //    Logs.Error("buff use() referenceCounter is zero.");
+
+            //Interlocked.Increment(ref referenceCounter);
             referenceCounter++;
+
             //var stack = new System.Diagnostics.StackTrace(0);
             //var name = stack.GetFrame(1).GetMethod().Name;
             //if (name == "GetFromPool32K" || name == "GetFromPool4K")
@@ -112,40 +139,45 @@ namespace DogSE.Server.Net
         /// </summary>
         public void Release()
         {
-            referenceCounter--;
-            
-            //var stack = new System.Diagnostics.StackTrace(0);
-            //Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, stack.GetFrame(1).GetMethod().Name);
-
-            if (referenceCounter < 0)
+            lock (lockOjb)
             {
-                Logs.Error("重复释放。");
-                referenceCounter = 0;
+                //Interlocked.Decrement(ref referenceCounter);
+                referenceCounter--;
+
+                //var stack = new System.Diagnostics.StackTrace(0);
+                //Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, stack.GetFrame(1).GetMethod().Name);
+
+                if (referenceCounter < 0)
+                {
+                    Logs.Error("重复释放。");
+                    referenceCounter = 0;
 
 #if DEBUG
-                var stack = new System.Diagnostics.StackTrace(0);
-                Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter, stack.GetFrame(1).GetMethod().Name);
+                    var stack = new System.Diagnostics.StackTrace(0);
+                    Logs.Info("release buffer id = {0} counter={1}  strace = {2}", m_id, referenceCounter,
+                        stack.GetFrame(1).GetMethod().Name);
 #endif
-                return;
-            }
+                    return;
+                }
 
-            if (referenceCounter == 0)
-            {
-                ReleaseToPool(this);
+                if (referenceCounter == 0)
+                {
+                    ReleaseToPool(this);
+                }
             }
-
         }
 
+        private static readonly object lockOjb = new object();
 
         /// <summary>
         /// 对象池
         /// </summary>
-        static readonly ObjectPool<DogBuffer> s_pools = new ObjectPool<DogBuffer>(1024 * 2);
+        static readonly ObjectPool<DogBuffer> s_pools = new ObjectPool<DogBuffer>(256);
 
         /// <summary>
         /// 对象池
         /// </summary>
-        static readonly ObjectPool<DogBuffer32K> s_pools32K = new ObjectPool<DogBuffer32K>(1024 * 2);
+        static readonly ObjectPool<DogBuffer32K> s_pools32K = new ObjectPool<DogBuffer32K>(256);
 
         /// <summary>
         /// 从缓冲池里获得数据
@@ -153,20 +185,50 @@ namespace DogSE.Server.Net
         /// <returns></returns>
         public static DogBuffer GetFromPool4K()
         {
-            var ret = s_pools.AcquireContent();
-            ret.Use();
-            ret.Length = 0;
-            return ret;
+            lock (lockOjb)
+            {
+                start:
+                var ret = s_pools.AcquireContent();
+                if (ret.referenceCounter != 0)
+                {
+                    Logs.Error("dog buffer4k is used. counter = {0}", ret.referenceCounter);
+#if DEBUG
+                    var stack = new System.Diagnostics.StackTrace(0);
+                    Logs.Info("dog buffer is used. strace = {0}", stack.ToString());
+#endif
+                    goto start;
+                }
+
+                ret.Use();
+                //ret.referenceCounter++;
+                ret.Length = 0;
+                return ret;
+            }
         }
 
 
         internal static void ReleaseToPool(DogBuffer bufff)
         {
-            bufff.Length = 0;
-            if (bufff.BuffSizeType == DogBufferType._4K)
-                s_pools.ReleaseContent(bufff);
-            else if (bufff.BuffSizeType == DogBufferType._32K)
-                s_pools32K.ReleaseContent(bufff as DogBuffer32K);
+            //lock (lockOjb)
+            {
+                bufff.Length = 0;
+                if (bufff.BuffSizeType == DogBufferType._4K)
+                    s_pools.ReleaseContent(bufff);
+                else if (bufff.BuffSizeType == DogBufferType._32K)
+                {
+                    var _32buf = bufff as DogBuffer32K;
+                    s_pools32K.ReleaseContent(_32buf);
+                }
+            }
+        }
+
+        internal static void ReleaseToPool(DogBuffer32K bufff)
+        {
+            lock (lockOjb)
+            {
+                bufff.Length = 0;
+                s_pools32K.ReleaseContent(bufff);
+            }
         }
 
         /// <summary>
@@ -175,10 +237,27 @@ namespace DogSE.Server.Net
         /// <returns></returns>
         public static DogBuffer32K GetFromPool32K()
         {
-            var ret = s_pools32K.AcquireContent();
-            ret.Use();
-            ret.Length = 0;
-            return ret;
+            lock (lockOjb)
+            {
+                start1:
+                var ret = s_pools32K.AcquireContent();
+
+                if (ret.referenceCounter != 0)
+                {
+                    Logs.Error("dog buffer32 is used.");
+                    //Logs.Error(string.Format("buff is exists {0} exitstCount={1}", exitsList.Contains(ret).ToString(), exitsList.Count));
+#if DEBUG
+                    var stack = new System.Diagnostics.StackTrace(0);
+                    Logs.Error("dog buffer is used. strace = {0}", stack.ToString());
+#endif
+                    goto start1;
+                }
+                //exitsList.Add(ret);
+                //ret.referenceCounter++;
+                ret.Use();
+                ret.Length = 0;
+                return ret;
+            }
         }
     }
 }

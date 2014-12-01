@@ -1,6 +1,7 @@
 ﻿using System;
 using DogSE.Common;
 using DogSE.Server.Core.Net;
+using TradeAge.Server.Entity.Common;
 
 
 namespace TradeAge.Server.Entity.Character

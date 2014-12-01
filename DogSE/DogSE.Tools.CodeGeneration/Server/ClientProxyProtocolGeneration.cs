@@ -66,6 +66,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                 {
                     writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
                 }
+                else if (p.PropertyType == typeof(byte))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
                 else if (p.PropertyType == typeof(long))
                 {
                     writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
@@ -110,6 +114,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                     {
                         writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
                     }
+                    else if (arrayType == typeof(byte))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
                     else if (arrayType == typeof(long))
                     {
                         writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
@@ -148,6 +156,68 @@ namespace DogSE.Tools.CodeGeneration.Server
                     writeCode.AppendLine("}");
 
                     #endregion
+                }
+                else if (p.PropertyType.IsGenericType)
+                {
+                    if (p.PropertyType.Name.Contains("List"))
+                    {
+                        // 列表
+
+                        #region 数组的处理
+
+                        var gType = p.PropertyType.GetGenericArguments()[0];
+
+                        //  先写入长度
+                        writeCode.AppendFormat("pw.Write((int)obj.{0}.Count);\r\n", p.Name);
+                        writeCode.AppendFormat("for(int i = 0;i < obj.{0}.Count;i++){{\r\n", p.Name);
+
+                        if (gType == typeof (int))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (byte))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (long))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (float))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (double))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (bool))
+                        {
+                            writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType == typeof (string))
+                        {
+                            writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType.IsEnum)
+                        {
+                            writeCode.AppendFormat("pw.Write((byte)obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType.IsLayoutSequential)
+                        {
+                            writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+                        }
+                        else if (gType.IsClass)
+                        {
+                            AddWriteProxy(gType);
+
+                            writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}[i], pw);\r\n", gType.Name, p.Name);
+                        }
+
+                        writeCode.AppendLine("}");
+
+                        #endregion
+                    }
                 }
                 else if (p.PropertyType.IsClass)
                 {
@@ -230,7 +300,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                         methodName, parameterType.FullName);
 
                     streamWriterCode.AppendLine("{");
-                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                     streamWriterCode.AppendLine();
                     streamWriterCode.AppendFormat(
                         @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
@@ -240,7 +310,7 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                     streamWriterCode.AppendFormat("{0}WriteProxy.Write(obj, pw);", parameterType.Name);
 
-                    streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("netstate.Send(pw);PacketWriter.ReleaseContent(pw);");
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -259,7 +329,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                         methodName, parameterType.FullName);
 
                     streamWriterCode.AppendLine("{");
-                    streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                    streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                     streamWriterCode.AppendLine();
                     streamWriterCode.AppendFormat(
                         @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
@@ -269,7 +339,7 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                     streamWriterCode.AppendLine("obj.Write(pw);");
 
-                    streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                    streamWriterCode.AppendLine("netstate.Send(pw);PacketWriter.ReleaseContent(pw);");
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -293,7 +363,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                 methonNameCode.AppendFormat("public void {0}(NetState netstate,", methodName);
 
                 streamWriterCode.AppendLine("{");
-                streamWriterCode.AppendFormat("var pw = new PacketWriter({0});", att.OpCode);
+                streamWriterCode.AppendFormat("var pw = PacketWriter.AcquireContent({0});", att.OpCode);
                 streamWriterCode.AppendLine();
                 streamWriterCode.AppendFormat(
                     @"            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( {0} );
@@ -364,6 +434,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                             {
                                 streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
                             }
+                            else if (arrayType == typeof(byte))
+                            {
+                                streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
+                            }
                             else if (arrayType == typeof(long))
                             {
                                 streamWriterCode.AppendFormat("pw.Write({0}[i]);\r\n", p.Name);
@@ -417,7 +491,8 @@ namespace DogSE.Tools.CodeGeneration.Server
 
                 }
 
-                streamWriterCode.AppendLine("netstate.Send(pw);pw.Dispose();");
+                streamWriterCode.AppendLine("netstate.Send(pw);PacketWriter.ReleaseContent(pw);");
+                
                 streamWriterCode.AppendLine("}");
 
                 methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -472,7 +547,7 @@ namespace DogSE.Tools.CodeGeneration.Server
             }
 
             var code = GetCode();
-            Console.WriteLine(code);
+            //Console.WriteLine(code);
             return code;
         }
 
