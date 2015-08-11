@@ -47,6 +47,9 @@
   <ItemGroup>
     <Compile Include="MangoDBConfig.cs" />
     <Compile Include="MangoDBService.cs" />
+    <Compile Include="MongodbLogConfig.cs" />
+    <Compile Include="MongoDBLogService.cs" />
+    <Compile Include="MongoLogAppender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

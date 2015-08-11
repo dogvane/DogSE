@@ -28,10 +28,19 @@ namespace DogSE.Library.Thread
             get
             {
                 bool result = true;
-                for (var i = 0; i < s_queueList.Count; i++) 
+                for (var i = 0; i < s_queueList.Count; i++)
                 {
-                    if (!s_queueList[i].HasQueues) 
+                    var queue = s_queueList[i];
+
+                    if (!queue.HasQueues) 
                     {
+                        if (!queue._isLockQueue)
+                        {
+                            //  队列里有内容，但是队列并不在执行，可能存在执行遗漏
+                            //  这里就压入一个空方法让队列跑完整
+                            Logs.Info("{0} queue append empty action.", queue._queueName);
+                            queue.Append(() => { });
+                        }
                         result = false;
                         break;
                     }
@@ -145,6 +154,16 @@ namespace DogSE.Library.Thread
 
                 return _isLockQueue;
             }
+        }
+
+        /// <summary>
+        /// 获得当前站在等待的数量
+        /// </summary>
+        /// <returns></returns>
+        public int GetWaitCount()
+        {
+            lock(Methods)
+                return Methods.Count;
         }
     }
 }

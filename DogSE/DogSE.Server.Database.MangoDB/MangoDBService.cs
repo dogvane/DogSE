@@ -15,20 +15,57 @@ namespace DogSE.Server.Database.MangoDB
     public class MangoDBService : IDataService
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="database"></param>
+        public MangoDBService(string host, string database)
+        {
+            _host = host;
+            _database = database;
+        }
+
+        private string _host;
+        private string _database;
+
+        /// <summary>
+        /// Mongodb数据库访问器
+        /// 服务器信息从 MangoDBConfig 静态对象里获得
+        /// 
+        /// </summary>
+        public MangoDBService()
+        {
+            _host = MangoDBConfig.Host;
+            _database = MangoDBConfig.Database;
+        }
+
+        /// <summary>
         /// 获得一个类型的连接器
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        MongoCollection GetCollection<T>()
+        public MongoCollection GetCollection<T>()
         {
             var type = typeof(T);
-            string connectionString = "mongodb://" + MangoDBConfig.Host;
+            string connectionString = "mongodb://" + _host;
 
-            var client = new MongoClient(connectionString);
 
-            var db = client.GetServer().GetDatabase(MangoDBConfig.Database);
-            return db.GetCollection(type.Name);
+            if (db == null)
+            {
+                var client = new MongoClient(connectionString);
+                db = client.GetServer().GetDatabase(_database);
+            }
+
+            string typeName;
+            if (type.IsGenericType)
+                typeName = type.Name.Substring(0, type.Name.IndexOf('`'));
+            else
+                typeName = type.Name;
+
+            return db.GetCollection(typeName);
         }
+
+        private MongoDatabase db;
 
 
         /// <summary>
@@ -87,7 +124,7 @@ namespace DogSE.Server.Database.MangoDB
                 var collection = GetCollection<T>();
                 var q = Query.EQ("Name", where);
                 var ret = collection.FindAs<T>(q);
-                return ret.Skip(page*pageSize).Take(pageSize).ToArray();
+                return ret.Skip(page * pageSize).Take(pageSize).ToArray();
 
             }
             catch
@@ -126,7 +163,7 @@ namespace DogSE.Server.Database.MangoDB
                 var collection = GetCollection<T>();
                 var q = Query.Matches("Name", where);
                 var ret = collection.FindAs<T>(q);
-                return ret.Skip(page*pageSize).Take(pageSize).ToArray();
+                return ret.Skip(page * pageSize).Take(pageSize).ToArray();
             }
             catch
             {
@@ -141,7 +178,32 @@ namespace DogSE.Server.Database.MangoDB
                 profile.MatchesSeach.TotalTime += profile.MatchesSeach.Watch.ElapsedTicks;
                 proMangoDB.MatchesSeach.TotalTime += profile.MatchesSeach.Watch.ElapsedTicks;
             }
-        }  
+        }
+
+        /// <summary>
+        /// 获得某个实例当前的最大id
+        /// 如果没有数据，或者异常则返回1
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public int MaxId<T>() where T : class, IDataEntity, new()
+        {
+            try
+            {
+                var collection = GetCollection<T>();
+                var ret = collection.FindAs<T>(null).SetSortOrder(new SortByDocument { { "_id", -1 } }).SetLimit(1);
+                var arr = ret.ToArray();
+                if (arr.Length > 0)
+                    return arr[0].Id;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("Get {0} max id fail.", typeof(T).Name), ex);
+            }
+
+            return 1;
+        }
+
         /// <summary>
         /// 加载所有数据
         /// </summary>
@@ -163,7 +225,7 @@ namespace DogSE.Server.Database.MangoDB
         {
             if (entity == null)
             {
-                Logs.Error("update entity {0} is null", typeof (T).Name);
+                Logs.Error("update entity {0} is null", typeof(T).Name);
                 return 0;
             }
 
@@ -180,18 +242,18 @@ namespace DogSE.Server.Database.MangoDB
                 collection.Save(entity);
                 return 1;
             }
-            catch
+            catch (Exception ex)
             {
                 profile.Update.ErrorCount++;
                 proMangoDB.Update.ErrorCount++;
 
-                throw;
+                throw new Exception(string.Format("Entity {0} update fail.", typeof(T).Name), ex);
             }
             finally
             {
                 profile.Update.Watch.Stop();
                 profile.Update.TotalTime += profile.Load.Watch.ElapsedTicks;
-                proMangoDB.Update.TotalTime  += profile.Load.Watch.ElapsedTicks;
+                proMangoDB.Update.TotalTime += profile.Load.Watch.ElapsedTicks;
             }
         }
 
@@ -206,7 +268,7 @@ namespace DogSE.Server.Database.MangoDB
             if (MangoDBConfig.IOCache)
             {
                 var obj = UpdateEntityPool<T>.AcquireContent(this, entity);
-                var ret = ThreadQueue.AppendIOCache(entity.GetHashCode(),obj.Update);
+                var ret = ThreadQueue.AppendIOCache(entity.GetHashCode(), obj.Update);
                 if (ret == false)
                 {
                     //  更新失败的话，则将自己的这个对象放回对象池
@@ -281,12 +343,12 @@ namespace DogSE.Server.Database.MangoDB
                 collection.Insert(entity);
                 return 0;
             }
-            catch
+            catch (Exception ex)
             {
                 profile.Insert.ErrorCount++;
                 proMangoDB.Insert.ErrorCount++;
 
-                throw;
+                throw new Exception(string.Format("Entity {0} insert fail.", typeof(T).Name), ex);
             }
             finally
             {
@@ -312,7 +374,7 @@ namespace DogSE.Server.Database.MangoDB
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public int DeleteEntity<T>(T entity) where T : class, IDataEntity,new()
+        public int DeleteEntity<T>(T entity) where T : class, IDataEntity, new()
         {
             if (entity == null)
             {
@@ -330,22 +392,22 @@ namespace DogSE.Server.Database.MangoDB
                 profile.Delete.TotalCount++;
                 proMangoDB.Delete.TotalCount++;
 
-                var db = GetCollection<T>();
-                db.Remove(Query.EQ("_id", entity.Id));
+                var collection = GetCollection<T>();
+                collection.Remove(Query.EQ("_id", entity.Id));
                 return 0;
             }
-            catch
+            catch (Exception ex)
             {
                 profile.Delete.ErrorCount++;
                 proMangoDB.Delete.ErrorCount++;
 
-                throw;
+                throw new Exception(string.Format("Entity {0} delete fail.", typeof(T).Name), ex);
             }
             finally
             {
                 profile.Delete.Watch.Stop();
                 profile.Delete.TotalTime += profile.Load.Watch.ElapsedTicks;
-                proMangoDB.Delete.TotalTime+= profile.Load.Watch.ElapsedTicks;
+                proMangoDB.Delete.TotalTime += profile.Load.Watch.ElapsedTicks;
             }
 
 
@@ -371,7 +433,7 @@ namespace DogSE.Server.Database.MangoDB
             throw new NotImplementedException();
         }
 
-        class MangoDB : DBEntityProfile<MangoDB>
+        public class MangoDB : DBEntityProfile<MangoDB>
         {
 
         }

@@ -164,6 +164,11 @@ namespace DogSE.Library.Util
             {
                 InitLangFile(LangXMLFileName);
             }
+            else
+            {
+                Logs.Error("not find xml file. {0}", LangXMLFileName);
+            }
+
             //else if (HttpContext.Current != null)
             //{
             //    //  表示这是一个web项目

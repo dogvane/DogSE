@@ -45,9 +45,17 @@ namespace DogSE.Library.Common
         private readonly long m_InitialCapacity;
 
         /// <summary>
+        /// 最大持有容量
+        /// 如果发生miss，仍然会按照初始容量去扩容
+        /// 但是，一旦发生回收，池里的数量大于最大容量，则不会再往池里丢数据
+        /// 会直接抛弃掉
+        /// </summary>
+        public int MaxCapacity { get; set; }
+
+        /// <summary>
         /// 内存池
         /// </summary>
-        private ConcurrentQueue<T> m_FreePool = new ConcurrentQueue<T>();
+        protected ConcurrentQueue<T> m_FreePool = new ConcurrentQueue<T>();
 
 
 #if NET40 && DEBUG
@@ -67,9 +75,11 @@ namespace DogSE.Library.Common
         /// 初始化内存池
         /// </summary>
         /// <param name="iInitialCapacity">初始化内存池对象的数量</param>
-        public ObjectPool(long iInitialCapacity = 64)
+        /// <param name="maxCapacity">最大容量</param>
+        public ObjectPool(long iInitialCapacity = 64, int maxCapacity = int.MaxValue)
         {
             m_InitialCapacity = iInitialCapacity;
+            MaxCapacity = maxCapacity;
 
             for (int iIndex = 0; iIndex < iInitialCapacity; ++iIndex)
                 m_FreePool.Enqueue(new T());
@@ -94,6 +104,17 @@ namespace DogSE.Library.Common
         /// </summary>
         ~ObjectPool()
         {            
+            Logs.Info(ToString());
+            Console.WriteLine(ToString());
+        }
+
+        /// <summary>
+        /// 输出对象池的一些状态
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+
             StringBuilder ret = new StringBuilder(512);
             ret.AppendFormat("{0}\r\n", Name);
             ret.AppendFormat("FreeCount:{0}\r\n", m_FreePool.Count);
@@ -101,8 +122,8 @@ namespace DogSE.Library.Common
             ret.AppendFormat("NewCount:{0}\r\n", newCount);
             ret.AppendFormat("AcquireCount:{0}\r\n", acquireCount);
             ret.AppendFormat("ReleaseCount:{0}\r\n", releaseCount);
-            Logs.Info(ret.ToString());
-            Console.WriteLine(ret.ToString());
+
+            return ret.ToString();
         }
 
         /// <summary>
@@ -118,9 +139,9 @@ namespace DogSE.Library.Common
 
         #endregion
 
-        private int acquireCount;
+        private long acquireCount;
 
-        private int releaseCount;
+        private long releaseCount;
 
         private int newCount;
 
@@ -173,7 +194,9 @@ namespace DogSE.Library.Common
                         "MemoryPool.ReleasePoolContent(...) - contentT == null error!");
                 //releaseCount++;
                 Interlocked.Increment(ref releaseCount);
-                m_FreePool.Enqueue(content);
+
+                if (m_FreePool.Count < MaxCapacity)
+                    m_FreePool.Enqueue(content);
 
 #if NET40 && DEBUG
 
@@ -207,9 +230,12 @@ namespace DogSE.Library.Common
             // 不需要锁定的，因为只是给出没有修改数据
             return new PoolInfo
                        {
+                           Name = Name,
                            FreeCount = m_FreePool.Count,
                            InitialCapacity = m_InitialCapacity,
                            CurrentCapacity = m_InitialCapacity + newCount,
+                           AcquireCount = acquireCount,
+                           ReleaseCount = releaseCount,
                            Misses = m_Misses
                        };
         }
@@ -244,5 +270,21 @@ namespace DogSE.Library.Common
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// 带单例模式的对象池
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class StaticInstanceObjectPool<T> where T : new()
+    {
+        private readonly ObjectPool<T> instance = new ObjectPool<T>(8);
+
+        /// <summary>
+        /// 单例模式
+        /// </summary>
+        public ObjectPool<T> Instatnce {
+            get { return instance; }
+        }
     }
 }

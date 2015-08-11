@@ -7,6 +7,7 @@ using DogSE.Library.Log;
 using DogSE.Library.Thread;
 using DogSE.Library.Util;
 using DogSE.Server.Core.Config;
+using System.ComponentModel;
 
 namespace DogSE.Server.Core
 {
@@ -18,16 +19,19 @@ namespace DogSE.Server.Core
         /// <summary>
         /// 启动中
         /// </summary>
+        [Description("启动中")]
         Starting = 0,
 
         /// <summary>
         /// 运行中
         /// </summary>
+        [Description("运行中")]
         Runing = 1,
 
         /// <summary>
         /// 关闭中
         /// </summary>
+        [Description("关闭中")]
         Closing = 2,
     }
 
@@ -39,11 +43,13 @@ namespace DogSE.Server.Core
         /// <summary>
         /// 开启中
         /// </summary>
+        [Description("开放")]
         Opening = 0,
 
         /// <summary>
         /// 维护中
         /// </summary>
+        [Description("维护")]
         Maintain = 1,
     }
 
@@ -420,6 +426,7 @@ namespace DogSE.Server.Core
             if (AfterStopListen != null)
                 AfterStopListen();
 
+            Logs.Info("wait thread queue exit.");
             //  等待所有的线程队列退出
             while (ThreadQueueEntity.HasActionInAllQueue)
             {

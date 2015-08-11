@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net35\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -54,15 +54,11 @@
     <Compile Include="Serialize\CSVSerializeUtil.cs" />
     <Compile Include="Serialize\XmlSerializeUtil.cs" />
     <Compile Include="Log\Appender.cs" />
-    <Compile Include="Log\DefaultLog.cs" />
-    <Compile Include="Log\FileAppender.cs" />
     <Compile Include="Log\ILog.cs" />
     <Compile Include="Log\LogInfo.cs" />
     <Compile Include="Log\LogMessageType.cs" />
     <Compile Include="Log\LOGs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Thread\ThreadQueue.cs" />
-    <Compile Include="Thread\ThreadQueueEntity.cs" />
     <Compile Include="Time\OneServer.mobile.cs" />
     <Compile Include="Util\ConvertString.cs" />
     <Compile Include="Util\Insensitive.cs" />

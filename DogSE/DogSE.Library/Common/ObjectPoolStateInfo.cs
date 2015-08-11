@@ -17,6 +17,16 @@ namespace DogSE.Library.Common
         public long FreeCount { get; internal set; }
 
         /// <summary>
+        /// 申请的数量
+        /// </summary>
+        public long AcquireCount { get; internal set; }
+
+        /// <summary>
+        /// 释放的数量
+        /// </summary>
+        public long ReleaseCount { get; internal set; }
+
+        /// <summary>
         /// 初始化池数量
         /// </summary>
         public long InitialCapacity { get; internal set; }
@@ -31,7 +41,11 @@ namespace DogSE.Library.Common
         /// </summary>
         public long Misses { get; internal set; }
 
-#if DEBUG
+        /// <summary>
+        /// 对象池的名字
+        /// </summary>
+        public string Name { get; internal set; }
+
         /// <summary>
         /// 输出当前数据
         /// </summary>
@@ -39,9 +53,11 @@ namespace DogSE.Library.Common
         public override string ToString()
         {
 
-            return string.Format("FreeCount={0} CurrentCapacity={1} Misses={2}", FreeCount, CurrentCapacity, Misses);
+            return string.Format("{0} FreeCount={1} CurrentCapacity={2} Misses={3} freerate={4:f3}% AcquireCount={5} ReleaseCount={6}", 
+                Name, FreeCount, CurrentCapacity, Misses, FreeCount * 100f /CurrentCapacity,
+                AcquireCount, ReleaseCount);
         }
-#endif
+
         #endregion
     }
 

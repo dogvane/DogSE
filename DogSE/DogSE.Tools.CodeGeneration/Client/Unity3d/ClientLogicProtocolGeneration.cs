@@ -86,6 +86,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 {
                     readCode.AppendFormat("ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
                 }
+                else if (p.PropertyType == typeof (DateTime))
+                {
+                    readCode.AppendFormat("ret.{0} = new DateTime(reader.ReadLong64());\r\n", p.Name);
+                }
                 else if (p.PropertyType.IsEnum)
                 {
                     readCode.AppendFormat("ret.{0} = ({1})reader.ReadByte();\r\n", p.Name, Utils.GetFixFullTypeName(p.PropertyType.FullName));
@@ -387,6 +391,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     else if (p.ParameterType == typeof(string))
                     {
                         callCode.AppendFormat("var p{0} = reader.ReadUTF8String();\r\n", i);
+                    }
+                    else if (p.ParameterType == typeof(DateTime))
+                    {
+                        callCode.AppendFormat("var p{0} = new DateTime(reader.ReadLong64());\r\n",i);
                     }
                     else if (p.ParameterType.IsEnum)
                     {
@@ -706,6 +714,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     else if (p.ParameterType == typeof(string))
                     {
                         methonNameCode.AppendFormat("string {0},", p.Name);
+                    }
+                    else if (p.ParameterType == typeof(DateTime))
+                    {
+                        methonNameCode.AppendFormat("DateTime {0},", p.Name);
                     }
                     else if (p.ParameterType.IsEnum)
                     {

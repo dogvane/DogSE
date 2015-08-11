@@ -147,9 +147,17 @@ namespace DogSE.Server.Core
             {
                 linster.Close();
 
+                int count = 30; //  3秒后直接关闭session
                 while (m_netStateManager.Count > 0)
                 {
                     Thread.Sleep(100);
+                    count--;
+                    if (count < 0)
+                    {
+                        Logs.Info("等待超时，直接关闭session");
+                        linster.CloseAllSession();
+                        break;
+                    }
                 }
 
                 linster.SocketConnect -= OnSocketConnect;
@@ -183,7 +191,7 @@ namespace DogSE.Server.Core
                 if (len == 0)
                 {
                     Logs.Error("get package len is zero.");
-                    netState.NetSocket.CloseSocket(); 
+                    netState.NetSocket.CloseSocket();
                     return;
                 }
 
@@ -217,7 +225,7 @@ namespace DogSE.Server.Core
 
                         var packageReader = PacketReader.AcquireContent(readBuffer);
                         var packageId = packageReader.GetPacketID();
-                        Debug.Write("msgId = " + packageId.ToString());
+                        //Debug.Write("msgId = " + packageId.ToString());
 
                         var packetHandler = PacketHandlersManger.GetHandler(packageId);
                         if (packetHandler != null)
@@ -247,6 +255,13 @@ namespace DogSE.Server.Core
                         else
                         {
                             Logs.Error("unknow packetid. code={0}", packageId);
+                            netState.ErrorCount++;
+                            if (netState.ErrorCount >= 10)
+                            {
+                                //  错误达到极大值，则关闭连接
+                                Logs.Error("ip {0} error count max.", netState.GetIP());
+                                netState.NetSocket.CloseSocket();
+                            }
                         }
                     }
                     continue;

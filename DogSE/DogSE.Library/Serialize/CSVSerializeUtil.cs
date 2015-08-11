@@ -259,6 +259,7 @@ namespace DogSE.Library.Serialize
             catch (Exception ex)
             {
                 var msg = string.Format("param {0} value fail. value {1}", paramName, value);
+                Logs.Error(msg);
                 throw new Exception(msg, ex);
             }
         }

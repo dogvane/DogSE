@@ -316,6 +316,53 @@ namespace DogSE.Library.Util
         }
 
         #endregion
+
+        /// <summary>
+        /// 注意，这个是小数的随机数哦
+        /// 允许传0.001之类的值
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <returns></returns>
+        public static bool IsTriggerProbability100(double percent)
+        {
+            if (percent >= 100)
+                return true;
+
+            return s_Random.Next()%(int)(10000/percent) < 100;
+        }
+
+        static private void test()
+        {
+
+            test2(0.001);
+            test2(0.01);
+            test2(0.1);
+            test2(0.5);
+            test2(1);
+            test2(10);
+            test2(50);
+            test2(70);
+            test2(80);
+            test2(99.99);
+            test2(100);
+
+
+        }
+
+        static void test2(double p)
+        {
+            double count = 1000000;
+            int s = 0;
+            for (int i = 0; i < count; i++)
+            {
+                if (IsTriggerProbability100(p))
+                    s++;
+            }
+
+            var p2 = s/count*100;
+
+            Console.WriteLine("输入：{0}   实际：{1}",p,p2);
+        }
     }
 }
 #endregion

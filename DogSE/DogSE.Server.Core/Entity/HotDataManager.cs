@@ -19,6 +19,14 @@ namespace DogSE.Server.Core.Entity
             entityMap = new Dictionary<int, Entity>(capacity);
         }
 
+        /// <summary>
+        /// 当前缓存的数据
+        /// </summary>
+        public int Count
+        {
+            get { return entityMap.Count; }
+        }
+
         private readonly Dictionary<int, Entity> entityMap;
 
         /// <summary>
@@ -63,9 +71,12 @@ namespace DogSE.Server.Core.Entity
         /// <returns></returns>
         public override string ToString()
         {
-            var count = entityMap.Count;
-            var lockCount = entityMap.Count(o => o.Value.IsLock);
-            return string.Format("{0} {1}(lock)/{2}(count)", typeof(T).Name, lockCount, count);
+            lock (opLock)
+            {
+                var count = entityMap.Count;
+                var lockCount = entityMap.Count(o => o.Value.IsLock);
+                return string.Format("{0} {1}(lock)/{2}(count)", typeof (T).Name, lockCount, count);
+            }
         }
 
         /// <summary>

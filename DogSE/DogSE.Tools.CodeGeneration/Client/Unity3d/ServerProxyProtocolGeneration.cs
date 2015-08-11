@@ -59,10 +59,14 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             writerProxySet.Add(type);
 
             StringBuilder writeCode = new StringBuilder();
+            var typeName = type.Name;
 
             foreach (var p in type.GetProperties())
             {
                 if (!p.CanRead || !p.CanWrite)
+                    continue;
+
+                if (p.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
                     continue;
 
                 if (p.PropertyType == typeof(int))
@@ -92,6 +96,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 else if (p.PropertyType == typeof(string))
                 {
                     writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
+                }
+                else if (p.PropertyType == typeof(DateTime))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0}.Ticks);\r\n", p.Name);
                 }
                 else if (p.PropertyType.IsEnum)
                 {
@@ -140,6 +148,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     {
                         writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0}[i]);\r\n", p.Name);
                     }
+                    else if (p.PropertyType == typeof(DateTime))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}.Ticks);\r\n", p.Name);
+                    }
                     else if (arrayType.IsEnum)
                     {
                         writeCode.AppendFormat("pw.Write((byte)obj.{0}[i]);\r\n", p.Name);
@@ -162,7 +174,7 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
             }
 
             writerProxyCode.AppendLine(
-                readProxyCodeFormatter.Replace("#TypeName#", type.Name)
+                readProxyCodeFormatter.Replace("#TypeName#", typeName)
                 .Replace("#TypeFullName#", Utils.GetFixFullTypeName(type.FullName))
                 .Replace("#ReadCode#", writeCode.ToString())
                 .Replace("#doc#", doc)
@@ -246,7 +258,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                     streamWriterCode.AppendFormat("{0}WriteProxy.Write(obj, pw);", parameterType.Name);
 
-                    streamWriterCode.AppendLine("NetState.Send(pw);PacketWriter.ReleaseContent(pw);");
+                    streamWriterCode.AppendLine("NetState.Send(pw);");
+                    streamWriterCode.AppendLine(" if ( packetProfile != null ) packetProfile.Record(pw.Length);");
+                    streamWriterCode.AppendLine("PacketWriter.ReleaseContent(pw);");
+
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -275,7 +290,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
 
                     streamWriterCode.AppendLine("obj.Write(pw);");
 
-                    streamWriterCode.AppendLine("NetState.Send(pw);PacketWriter.ReleaseContent(pw);");
+                    streamWriterCode.AppendLine("NetState.Send(pw);");
+                    streamWriterCode.AppendLine(" if ( packetProfile != null ) packetProfile.Record(pw.Length);");
+                    streamWriterCode.AppendLine("PacketWriter.ReleaseContent(pw);");
                     streamWriterCode.AppendLine("}");
 
                     methonNameCode.Remove(methonNameCode.Length - 1, 1);
@@ -362,6 +379,12 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         methonNameCode.AppendFormat("string {0},", p.Name);
                         streamWriterCode.AppendFormat("pw.WriteUTF8Null({0});\r\n", p.Name);
                     }
+                    else if (p.ParameterType == typeof(DateTime))
+                    {
+                        commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
+                        methonNameCode.AppendFormat("DateTime {0},", p.Name);
+                        streamWriterCode.AppendFormat("pw.Write({0}.Ticks);\r\n", p.Name);
+                    }
                     else if (p.ParameterType.IsEnum)
                     {
                         commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
@@ -415,6 +438,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         else if (arrayType == typeof(string))
                         {
                             streamWriterCode.AppendFormat("pw.WriteUTF8Null({0}[i]);\r\n", p.Name);
+                        }
+                        else if (p.ParameterType == typeof(DateTime))
+                        {
+                            streamWriterCode.AppendFormat("pw.Write({0}.Ticks);\r\n", p.Name);
                         }
                         else if (arrayType.IsEnum)
                         {

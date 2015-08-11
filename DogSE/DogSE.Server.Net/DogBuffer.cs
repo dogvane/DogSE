@@ -172,12 +172,12 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 对象池
         /// </summary>
-        static readonly ObjectPool<DogBuffer> s_pools = new ObjectPool<DogBuffer>(256);
+        static readonly ObjectPool<DogBuffer> s_pools = new ObjectPool<DogBuffer>(256, 1024);
 
         /// <summary>
         /// 对象池
         /// </summary>
-        static readonly ObjectPool<DogBuffer32K> s_pools32K = new ObjectPool<DogBuffer32K>(256);
+        static readonly ObjectPool<DogBuffer32K> s_pools32K = new ObjectPool<DogBuffer32K>(256, 2048);
 
         /// <summary>
         /// 从缓冲池里获得数据
@@ -260,4 +260,6 @@ namespace DogSE.Server.Net
             }
         }
     }
+
+
 }

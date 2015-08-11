@@ -16,7 +16,7 @@ namespace DogSE.Library.Log
         /// <param name="messageFlag"></param>
         /// <param name="strFormat"></param>
         /// <param name="parameter"></param>
-        public LogInfo(LogMessageType messageFlag, string strFormat, object[] parameter)
+        public LogInfo(LogMessageType messageFlag, string strFormat,object[] parameter = null)
         {
             m_messageFlag = messageFlag;
             format = strFormat;

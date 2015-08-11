@@ -341,7 +341,7 @@ namespace DogSE.Server.Core.Net
         /// </summary>
         private void InsideDispose()
         {
-            m_Socket.CloseSocket();
+            m_Socket.Close();
             m_Socket = null;
         }
 
@@ -406,7 +406,7 @@ namespace DogSE.Server.Core.Net
             if (m_Running == false)
                 return;
 
-            m_Socket.CloseSocket();
+            m_Socket.Close();
 
         }
         #endregion
@@ -427,6 +427,11 @@ namespace DogSE.Server.Core.Net
                 return empty;
             }
         }
+
+        /// <summary>
+        /// 错误数量
+        /// </summary>
+        public int ErrorCount { get; set; }
     }
 }
 

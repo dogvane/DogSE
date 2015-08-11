@@ -14,6 +14,12 @@ namespace DogSE.Server.Net
     /// </summary>
     public class ClientSession<T>
     {
+        ~ClientSession()
+        {
+            //Console.WriteLine("ClientSession dispone()");
+        }
+
+
         /// <summary>
         ///  唯一id
         /// </summary>
@@ -51,9 +57,12 @@ namespace DogSE.Server.Net
             SendEventArgs = new SocketAsyncEventArgs();
             SendEventArgs.Completed += OnSendCompleted;
 
+            RecvBuffer = new DogBuffer();
             ReceiveEventArgs = new SocketAsyncEventArgs();
+            ReceiveEventArgs.SetBuffer(RecvBuffer.Bytes, 0, RecvBuffer.Bytes.Length);
 
             ConnectTime = OneServer.NowTime;
+
         }
 
         /// <summary>
@@ -81,16 +90,17 @@ namespace DogSE.Server.Net
             if (Socket == null || !Socket.Connected)
                 return;
 
-            var buff = DogBuffer.GetFromPool4K();
-            RecvBuffer = buff;
-            ReceiveEventArgs.SetBuffer(buff.Bytes, 0, buff.Bytes.Length);
-            Socket.ReceiveAsync(ReceiveEventArgs);
+            ReceiveEventArgs.SetBuffer(0, RecvBuffer.Bytes.Length);
+
+            //  好吧，会有一定概率，在通过第一行的验证后，socket被关闭，然后Socket被设置为空
+            if (Socket != null)
+                Socket.ReceiveAsync(ReceiveEventArgs);            
         }
 
         /// <summary>
         /// 只关闭Socket
         /// </summary>
-        public void Close()
+        public void CloseSocket()
         {
             if (Socket != null)
             {
@@ -104,25 +114,35 @@ namespace DogSE.Server.Net
         /// <summary>
         /// 关闭连接
         /// </summary>
-        public void CloseSocket()
+        public void Close()
         {
             if (Socket != null)
             {
                 if (Socket.Connected)
                     Socket.Close();
 
+                Socket.Dispose();
                 Socket = null;
             }
 
-            if (RecvBuffer != null)
-                RecvBuffer.Release();
-
             if (SendEventArgs != null)
+            {
                 SendEventArgs.Completed -= OnSendCompleted;
+                SendEventArgs.UserToken = null;
+                SendEventArgs.Dispose();
+            }
 
             SendEventArgs = null;
+
+            if (ReceiveEventArgs != null)
+            {
+                ReceiveEventArgs.UserToken = null;
+                ReceiveEventArgs.Dispose();
+            }
+
             ReceiveEventArgs = null;
 
+            //  清理发送缓冲区
             if (m_PendingBuffer.Count > 0)
             {
                 foreach (var buff in m_PendingBuffer)
@@ -198,8 +218,6 @@ namespace DogSE.Server.Net
 
                     foreach (var buff in buffs)
                     {
-
-
                         Buffer.BlockCopy(buff.Bytes, 0, sendBuff.Bytes, sendBuff.Length, buff.Length);
                         sendBuff.Length += buff.Length;
 
@@ -233,8 +251,13 @@ namespace DogSE.Server.Net
 
                     buff.Release();
                 }
-
-                if (e.BytesTransferred == 0)
+#if DEBUG
+                else
+                {
+                    Logs.Error("OnSendCompleted 的 userToken 竟然不是 DogBuffer 类型");
+                }
+#endif
+                if (e.BytesTransferred == 0 || e.SocketError != SocketError.Success)
                 {
                     //  发送传输为0，目标方应该断开连接了，这里进入断开环节。
                     isSending = false;

@@ -65,6 +65,7 @@ namespace DogSE.Server.Core.Task
         {
             if (!isRelease)
             {
+                Action = null;
                 TaskPool.ReleaseContent(this);
                 isRelease = true;
             }
@@ -193,6 +194,9 @@ namespace DogSE.Server.Core.Task
         {
             if (!isRelease)
             {
+                Obj = default(T);
+                Action = null;
+
                 TaskPool.ReleaseContent(this);
                 isRelease = true;
             }

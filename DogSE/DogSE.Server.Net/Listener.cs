@@ -98,14 +98,13 @@ namespace DogSE.Server.Net
 
                     if (!arg.AllowConnection)
                     {
-                        session.CloseSocket();  //  如果业务逻辑不允许连接，则自己关闭
+                        session.Close();  //  如果业务逻辑不允许连接，则自己关闭
                     }
                     else
                     {
                         NetProfile.Instatnce.AcceptCount++;
 
                         connectSessions.GetOrAdd(session, 1);
-                        //session.Socket.UseOnlyOverlappedIO = true;
 
                         session.ReceiveEventArgs.UserToken = session;
                         session.ReceiveEventArgs.Completed += OnRecvCompleted;
@@ -113,13 +112,14 @@ namespace DogSE.Server.Net
                         session.SyncRecvData();
                     }
 
+                    arg.Session = null;
                     m_connectArgsPool.ReleaseContent(arg);  //  事件完成后就进行回收
                 }
                 else
                 {
                     //  如果没有响应连接事件，目前是直接把客户端关闭
                     Logs.Error("Linster SocketConnect event not invoke.");
-                    session.CloseSocket();
+                    session.Close();
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace DogSE.Server.Net
                     return;
                 }
 
-                if (e.BytesTransferred == 0)
+                if (e.BytesTransferred == 0 || e.SocketError != SocketError.Success)
                 {
                     //  传输为0，表示客户端已经被关闭
                     CloseSession(session);
@@ -152,25 +152,7 @@ namespace DogSE.Server.Net
                     NetProfile.Instatnce.RecvCount++;
                     NetProfile.Instatnce.RecvLength += buff.Length;
 
-                    var recvTemp = SocketRecv;
-                    if (recvTemp != null)
-                    {
-                        var ev = m_recvEventArgsPool.AcquireContent();
-                        ev.Buffer = buff;
-                        ev.Session = session;
-                        try
-                        {
-                            recvTemp(this, ev);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logs.Error("OnSocketRecv event error.", ex);
-                        }
-
-                        m_recvEventArgsPool.ReleaseContent(ev);
-                    }
-
-                    buff.Release();
+                    NotifySocketRecvEvent(session, buff);
 
                     session.SyncRecvData();
                 }
@@ -178,6 +160,35 @@ namespace DogSE.Server.Net
             catch (Exception ex)
             {
                 Logs.Error("OnRecvCompleted fail. ", ex);
+            }
+        }
+
+
+        /// <summary>
+        /// 抛出收到数据事件
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="buff"></param>
+        private void NotifySocketRecvEvent(ClientSession<T> session, DogBuffer buff)
+        {
+            var recvTemp = SocketRecv;
+            if (recvTemp != null)
+            {
+                var ev = m_recvEventArgsPool.AcquireContent();
+                ev.Buffer = buff;
+                ev.Session = session;
+                try
+                {
+                    recvTemp(this, ev);
+                }
+                catch (Exception ex)
+                {
+                    Logs.Error("OnSocketRecv event error.", ex);
+                }
+
+                ev.Buffer = null;
+                ev.Session = null;
+                m_recvEventArgsPool.ReleaseContent(ev);
             }
         }
 
@@ -209,10 +220,13 @@ namespace DogSE.Server.Net
                     Logs.Error("On socket close event error.", ex);
                 }
 
+                arg.Session = null;
                 m_disconnectArgsPool.ReleaseContent(arg);
 
                 //  清理工作由内部的发送缓冲检查出错误后内部进行处理
             }
+
+            session.Close();
         }
 
         /// <summary>
@@ -223,9 +237,7 @@ namespace DogSE.Server.Net
             var sessions = connectSessions.ToArray();
             foreach (var s in sessions)
             {
-                var socket = s.Key.Socket;
-                if (socket != null)
-                    socket.Close();
+                s.Key.CloseSocket();
             }
         }
 
@@ -241,6 +253,18 @@ namespace DogSE.Server.Net
             serverSocket.Stop();
         }
 
+
+        /// <summary>
+        /// 关闭所有的session
+        /// </summary>
+        public void CloseAllSession()
+        {
+            var sessions = connectSessions.ToArray();
+            foreach (var s in sessions)
+            {
+                CloseSession(s.Key);
+            }
+        }
 
         /// <summary>
         /// 当有客户端socket连接上服务器时，触发当前事件
@@ -263,6 +287,8 @@ namespace DogSE.Server.Net
 
         /// <summary>
         /// socket有数据送达
+        /// 注意，这个buffer不要持有，要复制到自己的接收缓冲区
+        /// 这个buffer的数据将在事件完成后，重新进行投递
         /// </summary>
         public event EventHandler<SocketRecvEventArgs<T>> SocketRecv;
 

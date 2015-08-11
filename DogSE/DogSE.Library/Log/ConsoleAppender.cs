@@ -57,11 +57,14 @@ namespace DogSE.Library.Log
             if (bIsLock == false)
                 return;
 
-            LogInfo[] logInfoArray;
-
-            do
+            ThreadPool.QueueUserWorkItem((o) =>
             {
-                logInfoArray = null;
+
+                LogInfo[] logInfoArray;
+
+                do
+                {
+                    logInfoArray = null;
 
                     lock (s_LockLogInfoQueue)
                     {
@@ -74,20 +77,21 @@ namespace DogSE.Library.Log
                             s_IsLock = false; // 没有数据需要处理,释放锁定让其它的程序来继续处理
                     }
 
-                if (logInfoArray == null)
-                    break;
+                    if (logInfoArray == null)
+                        break;
 
-                for (int iIndex = 0; iIndex < logInfoArray.Length; iIndex++)
-                {
-                    LogInfo logInfo = logInfoArray[iIndex];
+                    for (int iIndex = 0; iIndex < logInfoArray.Length; iIndex++)
+                    {
+                        LogInfo logInfo = logInfoArray[iIndex];
 
-                    if (logInfo.Parameter == null)
-                        InternalWriteLine(logInfo.MessageFlag, logInfo.Format);
-                    else
-                        InternalWriteLine(logInfo.MessageFlag, logInfo.Format, logInfo.Parameter);
-                }
+                        if (logInfo.Parameter == null)
+                            InternalWriteLine(logInfo.MessageFlag, logInfo.Format);
+                        else
+                            InternalWriteLine(logInfo.MessageFlag, logInfo.Format, logInfo.Parameter);
+                    }
 
-            } while (true);    
+                } while (true);
+            });
         }
 
         #endregion

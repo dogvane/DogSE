@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using DogSE.Common;
+using DogSE.Library.Thread;
 using IvyOrm;
 using MySql.Data.MySqlClient;
 
@@ -22,6 +25,14 @@ namespace DogSE.Server.Database.MySQL
 
         protected readonly MySqlConnectPool ConPool;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ClearConnectPool()
+        {
+            ConPool.ClearConnection();
+        }
+
         #region IDataService Members
 
         /// <summary>
@@ -41,7 +52,7 @@ namespace DogSE.Server.Database.MySQL
                 proMySql.Load.TotalCount++;
 
                 MySqlConnection con = ConPool.GetConnection();
-                string sql = string.Format("select * from {0} where id = {1}", typeof (T).Name, serial);
+                string sql = string.Format("select * from {0} where id = {1}", GetTableName(typeof(T)), serial);
                 var ret = con.RecordSingleOrDefault<T>(sql);
                 ConPool.ReleaseContent(con);
                 return ret;
@@ -64,6 +75,7 @@ namespace DogSE.Server.Database.MySQL
         #region GM用的一些查询工具
 
         /// <summary>
+        /// 根据条件，和类型查询某个数据实例
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="where"></param>
@@ -71,7 +83,7 @@ namespace DogSE.Server.Database.MySQL
         public T QueryEntity<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
+            string sql = string.Format("select * from {0} where {1} limit 1", GetTableName(typeof(T)), where);
             var ret = con.RecordSingleOrDefault<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -93,12 +105,25 @@ namespace DogSE.Server.Database.MySQL
         /// <summary>
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public T[] QueryValueEntitysSQL<T>(string sql) 
+        {
+            MySqlConnection con = ConPool.GetConnection();
+            var ret = con.ValueQuery<T>(sql);
+            ConPool.ReleaseContent(con);
+            return ret;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="where"></param>
         /// <returns></returns>
         public T QueryValueEntity<T>(string where) where T : new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
+            string sql = string.Format("select * from {0} where {1}", GetTableName(typeof(T)), where);
             var ret = con.ValueSingleOrDefault<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -160,7 +185,7 @@ namespace DogSE.Server.Database.MySQL
         public T[] QueryEntitys<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", typeof(T).Name, where);
+            string sql = string.Format("select * from {0} where {1}", GetTableName(typeof(T)), where);
             T[] ret = con.RecordQuery<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -227,6 +252,30 @@ namespace DogSE.Server.Database.MySQL
 
         #endregion
 
+        private readonly Dictionary<Type, string> tableMap = new Dictionary<Type, string>();
+
+        /// <summary>
+        /// 获得某个类型所对应的数据库表名
+        /// 这里通过 Type与string 的字典做缓存
+        /// 如果定义过 TableAttribute 则使用里面的Table去访问数据库
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected string GetTableName(Type type)
+        {
+            string tableName;
+            if (tableMap.TryGetValue(type, out tableName))
+                return tableName;
+
+            var tableAtt = type.GetCustomAttributes(typeof (TableAttribute), true);
+            if (tableAtt.Length > 0)
+                tableName = ((TableAttribute) tableAtt[0]).TableName;
+            else
+                tableName = type.Name;
+            tableMap[type] = tableName;
+            return tableName;
+        }
+
         /// <summary>
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -234,7 +283,7 @@ namespace DogSE.Server.Database.MySQL
         public T[] LoadEntitys<T>() where T : class, IDataEntity, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0}", typeof (T).Name);
+            string sql = string.Format("select * from {0}", GetTableName(typeof(T)));
             T[] ret = con.RecordQuery<T>(sql);
             ConPool.ReleaseContent(con);
             return ret;
@@ -277,6 +326,15 @@ namespace DogSE.Server.Database.MySQL
             }
         }
 
+        /// <summary>
+        /// 异步更新一个对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        public void SyncUpdateEntity<T>(T entity) where T : class, IDataEntity, new()
+        {
+            ThreadQueue.AppendIO(() => UpdateEntity(entity));
+        }
 
         /// <summary>
         /// </summary>
@@ -314,6 +372,44 @@ namespace DogSE.Server.Database.MySQL
             }
 
         }
+
+        /// <summary>
+        /// 插入一个log数据的实体类，对于这个对象没有主键id的需求
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public void InsertLogEntity<T>(T entity) where T : class, new()
+        {
+            var profile = DBEntityProfile<T>.Instance;
+            profile.Insert.Watch.Restart();
+            var proMySql = MySQL.Instance;
+
+            try
+            {
+                profile.Insert.TotalCount++;
+                proMySql.Insert.TotalCount++;
+
+                MySqlConnection con = ConPool.GetConnection();
+                con.RecordInsert(entity);
+                ConPool.ReleaseContent(con);
+            }
+            catch
+            {
+                profile.Insert.ErrorCount++;
+                proMySql.Insert.ErrorCount++;
+
+                throw;
+            }
+            finally
+            {
+                profile.Insert.Watch.Stop();
+                profile.Insert.TotalTime += profile.Load.Watch.ElapsedTicks;
+                proMySql.Insert.TotalTime += profile.Load.Watch.ElapsedTicks;
+            }
+
+        }
+
 
         /// <summary>
         /// </summary>
@@ -421,6 +517,43 @@ namespace DogSE.Server.Database.MySQL
         }
 
         #endregion
+
+        /// <summary>
+        /// 异步出入一个数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        public void SyncInsertEntity<T>(T entity) where T : class, IDataEntity, new()
+        {
+            ThreadQueue.AppendIO(() => InsertEntity(entity));
+        }
+
+        /// <summary>
+        /// 替换sql注入文档
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string ReplaceSqlInjection(string str)
+        {
+            StringBuilder sb = new StringBuilder(str);
+
+            sb.Replace("'", "");
+            sb.Replace("like", "");
+            sb.Replace("or", "");
+            sb.Replace("\"", "");
+            sb.Replace("exec", "");
+            sb.Replace("run", "");
+            sb.Replace("insert", "");
+            sb.Replace("input", "");
+            sb.Replace("update", "");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 数据库对应的分区id，这个值不一定存在
+        /// </summary>
+        public int ZoneId { get; set; }
     }
 
     /// <summary>

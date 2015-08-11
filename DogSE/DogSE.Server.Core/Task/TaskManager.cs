@@ -273,12 +273,22 @@ namespace DogSE.Server.Core.Task
         /// </summary>
         public void CheckAndRestart()
         {
-            if (watch.IsRunning && watch.Elapsed.TotalSeconds > 10)
+            //  1s 已经很长了
+            if (watch.IsRunning && watch.Elapsed.TotalSeconds > 1)
             {
 
                 Logs.Error("thread {0} is lock. task:{1}", taskName_, lastTask == null ? string.Empty : lastTask.ToString());
                 RestartThread();
             }
+        }
+
+        /// <summary>
+        /// 获得当前正在等待的队列数量
+        /// </summary>
+        /// <returns></returns>
+        public int GetWaitCount()
+        {
+            return taskList.Count;
         }
     }
 }

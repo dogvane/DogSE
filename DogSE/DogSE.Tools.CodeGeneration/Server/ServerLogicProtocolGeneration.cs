@@ -80,6 +80,9 @@ namespace DogSE.Tools.CodeGeneration.Server
                     if (!p.CanRead || !p.CanWrite)
                         continue;
 
+                    if (p.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
+                        continue;
+
                     if (p.PropertyType == typeof(int))
                     {
                         readCode.AppendFormat("ret.{0} = reader.ReadInt32();\r\n", p.Name);
@@ -107,6 +110,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                     else if (p.PropertyType == typeof(string))
                     {
                         readCode.AppendFormat("ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
+                    }
+                    else if (p.PropertyType == typeof(DateTime))
+                    {
+                        readCode.AppendFormat("ret.{0} = new DateTime(reader.ReadLong64());\r\n", p.Name);
                     }
                     else if (p.PropertyType.IsEnum)
                     {
@@ -309,6 +316,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                         {
                             callCode.AppendFormat("var p{0} = reader.ReadUTF8String();\r\n", i);
                         }
+                        else if (p.ParameterType == typeof(DateTime))
+                        {
+                            callCode.AppendFormat("var p{0} = new DateTime(reader.ReadLong64());\r\n", i);
+                        }
                         else if (p.ParameterType.IsEnum)
                         {
                             callCode.AppendFormat("var p{0} = ({1})reader.ReadByte();\r\n", i, p.ParameterType.FullName);
@@ -354,6 +365,10 @@ namespace DogSE.Tools.CodeGeneration.Server
                             else if (arrayType == typeof(string))
                             {
                                 callCode.AppendFormat("p{0}[i] = reader.ReadUTF8String();\r\n", i);
+                            }
+                            else if (arrayType == typeof(DateTime))
+                            {
+                                callCode.AppendFormat("p{0}[i] =  new DateTime(reader.ReadLong64());\r\n", i);
                             }
                             else if (arrayType.IsEnum)
                             {

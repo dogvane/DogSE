@@ -8,6 +8,7 @@
 using System;
 using System.IO;
 using System.Text;
+using DogSE.Library.Thread;
 using DogSE.Library.Time;
 
 namespace DogSE.Server.Core.Task
@@ -85,26 +86,30 @@ namespace DogSE.Server.Core.Task
             try
             {
                 var now = OneServer.NowTime;
-                if (now > _nextDay)
-                {
-                    //  如果过了一天，则新建一个文件
-                    OpenFile(now);
-                    _nextDay = now.Date.AddDays(1);
-                }
-                var tick = now.Ticks;
 
-                _writer.Write(tick);
-                _writer.Write(',');
-                _writer.Write(code);
-                _writer.Write(',');
-                _writer.Write(playerId);
-                _writer.Write(',');
-                _writer.Write(runTime);
-                _writer.Write(',');
-                _writer.Write(waitTime);
-                _writer.Write(',');
-                _writer.Write(isException ? 1 : 0);
-                _writer.Write("\r\n");
+                var tick = now.Ticks;
+                //ThreadQueue.AppendIO(() =>
+                //{
+                    if (now > _nextDay)
+                    {
+                        //  如果过了一天，则新建一个文件
+                        OpenFile(now);
+                        _nextDay = now.Date.AddDays(1);
+                    }
+
+                    _writer.Write(tick);
+                    _writer.Write(',');
+                    _writer.Write(code);
+                    _writer.Write(',');
+                    _writer.Write(playerId);
+                    _writer.Write(',');
+                    _writer.Write(runTime);
+                    _writer.Write(',');
+                    _writer.Write(waitTime);
+                    _writer.Write(',');
+                    _writer.Write(isException ? 1 : 0);
+                    _writer.Write("\r\n");
+                //});
             }
             catch (Exception ex)
             {

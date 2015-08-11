@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using DogSE.Library.Common;
 using DogSE.Library.Log;
@@ -20,8 +21,26 @@ namespace DogSE.Server.Database.MySQL
          public MySqlConnectPool()
              : base("MySqlConnectPool", 10)
         {
-            
         }
+
+        /// <summary>
+        /// 清理所有连接，释放对应的资源
+        /// </summary>
+        public void ClearConnection()
+        {
+            timeMap.Clear();
+
+            while (!m_FreePool.IsEmpty)
+            {
+                MySqlConnection con;
+                if (m_FreePool.TryDequeue(out con))
+                {
+                    con.Dispose();
+                }
+            }
+        }
+
+        private Dictionary<MySqlConnection, DateTime> timeMap = new Dictionary<MySqlConnection, DateTime>();
 
         /// <summary>
         /// 获得一个连接对象，注意，使用完后要返回连接池
@@ -31,6 +50,32 @@ namespace DogSE.Server.Database.MySQL
         public MySqlConnection GetConnection()
         {
             var con = AcquireContent();
+
+            DateTime dropTime;
+            if (timeMap.TryGetValue(con, out dropTime))
+            {
+                if (DateTime.Now > dropTime)
+                {
+                    //  超过一天了，这个sql连接需要抛弃
+                    try
+                    {
+                        Logs.Info("drop mysql connect. {0}", con.GetHashCode());
+                        con.Close();
+                        con.Dispose();
+                        timeMap.Remove(con);
+                    }
+                    catch
+                    {
+                    }
+
+                    con = new MySqlConnection();
+                    timeMap[con] = DateTime.Now.AddDays(1);
+                }
+            }
+            else
+            {
+                timeMap[con] = DateTime.Now.AddDays(1);
+            }
 
             if (con.State == ConnectionState.Open)
             {

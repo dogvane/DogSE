@@ -23,28 +23,28 @@
 namespace DogSE.Common
 {
     #region zh-CHS 接口 | en Interface
-    /// <summary>
-    /// 具备唯一标示的接口
-    /// </summary>
-    public interface ISerial
-    {
-        /// <summary>
-        /// 唯一标示Id
-        /// </summary>
-        Serial Serial { get; }
-    }
+    ///// <summary>
+    ///// 具备唯一标示的接口
+    ///// </summary>
+    //public interface ISerial
+    //{
+    //    /// <summary>
+    //    /// 唯一标示Id
+    //    /// </summary>
+    //    Serial Serial { get; }
+    //}
 
-    /// <summary>
-    /// 用于保存数据的实体类
-    /// </summary>
-    public interface IDataEntity
-    {
-        /// <summary>
-        /// 数据实体类的唯一id标示
-        /// </summary>
-        //[PrimaryKey(PrimaryKeyOptions.IncludeInInsert)]
-        int Id { get; set; }
-    }
+    ///// <summary>
+    ///// 用于保存数据的实体类
+    ///// </summary>
+    //public interface IDataEntity
+    //{
+    //    /// <summary>
+    //    /// 数据实体类的唯一id标示
+    //    /// </summary>
+    //    //[PrimaryKey(PrimaryKeyOptions.IncludeInInsert)]
+    //    int Id { get; set; }
+    //}
 
     /// <summary>
     /// 

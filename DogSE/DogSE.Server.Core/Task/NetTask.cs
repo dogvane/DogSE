@@ -33,8 +33,7 @@ namespace DogSE.Server.Core.Task
         /// </summary>
         public void Execute()
         {
-            PacketHandler.OnReceive(NetState, PacketReader);
-            
+            PacketHandler.OnReceive(NetState, PacketReader);            
         }
 
         public ITaskProfile TaskProfile { get; internal set; }
@@ -49,6 +48,8 @@ namespace DogSE.Server.Core.Task
             if (!isRelease)
             {
                 isRelease = true;
+                NetState = null;
+                PacketHandler = null;
 
                 TaskPool.ReleaseContent(this);
                 PacketReader.ReleaseContent(PacketReader);

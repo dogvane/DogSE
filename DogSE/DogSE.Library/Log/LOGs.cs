@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DogSE.Library.Log
 {
@@ -8,6 +9,11 @@ namespace DogSE.Library.Log
     /// </summary>
     public static class Logs
     {
+
+#if NET35
+
+#else
+
         /// <summary>
         /// 初始化日志配置文件
         /// </summary>
@@ -22,6 +28,7 @@ namespace DogSE.Library.Log
             append.Level = msgType;
             AddAppender(append);
         }
+#endif
 
         #region 新的操作接口
 
@@ -137,6 +144,19 @@ namespace DogSE.Library.Log
         /// 输出Error信息
         /// </summary>
         /// <param name="message"></param>
+        /// <param name="param2"></param>
+        /// <param name="param1"></param>
+        /// <param name="param3"></param>
+        public static void Error(string message, string param1, string param2, string param3)
+        {
+            WriteLine(LogMessageType.MSG_ERROR,
+                      message, new object[] { param1, param2,param3 });
+        }
+
+        /// <summary>
+        /// 输出Error信息
+        /// </summary>
+        /// <param name="message"></param>
         /// <param name="param1"></param>
         /// <param name="ex"></param>
         public static void Error(string message, string param1, Exception ex)
@@ -202,7 +222,15 @@ namespace DogSE.Library.Log
 
             var logInfo = new LogInfo(messageFlag, strFormat, arg);
             for (int i = 0; i < appenders.Count; i++)
-                appenders[i].Write(logInfo);
+                try
+                {
+                    appenders[i].Write(logInfo);
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText("FatalError.txt", ex.ToString());
+                }
+
         }
 
         /// <summary>

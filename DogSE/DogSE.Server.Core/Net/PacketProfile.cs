@@ -165,6 +165,16 @@ namespace DogSE.Server.Core.Net
         }
 
         /// <summary>
+        /// 计算
+        /// </summary>
+        /// <param name="iByteLength"></param>
+        public void Record(long iByteLength)
+        {
+            ++m_Count;
+            m_TotalByteLength += iByteLength;
+        }
+
+        /// <summary>
         /// 该类的构造了的次数
         /// </summary>
         public void RegConstruct()

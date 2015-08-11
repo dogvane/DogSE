@@ -49,6 +49,8 @@ namespace DogSE.Server.Net
 
         /// <summary>
         /// 缓冲区数据
+        /// 注意，这个buffer不要持有，要复制到自己的接收缓冲区
+        /// 这个buffer的数据将在事件完成后，重新进行投递
         /// </summary>
         public DogBuffer Buffer { get; internal set; }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using DogSE.Library.Log;
 
@@ -57,6 +56,19 @@ namespace DogSE.Server.Core.Config
         }
 
         /// <summary>
+        /// 判断key是否在配置里
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        internal static bool ContainsKey(string key)
+        {
+            if (map == null)
+                map = DynamicConfigFileManager.GetConfigData<GlobalData>("GlobalData").ToMap(o => o.Key);
+
+            return map.ContainsKey(key);
+        }
+
+        /// <summary>
         /// 更新模板数据
         /// </summary>
         public static void UpdateTemplate()
@@ -85,6 +97,7 @@ namespace DogSE.Server.Core.Config
             s_items.ForEach(o => sb.AppendLine(o.Key));
             return sb.ToString();
         }
+
     }
 
     /// <summary>
@@ -255,15 +268,14 @@ namespace DogSE.Server.Core.Config
             if (isInitString)
                 return stringValue;
 
-            string value = KeyValueConfigManger.GetValue(Key);
-            if (string.IsNullOrEmpty(value))
+            if (!KeyValueConfigManger.ContainsKey(Key))
             {
                 Logs.Warn(string.Format("Global item {0} not default.", Key));
                 stringValue = defaultStringValue;
             }
             else
             {
-                stringValue = value;
+                stringValue =  KeyValueConfigManger.GetValue(Key);
             }
 
             isInitString = true;
@@ -289,7 +301,7 @@ namespace DogSE.Server.Core.Config
             type = KeyValueType.IntArray;
         }
 
-        private int[] defaultIntArray;
+        private readonly int[] defaultIntArray;
         private int[] intArray;
         private bool isInitArray;
 
@@ -338,6 +350,132 @@ namespace DogSE.Server.Core.Config
 
         #endregion
 
+        #region double[]
+
+        /// <summary>
+        ///     创建一个Double[] 类型的数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public KeyValueItem(string key, double[] defaultValue)
+        {
+            KeyValueConfigManger.AddUpdateItem(this);
+
+            defaultDoubleArray = defaultValue;
+            Key = key;
+            type = KeyValueType.DoubleArray;
+        }
+
+        private readonly double[] defaultDoubleArray;
+        private double[] doubleArray;
+        private bool isInitDoubleArray;
+
+
+        /// <summary>
+        ///     获得Double数据
+        /// </summary>
+        /// <returns></returns>
+        public double[] GetDoubleArray()
+        {
+            if (type != KeyValueType.IntArray)
+            {
+                throw new Exception(string.Format("global {0} not dboule[] type", Key));
+            }
+
+            if (isInitDoubleArray)
+                return doubleArray;
+
+            string value = KeyValueConfigManger.GetValue(Key);
+            if (string.IsNullOrEmpty(value))
+            {
+                Logs.Warn(string.Format("Global item {0} not default.", Key));
+                doubleArray = defaultDoubleArray;
+            }
+            else
+            {
+                List<double> arr = new List<double>();
+                foreach (var str in value.Split(',', ';'))
+                {
+                    if (string.IsNullOrEmpty(str))
+                        continue;
+
+                    double i;
+                    if (double.TryParse(str, out i))
+                        arr.Add(i);
+                    else
+                        Logs.Error(string.Format("Global item {0}:{1}-{2} parse to dboule fail.", Key, value, str));
+                }
+                doubleArray = arr.ToArray();
+            }
+
+            isInitDoubleArray = true;
+
+            return doubleArray;
+        }
+
+        #endregion
+
+        #region string[]
+
+        /// <summary>
+        ///     创建一个int[] 类型的数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public KeyValueItem(string key, string[] defaultValue)
+        {
+            KeyValueConfigManger.AddUpdateItem(this);
+
+            defaultStringArray = defaultValue;
+            Key = key;
+            type = KeyValueType.StringArray;
+        }
+
+        private readonly string[] defaultStringArray;
+        private string[] stringArray;
+        private bool isInitStringArray;
+
+
+        /// <summary>
+        ///     获得Int数据
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetStringArray()
+        {
+            if (type != KeyValueType.StringArray)
+            {
+                throw new Exception(string.Format("global {0} not string[] type", Key));
+            }
+
+            if (isInitStringArray)
+                return stringArray;
+
+            string value = KeyValueConfigManger.GetValue(Key);
+            if (string.IsNullOrEmpty(value))
+            {
+                Logs.Warn(string.Format("Global item {0} not default.", Key));
+                stringArray = defaultStringArray;
+            }
+            else
+            {
+                List<string> arr = new List<string>();
+                foreach (var str in value.Split(',', ';'))
+                {
+                    if (string.IsNullOrEmpty(str))
+                        continue;
+
+                    arr.Add(str);
+                }
+                stringArray = arr.ToArray();
+            }
+
+            isInitStringArray = true;
+
+            return stringArray;
+        }
+
+        #endregion
+
         /// <summary>
         ///     键值项
         /// </summary>
@@ -351,6 +489,8 @@ namespace DogSE.Server.Core.Config
             Double = 1,
             String = 2,
             IntArray = 3,
+            StringArray = 4,
+            DoubleArray = 5,
         }
     }
 
