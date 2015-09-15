@@ -50,8 +50,10 @@ namespace Example2
             s.Client = e.Session;
             e.Session.Data = s;
 
-            nologinSessions.Add(s);
-
+            lock (sessions)
+            {
+                nologinSessions.Add(s);
+            }
         }
 
         /// <summary>
@@ -62,11 +64,13 @@ namespace Example2
         private static void OnSocketDisconnect(object sender, SocketDisconnectEventArgs<Session> e)
         {
             var s = e.Session.Data;
-            
-            if (s.IsLogin)
-                sessions.Remove(s);
-            else
-                nologinSessions.Remove(s);
+            lock (sessions)
+            {
+                if (s.IsLogin)
+                    sessions.Remove(s);
+                else
+                    nologinSessions.Remove(s);
+            }
 
             //  解除互相的引用关系
             s.Client = null;
@@ -91,26 +95,6 @@ namespace Example2
 
                 var reader = new PacketReader();
                 reader.SetBuffer(dogBuffer);
-
-                /*
-                var pid = (OpCode)reader.GetPacketID();
-
-                switch (pid)
-                {
-                    case OpCode.Login:
-                        OnLogin(session, reader);
-                        break;
-                    case OpCode.SendMessage:
-                        OnSendMessage(session, reader);
-                        break; 
-                    case OpCode.SendPriviteMessage:
-                        OnSendPrivateMessage(session, reader);
-                        break;
-                    default:
-                        Logs.Error("未知消息ID {0}", (int)pid);
-                        break;
-                }
-                */
 
                 var pid = reader.GetPacketID();
                 var handler = packetHandlersManager.GetHandler(pid);
@@ -167,19 +151,22 @@ namespace Example2
                 return;
             }
 
-            //  如果玩家之前登录过，则把之前的客户端踢下线
-            var exists = sessions.FirstOrDefault(o => o.Name == userName);
-            if (exists != null)
-            {                
-                exists.IsLogin = false;
-                sessions.Remove(exists);
-                exists.Client.CloseSocket();
-            }
+            lock (sessions)
+            {
+                //  如果玩家之前登录过，则把之前的客户端踢下线
+                var exists = sessions.FirstOrDefault(o => o.Name == userName);
+                if (exists != null)
+                {
+                    exists.IsLogin = false;
+                    sessions.Remove(exists);
+                    exists.Client.CloseSocket();
+                }
 
-            //  登录完成
-            session.IsLogin = true;
-            nologinSessions.Remove(session);
-            sessions.Add(session);
+                //  登录完成
+                session.IsLogin = true;
+                nologinSessions.Remove(session);
+                sessions.Add(session);
+            }
 
             session.Name = userName;
             session.Pwd = pwd;
@@ -202,9 +189,12 @@ namespace Example2
             //  广播给所有在线的用户
             var writer = new PacketWriter();
             writer.SetNetCode((ushort)OpCode.RecvMessage);
-            foreach (var ss in sessions)
+            lock (sessions)
             {
-                ss.Client.SendPackage(writer.GetBuffer());
+                foreach (var ss in sessions)
+                {
+                    ss.Client.SendPackage(writer.GetBuffer());
+                }
             }
         }
 
@@ -220,10 +210,14 @@ namespace Example2
 
             if (message == null)
                 return;
+            Session target = null;
 
-            var target = sessions.FirstOrDefault(o => o.Name == userName);
-            if (target == null)
-                return;
+            lock (sessions)
+            {
+                 target = sessions.FirstOrDefault(o => o.Name == userName);
+                if (target == null)
+                    return;
+            }
 
             var writer = new PacketWriter();
             writer.SetNetCode((ushort) OpCode.RecvPrivateMessage);
