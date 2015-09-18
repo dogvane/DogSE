@@ -61,8 +61,12 @@
     <Content Include="Protocol\TestClass.txt" />
     <Compile Include="ServerState\IServerState.cs" />
     <Compile Include="ServerState\ServerStateManager.cs" />
+    <Compile Include="TaskT\ActionTaskT.cs" />
     <Compile Include="Task\ActionTaskCodeRuntimeWriter.cs" />
+    <Compile Include="TaskT\NetTaskT.cs" />
     <Compile Include="Task\NetTaskCodeRuntimeWriter.cs" />
+    <Compile Include="TaskT\PacketHandlersT.cs" />
+    <Compile Include="TaskT\TaskManagerT.cs" />
     <Compile Include="Task\TaskMonitor.cs" />
     <Compile Include="Timer\DelayCallTimer.cs" />
     <Compile Include="Timer\DelayStateCallTimer.cs" />

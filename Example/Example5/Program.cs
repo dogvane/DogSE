@@ -1,6 +1,5 @@
 ﻿using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
-using DogSE.Server.Core.Task;
 using DogSE.Server.Net;
 using System;
 using System.Collections.Generic;
@@ -11,19 +10,22 @@ using DogSE.Server.Core.TaskT;
 namespace Example2
 {
     /// <summary>
-    /// 加锁处理demo
+    /// 任务队列处理
     /// </summary>
     class Program
     {
-        
+
         static void Main(string[] args)
         {
             Logs.AddConsoleAppender();
 
             //  注册网络消息
-            packetHandlersManager.Register((ushort) OpCode.Login, OnLogin);
+            packetHandlersManager.Register((ushort)OpCode.Login, OnLogin);
             packetHandlersManager.Register((ushort)OpCode.SendMessage, OnSendMessage);
             packetHandlersManager.Register((ushort)OpCode.RecvPrivateMessage, OnSendPrivateMessage);
+
+            //  开启任务线程，所有的业务逻辑今后都在这里执行
+            taskManager.StartThread();
 
             var servers = new Listener<Session>();
             servers.SocketConnect += OnSocketConnect;
@@ -40,6 +42,12 @@ namespace Example2
 
                 Thread.Sleep(100);
             }
+            //  退出时要等未处理完的任务处理完成后才退出
+            taskManager.Runing = false;
+            while (taskManager.GetWaitCount() > 0)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         /// <summary>
@@ -54,10 +62,8 @@ namespace Example2
             s.Client = e.Session;
             e.Session.Data = s;
 
-            lock (sessions)
-            {
-                nologinSessions.Add(s);
-            }
+            nologinSessions.Add(s);
+
         }
 
         /// <summary>
@@ -68,13 +74,11 @@ namespace Example2
         private static void OnSocketDisconnect(object sender, SocketDisconnectEventArgs<Session> e)
         {
             var s = e.Session.Data;
-            lock (sessions)
-            {
-                if (s.IsLogin)
-                    sessions.Remove(s);
-                else
-                    nologinSessions.Remove(s);
-            }
+
+            if (s.IsLogin)
+                sessions.Remove(s);
+            else
+                nologinSessions.Remove(s);
 
             //  解除互相的引用关系
             s.Client = null;
@@ -108,13 +112,16 @@ namespace Example2
                 }
                 else
                 {
-                    handler.OnReceive(session, reader);
+                    //  网络的消息包都会压入任务队列里等待执行
+                    taskManager.AppendTask(session, handler, reader);
                 }
 
                 packetlen = session.RQ.GetPacketLength();
             }
 
         }
+
+        private static readonly TaskManagerT<Session> taskManager = new TaskManagerT<Session>("任务队列");
 
         /// <summary>
         /// 客户端连接列表
@@ -129,6 +136,9 @@ namespace Example2
 
         private static readonly PacketHandlersBaseT<Session> packetHandlersManager = new PacketHandlersBaseT<Session>();
 
+
+        private static int clientIdSeq = 1;
+
         /// <summary>
         /// 登录服务器
         /// </summary>
@@ -136,49 +146,42 @@ namespace Example2
         /// <param name="reader"></param>
         static void OnLogin(Session session, PacketReader reader)
         {
-            var userName = reader.ReadUTF8String();
-            var pwd = reader.ReadUTF8String();
+            var packet = MessagePackageManager.ReadLogin(reader);
 
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(packet.UserName))
             {
                 Logs.Error("连接的用户名是空");
                 session.Client.CloseSocket();
             }
 
-            if (pwd != "123")
+            if (packet.Pwd != "123")
             {
-                Logs.Error("用户名 {0} 速度的密码错误", userName);
-                var writer = new PacketWriter();
-                writer.SetNetCode((ushort)OpCode.LoginResult);
-                writer.Write(1);    //  0表示登录成功 1表示密码错误
-                session.Client.SendPackage(writer.GetBuffer());
+                Logs.Error("用户名 {0} 速度的密码错误", packet.UserName);
+                var buffer = MessagePackageManager.WriteLoginResult(LoginResult.PwdError);
+                session.Client.SendPackage(buffer);
                 return;
             }
 
-            lock (sessions)
+            //  如果玩家之前登录过，则把之前的客户端踢下线
+            var exists = sessions.FirstOrDefault(o => o.Name == packet.UserName);
+            if (exists != null)
             {
-                //  如果玩家之前登录过，则把之前的客户端踢下线
-                var exists = sessions.FirstOrDefault(o => o.Name == userName);
-                if (exists != null)
-                {
-                    exists.IsLogin = false;
-                    sessions.Remove(exists);
-                    exists.Client.CloseSocket();
-                }
-
-                //  登录完成
-                session.IsLogin = true;
-                nologinSessions.Remove(session);
-                sessions.Add(session);
+                exists.IsLogin = false;
+                sessions.Remove(exists);
+                exists.Client.CloseSocket();
             }
 
-            session.Name = userName;
-            session.Pwd = pwd;
+            //  登录完成
+            session.IsLogin = true;
+            nologinSessions.Remove(session);
+            sessions.Add(session);
 
-            var writer2 = new PacketWriter();
-            writer2.SetNetCode((ushort)OpCode.LoginResult);
-            writer2.Write(0);    //  0表示登录成功 1表示密码错误
-            session.Client.SendPackage(writer2.GetBuffer());
+            session.Name = packet.UserName;
+            session.Pwd = packet.Pwd;
+            session.BizId = clientIdSeq++;
+
+            var buffer2 = MessagePackageManager.WriteLoginResult(LoginResult.Success);
+            session.Client.SendPackage(buffer2);
         }
 
         /// <summary>
@@ -196,14 +199,10 @@ namespace Example2
             }
 
             //  广播给所有在线的用户
-            var writer = new PacketWriter();
-            writer.SetNetCode((ushort)OpCode.RecvMessage);
-            lock (sessions)
+            var buffer = MessagePackageManager.WriteSendMessageResult(message);
+            foreach (var ss in sessions)
             {
-                foreach (var ss in sessions)
-                {
-                    ss.Client.SendPackage(writer.GetBuffer());
-                }
+                ss.Client.SendPackage(buffer);
             }
         }
 
@@ -219,26 +218,18 @@ namespace Example2
 
             if (message == null)
                 return;
-            Session target = null;
 
-            lock (sessions)
-            {
-                 target = sessions.FirstOrDefault(o => o.Name == userName);
-                if (target == null)
-                    return;
-            }
+            var target = sessions.FirstOrDefault(o => o.Name == userName);
+            if (target == null)
+                return;
 
-            var writer = new PacketWriter();
-            writer.SetNetCode((ushort) OpCode.RecvPrivateMessage);
-            writer.WriteUTF8Null(session.Name);
-            writer.WriteUTF8Null(message);
-
-            target.Client.SendPackage(writer.GetBuffer());
+            var buffer = MessagePackageManager.WriteSendPrivateMessageResult(session.Name, message);
+            target.Client.SendPackage(buffer);
         }
 
     }
 
-    public class Session
+    public class Session : INetTaskEntity
     {
         public Session()
         {
@@ -257,7 +248,11 @@ namespace Example2
         public ClientSession<Session> Client { get; set; }
 
         public ReceiveQueue RQ { get; set; }
-    
 
+
+        /// <summary>
+        /// 业务id
+        /// </summary>
+        public int BizId { get; set; }
     }
 }

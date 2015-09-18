@@ -25,10 +25,11 @@ using System;
 using DogSE.Library.Log;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
+using DogSE.Server.Core.Task;
 
 #endregion
 
-namespace DogSE.Server.Core.Task
+namespace DogSE.Server.Core.TaskT
 {
     /// <summary>
     /// 管理全部数据包的调用者

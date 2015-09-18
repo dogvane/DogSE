@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using DogSE.Server.Core.TaskT;
 
 namespace Example2
 {
@@ -183,6 +184,11 @@ namespace Example2
 
             session.Name = userName;
             session.Pwd = pwd;
+
+            var writer2 = new PacketWriter();
+            writer2.SetNetCode((ushort)OpCode.LoginResult);
+            writer2.Write(0);    //  0表示登录成功 1表示密码错误
+            session.Client.SendPackage(writer2.GetBuffer());
         }
 
         /// <summary>
