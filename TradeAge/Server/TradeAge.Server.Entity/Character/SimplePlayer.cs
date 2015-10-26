@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DogSE.Common;
-using TradeAge.Server.Entity.Common;
 
 #if Server 
+using TradeAge.Server.Entity.Common;
 namespace TradeAge.Server.Entity.Character
 #else
+using TradeAge.Client.Entity.Common;
 namespace TradeAge.Client.Entity.Character
 #endif
 {

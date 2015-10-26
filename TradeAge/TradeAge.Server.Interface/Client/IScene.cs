@@ -34,7 +34,7 @@ namespace TradeAge.Server.Interface.Client
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="player"></param>
-        [NetMethod((ushort)OpCode.SpriteEnter, NetMethodType.ProtocolStruct)]
+        [NetMethod((ushort)OpCode.SpriteEnter, NetMethodType.SimpleMethod)]
         void SpriteEnter(NetState netstate, SimplePlayer player);
 
         /// <summary>

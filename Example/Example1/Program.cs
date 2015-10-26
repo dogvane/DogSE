@@ -78,6 +78,12 @@ namespace Example2
             session.RQ.Enqueue(e.Buffer.Bytes, 0, e.Buffer.Length);
 
             var packetlen = session.RQ.GetPacketLength();
+            if (packetlen > 1024*64)
+            {
+                session.Client.CloseSocket();
+                return;
+            }
+
             while (packetlen >= session.RQ.Length)
             {
                 var dogBuffer = new DogBuffer();

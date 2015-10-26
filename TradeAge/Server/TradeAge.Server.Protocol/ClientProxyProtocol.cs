@@ -35,7 +35,9 @@ var pw = PacketWriter.AcquireContent(1001);
                 packetProfile.RegConstruct();
                 pw.Write((byte)result);
 pw.Write(isCreatePlayer);
-netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
 public void CreatePlayerResult(NetState netstate,TradeAge.Server.Entity.Login.CraetePlayerResult result)
@@ -45,7 +47,9 @@ var pw = PacketWriter.AcquireContent(1003);
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write((byte)result);
-netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
 
@@ -64,16 +68,21 @@ var pw = PacketWriter.AcquireContent(1101);
                 packetProfile.RegConstruct();
                 Vector3WriteProxy.Write(postion, pw);
 Vector3WriteProxy.Write(direction, pw);
-netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
-public void SpriteEnter(NetState netstate, TradeAge.Server.Entity.Character.SimplePlayer obj)
+public void SpriteEnter(NetState netstate,TradeAge.Server.Entity.Character.SimplePlayer player)
 {
 var pw = PacketWriter.AcquireContent(1102);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1102 );
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
-                SimplePlayerWriteProxy.Write(obj, pw);netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+                SimplePlayerWriteProxy.Write(player, pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
 public void SpriteMove(NetState netstate,int playerId,TradeAge.Server.Entity.Common.Vector3 postion,TradeAge.Server.Entity.Common.Vector3 direction)
@@ -85,7 +94,9 @@ var pw = PacketWriter.AcquireContent(1103);
                 pw.Write(playerId);
 Vector3WriteProxy.Write(postion, pw);
 Vector3WriteProxy.Write(direction, pw);
-netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
 public void SpriteLeave(NetState netstate,int playerId)
@@ -95,7 +106,9 @@ var pw = PacketWriter.AcquireContent(1104);
             if ( packetProfile != null )
                 packetProfile.RegConstruct();
                 pw.Write(playerId);
-netstate.Send(pw);PacketWriter.ReleaseContent(pw);
+netstate.Send(pw);
+ if ( packetProfile != null ) packetProfile.Record(pw.Length);
+PacketWriter.ReleaseContent(pw);
 }
 
 

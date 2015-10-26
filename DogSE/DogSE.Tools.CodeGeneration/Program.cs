@@ -16,6 +16,7 @@ namespace DogSE.Tools.CodeGeneration
         static void Main(string[] args)
         {
             CreateServerCode();
+            CreateClientCode();
             return;
 
             System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient();
@@ -32,19 +33,19 @@ namespace DogSE.Tools.CodeGeneration
            @"..\..\..\..\TradeAge\Server\TradeAge.Server.Protocol\ClientProxyProtocol.cs");
         }
 
-        void CreateClientCode()
+        static void CreateClientCode()
         {
 
             ClientLogicProtocolGeneration.CreateCode(
                 @"..\..\..\..\TradeAge\TradeAge.Server.Interface\bin\Debug\TradeAge.Server.Interface.dll",
-                @"..\..\..\..\TradeAge\Client\TradeAge.Client.Logic\",
-                "TradeAge.Client.Logic");
+                @"..\..\..\..\TradeAge\Client\TradeAge.Client.Controller\",
+                "TradeAge.Client");
 
             
             ServerProxyProtocolGeneration.CreateCode(
     @"..\..\..\..\TradeAge\TradeAge.Server.Interface\bin\Debug\TradeAge.Server.Interface.dll",
-    @"..\..\..\..\TradeAge\Client\TradeAge.Client.Logic\",
-    "TradeAge.Client.Logic");
+    @"..\..\..\..\TradeAge\Client\TradeAge.Client.Controller\",
+    "TradeAge.Client");
 
 
         }

@@ -873,7 +873,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
     .Replace("#namespace#", nameSpace)
     .Replace("`", "\"");
 
-            File.WriteAllText(Path.Combine(outFolder, @"Controller\Auto\LogicInterface.cs"), fileContext, Encoding.UTF8);
+            var file = Path.Combine(outFolder, @"Controller\Auto\LogicInterface.cs");
+            new FileInfo(file).Directory.Create();
+
+            File.WriteAllText(file, fileContext, Encoding.UTF8);
         }
 
         private const string InterfaceCodeBase = @"
