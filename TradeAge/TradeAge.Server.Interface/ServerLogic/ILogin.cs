@@ -1,8 +1,8 @@
 ﻿using DogSE.Server.Core.LogicModule;
 using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
-using TradeAge.Common.Entity.NetCode;
 using TradeAge.Server.Entity.Character;
+using TradeAge.Server.Entity.NetCode;
 
 namespace TradeAge.Server.Interface.ServerLogic
 {

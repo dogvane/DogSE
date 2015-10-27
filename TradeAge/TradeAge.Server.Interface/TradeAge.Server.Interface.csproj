@@ -58,10 +58,6 @@
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
       <Name>DogSE.Server.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common\TradeAge.Common.Entity\TradeAge.Common.Entity.csproj">
-      <Project>{22ebede1-f9eb-40ec-97ec-89440f54f690}</Project>
-      <Name>TradeAge.Common.Entity</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Server\TradeAge.Server.Entity\TradeAge.Server.Entity.csproj">
       <Project>{7e2f65e0-1c97-40c9-bdf8-12008bede0ca}</Project>
       <Name>TradeAge.Server.Entity</Name>
