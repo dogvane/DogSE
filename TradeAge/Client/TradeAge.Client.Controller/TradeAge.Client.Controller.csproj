@@ -49,13 +49,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Client.Core\DogSE.Client.Core.csproj">
+      <Project>{c9bbbe58-672b-4fec-b66e-b020966186d0}</Project>
+      <Name>DogSE.Client.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.net35.csproj">
       <Project>{e7fe81a8-ce39-46c1-8eb2-c1f5d0ad130a}</Project>
       <Name>DogSE.Library.net35</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DogSE.Client.Core\DogSE.Client.Core.csproj">
-      <Project>{c9bbbe58-672b-4fec-b66e-b020966186d0}</Project>
-      <Name>DogSE.Client.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeAge.Client.Entity\TradeAge.Client.Entity.csproj">
       <Project>{82f1aff6-2c00-43ef-b923-bc39311c71a1}</Project>
