@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C9BBBE58-672B-4FEC-B66E-B020966186D0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TradeAge.Client.Core</RootNamespace>
+    <AssemblyName>TradeAge.Client.Core</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\TradeAge.Client.Core.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Release\TradeAge.Client.Core.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GameServerService.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Interface\Interface.cs" />
+    <Compile Include="Interface\Serial.cs" />
+    <Compile Include="Net\ConcurrentDictionary.cs" />
+    <Compile Include="Net\Connect\ClientSession.cs" />
+    <Compile Include="Net\Connect\Delegate.cs" />
+    <Compile Include="Net\Connect\DogBuffer.cs" />
+    <Compile Include="Net\Connect\NetProfile.cs" />
+    <Compile Include="Net\NetState.ComponentManager.cs" />
+    <Compile Include="Net\NetState.cs" />
+    <Compile Include="Net\NetStateManager.cs" />
+    <Compile Include="Net\PacketProfile.cs" />
+    <Compile Include="Net\PacketReader.cs" />
+    <Compile Include="Net\Packets.cs" />
+    <Compile Include="Net\PacketWriter.cs" />
+    <Compile Include="Net\ReceiveQueue.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\NetMethodAttribute.cs" />
+    <Compile Include="Task\ActionTask.cs" />
+    <Compile Include="Task\Interface.cs" />
+    <Compile Include="Task\NetTask.cs" />
+    <Compile Include="Task\PacketHandler.cs" />
+    <Compile Include="Task\PacketHandlersBase.cs" />
+    <Compile Include="Task\Untity3DTaskManager.cs" />
+    <Compile Include="Timer\DelayCallTimer.cs" />
+    <Compile Include="Timer\DelayStateCallTimer.cs" />
+    <Compile Include="Timer\Delegate.cs" />
+    <Compile Include="Timer\Enum.cs" />
+    <Compile Include="Timer\TimerChangeEntry.cs" />
+    <Compile Include="Timer\TimerProfile.cs" />
+    <Compile Include="Timer\TimerThread.cs" />
+    <Compile Include="Timer\TimeSlice.cs" />
+    <Compile Include="Timer\TimeSliceUtil.cs" />
+    <Compile Include="BaseController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.net35.csproj">
+      <Project>{e7fe81a8-ce39-46c1-8eb2-c1f5d0ad130a}</Project>
+      <Name>DogSE.Library.net35</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
