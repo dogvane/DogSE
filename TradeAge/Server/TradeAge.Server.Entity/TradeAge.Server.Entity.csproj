@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Character\Account.cs" />
@@ -41,6 +42,7 @@
     <Compile Include="Common\SequenceGenerator.cs" />
     <Compile Include="Common\Vector3.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />
+    <Compile Include="GameEvent\PlayerEvents.cs" />
     <Compile Include="Login\LoginEnum.cs" />
     <Compile Include="NetCode\OpCode.cs" />
     <Compile Include="NetCode\OpCodeName.cs" />
@@ -59,6 +61,9 @@
       <Project>{cf95170e-0dc6-46b1-b7d3-8d16dd94106f}</Project>
       <Name>DogSE.Server.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Character\ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

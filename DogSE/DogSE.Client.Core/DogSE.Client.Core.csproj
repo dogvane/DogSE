@@ -79,7 +79,7 @@
     <Compile Include="BaseController.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.net35.csproj">
+    <ProjectReference Include="..\DogSE.Library\DogSE.Library.net35.csproj">
       <Project>{e7fe81a8-ce39-46c1-8eb2-c1f5d0ad130a}</Project>
       <Name>DogSE.Library.net35</Name>
     </ProjectReference>

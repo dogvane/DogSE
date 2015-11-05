@@ -10,12 +10,12 @@
         /// <summary>
         /// 心跳包
         /// </summary>
-        Heart = 0,
+        Heart = 1,
 
         /// <summary>
         /// 服务器时间
         /// </summary>
-        ServerTime = 1,
+        ServerTime = 2,
 
         #endregion
 

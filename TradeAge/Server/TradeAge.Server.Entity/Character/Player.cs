@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 using DogSE.Common;
 using DogSE.Server.Core.Net;
 using TradeAge.Server.Entity.Common;
@@ -9,7 +10,7 @@ namespace TradeAge.Server.Entity.Character
     /// <summary>
     /// 玩家（存储数据）
     /// </summary>
-    public partial class  Player
+    public partial class  Player:IDataEntity
     {
         /// <summary>
         /// 玩家的唯一标示
@@ -67,6 +68,11 @@ namespace TradeAge.Server.Entity.Character
         /// </summary>
         public Sex Sex { get; set; }
 
+
+        /// <summary>
+        /// 网络对象
+        /// </summary>
+        [XmlIgnore]
         public NetState NetState { get; set; }
     }
 }

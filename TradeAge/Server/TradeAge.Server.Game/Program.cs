@@ -41,6 +41,8 @@ namespace TradeAge.Server.Game
             var world = new WorldBase();
             world.IsAutoRegisterMessage = false;
             world.NetStateDisconnect += world_NetStateDisconnect;
+            DB.Init();
+
             GameServerService.AfterModuleInit = () =>
             {
                 ServerLogicProtoclRegister.Register(world.GetModules(), world.PacketHandlers);

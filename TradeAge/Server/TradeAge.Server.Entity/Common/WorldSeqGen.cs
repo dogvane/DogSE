@@ -18,6 +18,6 @@ namespace TradeAge.Server.Entity.Common
         /// <summary>
         /// 账号的序列生成器
         /// </summary>
-        public static IntSequenceGenerator AccountSeq { get; private set; }
+        public static IntSequenceGenerator AccountSeq { get; set; }
     }
 }

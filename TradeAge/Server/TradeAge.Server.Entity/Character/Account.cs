@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DogSE.Common;
 
 namespace TradeAge.Server.Entity.Character
 {
@@ -9,7 +10,7 @@ namespace TradeAge.Server.Entity.Character
     /// 账号信息，账号和玩家对象不是同一个对象，虽然他们的id可能是一样的
     /// 但是账号信息只用于登录时用于登录验证时用
     /// </summary>
-    public class Account
+    public class Account:IDataEntity
     {
         /// <summary>
         /// 账号id，和玩家id里路上一一对应

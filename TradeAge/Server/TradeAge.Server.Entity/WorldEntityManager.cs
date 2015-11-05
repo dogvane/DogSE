@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq;
 using DogSE.Library.Log;
+using DogSE.Server.Core.Entity;
 using TradeAge.Server.Entity.Character;
 
 namespace TradeAge.Server.Entity
@@ -19,6 +20,8 @@ namespace TradeAge.Server.Entity
 
              Players = new EntityMap<int, SimplePlayer>();
              PlayerNames = new EntityMap<string, SimplePlayer>();
+
+             PlayerCache = new HotDataManager<Player>();
          }
 
         /// <summary>
@@ -32,9 +35,15 @@ namespace TradeAge.Server.Entity
         public static EntityMap<string, Account> AccountNames { get; private set; }
 
         /// <summary>
-        /// 玩家的全局数据
+        /// 玩家的在线数据
         /// </summary>
         public static EntityMap<int, Player> OnlinePlayers { get; private set; }
+
+        /// <summary>
+        /// 玩家数据的缓存
+        /// </summary>
+        public static HotDataManager<Player> PlayerCache { get; private set; }
+
 
         /// <summary>
         /// 全局的玩家列表
@@ -56,6 +65,13 @@ namespace TradeAge.Server.Entity
         public class EntityMap<TKey, TValue>
         {
             private readonly ConcurrentDictionary<TKey, TValue> map = new ConcurrentDictionary<TKey, TValue>();
+
+            /// <summary>
+            /// 数量
+            /// </summary>
+            public int Count {
+                get { return map.Count; }
+            }
 
             /// <summary>
             /// 获得一个值
