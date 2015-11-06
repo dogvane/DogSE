@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Interface Name="TradeAge.Server.Interface.Client.ILogin">
+    <Position X="4.5" Y="7.5" Width="6.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Client\ILogin.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TradeAge.Server.Interface.Server.ILogin">
+    <Position X="4.5" Y="9" Width="6.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Server\ILogin.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
