@@ -5,11 +5,11 @@ using TradeAge.Server.Entity;
 using TradeAge.Server.Entity.Character;
 using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Interface.Client;
-using IScene = TradeAge.Server.Interface.ServerLogic.IScene;
+using IScene = TradeAge.Server.Interface.Server.IScene;
 
 namespace TradeAge.Server.Logic.Scene
 {
-    public class SecneModule : IScene
+    public class SecneModule : Interface.Server.IScene
     {
         #region ILogicModule 成员
 

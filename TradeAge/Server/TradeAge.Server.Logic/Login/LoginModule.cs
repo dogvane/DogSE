@@ -11,7 +11,7 @@ using TradeAge.Server.Entity.Character;
 using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Entity.Login;
 using TradeAge.Server.Interface.Client;
-using ILogin = TradeAge.Server.Interface.ServerLogic.ILogin;
+using ILogin = TradeAge.Server.Interface.Server.ILogin;
 using System.Linq;
 using DogSE.Server.Core;
 using TradeAge.Server.Entity.GameEvent;
@@ -21,7 +21,7 @@ namespace TradeAge.Server.Logic.Login
     /// <summary>
     /// 登陆模块
     /// </summary>
-    class LogicModule : ILogin
+    class LogicModule : Interface.Server.ILogin
     {
         #region ILogicModule 成员
 

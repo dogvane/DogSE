@@ -6,9 +6,14 @@
       <HashCode>AAACAAAAAAAAAAAAAAAEAAQAAAEAAAACAAAIAAAAAAA=</HashCode>
       <FileName>Character\Account.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="TradeAge.Server.Entity.Character.Player">
     <Position X="9.5" Y="4.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAABAgAAiAAJAQAAIEAAAAAAAAAiABAAEA=</HashCode>
       <FileName>Character\Player.ComponentManager.cs</FileName>
@@ -23,7 +28,7 @@
     </TypeIdentifier>
   </Class>
   <Enum Name="TradeAge.Server.Entity.NetCode.OpCode">
-    <Position X="5.75" Y="7.5" Width="1.5" />
+    <Position X="3.5" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ABQBAwEAAAAAAAAAAAAAAAAAAAAABAAAACAAAAgBACA=</HashCode>
       <FileName>NetCode\OpCode.cs</FileName>

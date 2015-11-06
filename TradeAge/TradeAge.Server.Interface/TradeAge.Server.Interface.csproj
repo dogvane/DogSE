@@ -43,11 +43,11 @@
     <Compile Include="Client\ILogin.cs" />
     <Compile Include="Client\IScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerLogic\ILogin.cs" />
-    <Compile Include="ServerLogic\IScene.cs" />
+    <Compile Include="Server\ILogin.cs" />
+    <Compile Include="Server\IScene.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controller\" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DogSE\DogSE.Library\DogSE.Library.csproj">

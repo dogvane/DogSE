@@ -25,20 +25,20 @@ namespace DogSE.Server.Core.Protocol.AutoCode
         {
             foreach (var m in modules)
             {
-                if (m is TradeAge.Server.Interface.ServerLogic.ILogin)
+                if (m is TradeAge.Server.Interface.Server.ILogin)
                 {
                     IProtoclAutoCode pac = new ILoginAccess1();
                     list.Add(pac);
 
-                    pac.SetModule(m as TradeAge.Server.Interface.ServerLogic.ILogin);
+                    pac.SetModule(m as TradeAge.Server.Interface.Server.ILogin);
                     pac.PacketHandlerManager = handlers;
                     pac.Init();
-                }                if (m is TradeAge.Server.Interface.ServerLogic.IScene)
+                }                if (m is TradeAge.Server.Interface.Server.IScene)
                 {
                     IProtoclAutoCode pac = new ISceneAccess2();
                     list.Add(pac);
 
-                    pac.SetModule(m as TradeAge.Server.Interface.ServerLogic.IScene);
+                    pac.SetModule(m as TradeAge.Server.Interface.Server.IScene);
                     pac.PacketHandlerManager = handlers;
                     pac.Init();
                 }
@@ -52,16 +52,16 @@ namespace DogSE.Server.Core.Protocol.AutoCode
     {
         public PacketHandlersBase PacketHandlerManager {get;set;}
 
-        TradeAge.Server.Interface.ServerLogic.ILogin module;
+        TradeAge.Server.Interface.Server.ILogin module;
 
         public void SetModule(ILogicModule m)
         {
             if (m == null)
                 throw new ArgumentNullException("ILogicModule");
-            module = (TradeAge.Server.Interface.ServerLogic.ILogin)m;
+            module = (TradeAge.Server.Interface.Server.ILogin)m;
             if (module == null)
             {
-                throw new NullReferenceException(string.Format("{0} not TradeAge.Server.Interface.ServerLogic.ILogin", m.GetType().FullName));
+                throw new NullReferenceException(string.Format("{0} not TradeAge.Server.Interface.Server.ILogin", m.GetType().FullName));
             }
         }
 
@@ -95,16 +95,16 @@ module.OnCreatePlayer(netstate,p1,p2);
     {
         public PacketHandlersBase PacketHandlerManager {get;set;}
 
-        TradeAge.Server.Interface.ServerLogic.IScene module;
+        TradeAge.Server.Interface.Server.IScene module;
 
         public void SetModule(ILogicModule m)
         {
             if (m == null)
                 throw new ArgumentNullException("ILogicModule");
-            module = (TradeAge.Server.Interface.ServerLogic.IScene)m;
+            module = (TradeAge.Server.Interface.Server.IScene)m;
             if (module == null)
             {
-                throw new NullReferenceException(string.Format("{0} not TradeAge.Server.Interface.ServerLogic.IScene", m.GetType().FullName));
+                throw new NullReferenceException(string.Format("{0} not TradeAge.Server.Interface.Server.IScene", m.GetType().FullName));
             }
         }
 
