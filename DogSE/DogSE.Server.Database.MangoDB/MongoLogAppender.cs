@@ -5,7 +5,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
-namespace DogSE.Server.Database.MangoDB
+namespace DogSE.Server.Database.MongoDB
 {
     /// <summary>
     /// Mogodb的日志写入器
@@ -79,7 +79,7 @@ namespace DogSE.Server.Database.MangoDB
 
                 var profile = DBEntityProfile<T>.Instance;
                 profile.Insert.Watch.Restart();
-                var proMangoDB = MangoDBService.MangoDB.Instance;
+                var proMangoDB = MongoDBService.MangoDB.Instance;
 
                 try
                 {

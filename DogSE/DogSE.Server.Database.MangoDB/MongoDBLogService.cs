@@ -5,7 +5,7 @@ using DogSE.Library.Thread;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace DogSE.Server.Database.MangoDB
+namespace DogSE.Server.Database.MongoDB
 {
     /// <summary>
     /// mongodb日志用的服务
@@ -31,13 +31,13 @@ namespace DogSE.Server.Database.MangoDB
 
         /// <summary>
         /// Mongodb数据库访问器
-        /// 服务器信息从 MangoDBConfig 静态对象里获得
+        /// 服务器信息从 MongoDBConfig 静态对象里获得
         /// 
         /// </summary>
         public MongoDBLogService()
         {
-            _host = MangoDBConfig.Host;
-            _database = MangoDBConfig.Database;
+            _host = MongoDBConfig.Host;
+            _database = MongoDBConfig.Database;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace DogSE.Server.Database.MangoDB
 
             var profile = DBEntityProfile<T>.Instance;
             profile.Insert.Watch.Restart();
-            var proMangoDB = MangoDBService.MangoDB.Instance;
+            var proMangoDB = MongoDBService.MangoDB.Instance;
 
             try
             {

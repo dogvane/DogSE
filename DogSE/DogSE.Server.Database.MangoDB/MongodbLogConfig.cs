@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DogSE.Server.Core.Config;
 
-namespace DogSE.Server.Database.MangoDB
+namespace DogSE.Server.Database.MongoDB
 {
     /// <summary>
     /// MangoDB的客户端配置文件
