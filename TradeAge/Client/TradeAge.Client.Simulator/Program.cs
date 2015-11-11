@@ -21,6 +21,7 @@ namespace TradeAge.Client.Simulator
 
             var c = new BaseLoginTest();
 
+
             var userName = Guid.NewGuid().ToString().Substring(0, 4);
             c.Start(userName, "111");
 

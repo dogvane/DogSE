@@ -29,7 +29,11 @@ namespace TradeAge.Client.Controller.Login
         internal override void OnLoginServerResult(LoginServerResult result, bool isCreatePlayer)
         {
             if (LoginServerRet != null)
-                LoginServerRet(this, new LoginServerResultEventArgs {Result = result, IsCreatePlayer = isCreatePlayer});
+                LoginServerRet(this, new LoginServerResultEventArgs
+                {
+                    Result = result,
+                    IsCreatePlayer = isCreatePlayer
+                });
         }
 
 

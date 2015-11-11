@@ -19,38 +19,39 @@ namespace DogSE.Server.Core.Protocol.AutoCode
         /// </summary>
         public static void Register()
         {
-TradeAge.Server.Interface.Client.ClientProxy.Login = new ILoginProxy1();
-TradeAge.Server.Interface.Client.ClientProxy.Scene = new ISceneProxy1();
+            TradeAge.Server.Interface.Client.ClientProxy.Login = new ILoginProxy1();
+            TradeAge.Server.Interface.Client.ClientProxy.Scene = new ISceneProxy1();
 
         }
     }
 
-    class ILoginProxy1:TradeAge.Server.Interface.Client.ILogin
+    internal class ILoginProxy1 : TradeAge.Server.Interface.Client.ILogin
     {
-        public void LoginServerResult(NetState netstate,TradeAge.Server.Entity.Login.LoginServerResult result,bool isCreatePlayer)
-{
-var pw = PacketWriter.AcquireContent(1001);
-            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1001 );
-            if ( packetProfile != null )
+        public void LoginServerResult(NetState netstate, TradeAge.Server.Entity.Login.LoginServerResult result,
+            bool isCreatePlayer)
+        {
+            var pw = PacketWriter.AcquireContent(1001);
+            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile(1001);
+            if (packetProfile != null)
                 packetProfile.RegConstruct();
-                pw.Write((byte)result);
-pw.Write(isCreatePlayer);
-netstate.Send(pw);
- if ( packetProfile != null ) packetProfile.Record(pw.Length);
-PacketWriter.ReleaseContent(pw);
-}
+            pw.Write((byte) result);
+            pw.Write(isCreatePlayer);
+            netstate.Send(pw);
+            if (packetProfile != null) packetProfile.Record(pw.Length);
+            PacketWriter.ReleaseContent(pw);
+        }
 
-public void CreatePlayerResult(NetState netstate,TradeAge.Server.Entity.Login.CraetePlayerResult result)
-{
-var pw = PacketWriter.AcquireContent(1003);
-            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1003 );
-            if ( packetProfile != null )
+        public void CreatePlayerResult(NetState netstate, TradeAge.Server.Entity.Login.CraetePlayerResult result)
+        {
+            var pw = PacketWriter.AcquireContent(1003);
+            PacketProfile packetProfile = PacketProfile.GetOutgoingProfile(1003);
+            if (packetProfile != null)
                 packetProfile.RegConstruct();
-                pw.Write((byte)result);
-netstate.Send(pw);
- if ( packetProfile != null ) packetProfile.Record(pw.Length);
-PacketWriter.ReleaseContent(pw);
-}
+            pw.Write((byte) result);
+            netstate.Send(pw);
+            if (packetProfile != null) packetProfile.Record(pw.Length);
+            PacketWriter.ReleaseContent(pw);
+        }
 
 
 
