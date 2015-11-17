@@ -10,6 +10,17 @@ namespace TradeAge.Client.Controller
 
 
     /// <summary>
+    /// Game
+    /// </summary>
+    
+    public abstract class BaseGameController
+    {
+internal abstract void OnSyncServerTime(DateTime serverTime,int id);
+        
+    }
+
+
+    /// <summary>
     /// Login
     /// </summary>
     
@@ -17,6 +28,7 @@ namespace TradeAge.Client.Controller
     {
 internal abstract void OnLoginServerResult(TradeAge.Client.Entity.Login.LoginServerResult result,bool isCreatePlayer);
 internal abstract void OnCreatePlayerResult(TradeAge.Client.Entity.Login.CraetePlayerResult result);
+internal abstract void OnSyncInitDataFinish();
         
     }
 
@@ -27,10 +39,10 @@ internal abstract void OnCreatePlayerResult(TradeAge.Client.Entity.Login.CraeteP
     
     public abstract class BaseSceneController
     {
-internal abstract void OnEnterSceneInfo(TradeAge.Client.Entity.Common.Vector3 postion,TradeAge.Client.Entity.Common.Vector3 direction);
-internal abstract void OnSpriteEnter(TradeAge.Client.Entity.Character.SimplePlayer player);
-internal abstract void OnSpriteMove(int playerId,TradeAge.Client.Entity.Common.Vector3 postion,TradeAge.Client.Entity.Common.Vector3 direction);
-internal abstract void OnSpriteLeave(int playerId);
+internal abstract void OnEnterSceneInfo(TradeAge.Client.Entity.Character.SimplePlayer player);
+internal abstract void OnSpriteEnter(TradeAge.Client.Entity.Character.SceneSprite[] sprite);
+internal abstract void OnSpriteLeave(System.Int32[] spriteId);
+internal abstract void OnSpriteMove(int spriteId,DateTime time,TradeAge.Client.Entity.Common.Vector2 postion,TradeAge.Client.Entity.Common.Vector2 direction);
         
     }
 

@@ -42,8 +42,14 @@
     <Compile Include="..\..\Server\TradeAge.Server.Entity\Character\Enum.cs">
       <Link>Character\Enum.cs</Link>
     </Compile>
+    <Compile Include="..\..\Server\TradeAge.Server.Entity\Character\SceneSprite.cs">
+      <Link>Character\SceneSprite.cs</Link>
+    </Compile>
     <Compile Include="..\..\Server\TradeAge.Server.Entity\Character\SimplePlayer.cs">
       <Link>Character\SimplePlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Server\TradeAge.Server.Entity\Common\Vector2.cs">
+      <Link>Common\Vector2.cs</Link>
     </Compile>
     <Compile Include="..\..\Server\TradeAge.Server.Entity\Common\Vector3.cs">
       <Link>Common\Vector3.cs</Link>

@@ -28,6 +28,12 @@ namespace TradeAge.Client.Controller.Login
 
         internal override void OnLoginServerResult(LoginServerResult result, bool isCreatePlayer)
         {
+            if (result == LoginServerResult.Success)
+            {
+                if (isCreatePlayer)
+                    controller.Game.SyncTime();
+            }
+
             if (LoginServerRet != null)
                 LoginServerRet(this, new LoginServerResultEventArgs
                 {
@@ -40,8 +46,17 @@ namespace TradeAge.Client.Controller.Login
 
         internal override void OnCreatePlayerResult(CraetePlayerResult result)
         {
+            if (result == CraetePlayerResult.Success)
+                controller.Game.SyncTime();
+
             if (CreatePlayerRet != null)
                 CreatePlayerRet(result);
+        }
+
+        internal override void OnSyncInitDataFinish()
+        {
+            if (SyncDataFinish != null)
+                SyncDataFinish();
         }
 
         /*
@@ -65,6 +80,11 @@ namespace TradeAge.Client.Controller.Login
         /// 创建玩家返回
         /// </summary>
         public event Action<CraetePlayerResult> CreatePlayerRet;
+
+        /// <summary>
+        /// 同步数据结束
+        /// </summary>
+        public event Action SyncDataFinish;
     }
 
     /// <summary>

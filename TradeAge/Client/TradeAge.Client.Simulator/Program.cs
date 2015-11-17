@@ -19,11 +19,8 @@ namespace TradeAge.Client.Simulator
 
             GameServerService.StartTaskThread();
 
-            var c = new BaseLoginTest();
-
-
-            var userName = Guid.NewGuid().ToString().Substring(0, 4);
-            c.Start(userName, "111");
+            //test1();
+            test2();
 
             while (true)
             {
@@ -33,6 +30,24 @@ namespace TradeAge.Client.Simulator
             }
 
             GameServerService.RunType = ServerStateType.Closing;
+        }
+
+        static void test1()
+        {
+
+            var c = new BaseLoginTest();
+
+
+            var userName = Guid.NewGuid().ToString().Substring(0, 4);
+            c.Start(userName, "111");
+
+        }
+
+        static void test2()
+        {
+            var c = new BaseMoveTest();
+            c.Start();
+
         }
     }
 

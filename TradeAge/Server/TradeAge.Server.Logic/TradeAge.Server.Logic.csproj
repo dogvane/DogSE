@@ -35,10 +35,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
+    <Compile Include="Game\GameModule.cs" />
     <Compile Include="LogicModule.cs" />
     <Compile Include="Login\LoginModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scene\SecneModule.cs" />
+    <Compile Include="Scene\SecneUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\DogSE\DogSE.Library\DogSE.Library.csproj">

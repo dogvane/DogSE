@@ -44,6 +44,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test\BaseLoginTest.cs" />
+    <Compile Include="Test\BaseMoveTest.cs" />
+    <Compile Include="Test\SimuPlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\DogSE\DogSE.Client.Core\DogSE.Client.Core.csproj">

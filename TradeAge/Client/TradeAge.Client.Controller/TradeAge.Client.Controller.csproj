@@ -40,9 +40,13 @@
   <ItemGroup>
     <Compile Include="Controller\Auto\LogicInterface.cs" />
     <Compile Include="Controller\GameController.cs" />
+    <Compile Include="Controller\Game\GameController.Logic.cs" />
+    <Compile Include="Controller\Game\GameController.Net.cs" />
+    <Compile Include="Controller\Game\GameController.Proxy.cs" />
     <Compile Include="Controller\Login\LoginController.Logic.cs" />
     <Compile Include="Controller\Login\LoginController.Net.cs" />
     <Compile Include="Controller\Login\LoginController.Proxy.cs" />
+    <Compile Include="Controller\PlayerModel.cs" />
     <Compile Include="Controller\Scene\SceneController.Logic.cs" />
     <Compile Include="Controller\Scene\SceneController.Net.cs" />
     <Compile Include="Controller\Scene\SceneController.Proxy.cs" />

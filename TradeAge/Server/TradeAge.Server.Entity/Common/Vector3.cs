@@ -25,6 +25,9 @@ namespace TradeAge.Client.Entity.Common
         /// </summary>
         public float Y { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public float Z { get; set; }
     }
 }

@@ -46,6 +46,7 @@ namespace TradeAge.Client.Controller.Login
                 module = logic;
 PacketHandlerManager.Register(1001, OnLoginServerResult);
 PacketHandlerManager.Register(1003, OnCreatePlayerResult);
+PacketHandlerManager.Register(1004, OnSyncInitDataFinish);
 
             }
 
@@ -61,6 +62,9 @@ module.OnLoginServerResult(p1,p2);
 void OnCreatePlayerResult(NetState netstate, PacketReader reader){
 var p1 = (TradeAge.Client.Entity.Login.CraetePlayerResult)reader.ReadByte();
 module.OnCreatePlayerResult(p1);
+}
+void OnSyncInitDataFinish(NetState netstate, PacketReader reader){
+module.OnSyncInitDataFinish();
 }
 
 

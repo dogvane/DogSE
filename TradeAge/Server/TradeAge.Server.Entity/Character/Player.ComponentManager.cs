@@ -24,6 +24,16 @@ namespace TradeAge.Server.Entity.Character
         }
 
         /// <summary>
+        /// 注册一个组件数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component">组件实例（非空）</param>
+        public void RegisterComponent<T>(T component) where T : class
+        {
+            m_componentManager.RegisterComponent<T>(typeof(T).Name, component);
+        }
+
+        /// <summary>
         /// 获得一个组件数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -32,6 +42,17 @@ namespace TradeAge.Server.Entity.Character
         public T GetComponent<T>(string componentId) where T : class
         {
             return m_componentManager.GetComponent<T>(componentId);
+        }
+
+
+        /// <summary>
+        /// 获得一个组件数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetComponent<T>() where T : class
+        {
+            return m_componentManager.GetComponent<T>(typeof(T).Name);
         }
 
         /// <summary>

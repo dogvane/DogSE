@@ -44,6 +44,11 @@ namespace TradeAge.Server.Entity.Character
         public DateTime LastLogoffTime { get; set; }
 
         /// <summary>
+        /// 上一次收到的心跳包
+        /// </summary>
+        public DateTime LastHeartbeat { get; set; }
+
+        /// <summary>
         /// 累计的在线时间，在离线时修改
         /// 单位：秒
         /// </summary>
@@ -56,12 +61,12 @@ namespace TradeAge.Server.Entity.Character
         /// <summary>
         /// 玩家当前的位置
         /// </summary>
-        public Vector3 Postion { get; set; }
+        public Vector2 Postion { get; set; }
 
         /// <summary>
         /// 方向已经速度
         /// </summary>
-        public Vector3 Direction { get; set; }
+        public Vector2 Direction { get; set; }
 
         /// <summary>
         /// 性别

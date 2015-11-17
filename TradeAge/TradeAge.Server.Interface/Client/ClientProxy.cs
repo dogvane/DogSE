@@ -19,5 +19,10 @@ namespace TradeAge.Server.Interface.Client
         /// 场景的控制器接口
         /// </summary>
         public static IScene Scene { get; set; }
+
+        /// <summary>
+        /// 游戏相关的接口
+        /// </summary>
+        public static IGame Game { get; set; }
     }
 }

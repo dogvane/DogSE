@@ -17,14 +17,16 @@ namespace TradeAge.Client.Controller.Scene
                 /// <summary>
         /// 
         /// </summary>
+/// <param name="time"></param>
 /// <param name="postion"></param>
 /// <param name="direction"></param>
 
-public void Move(TradeAge.Client.Entity.Common.Vector3 postion,TradeAge.Client.Entity.Common.Vector3 direction)
+public void Move(DateTime time,TradeAge.Client.Entity.Common.Vector2 postion,TradeAge.Client.Entity.Common.Vector2 direction)
 {
 var pw = PacketWriter.AcquireContent(1100);
-Vector3WriteProxy.Write(postion, pw);
-Vector3WriteProxy.Write(direction, pw);
+pw.Write(time.Ticks);
+Vector2WriteProxy.Write(postion, pw);
+Vector2WriteProxy.Write(direction, pw);
 NetState.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
@@ -35,17 +37,16 @@ NetState.Send(pw);PacketWriter.ReleaseContent(pw);
     /// <summary>
     /// 
     /// </summary>
-    public class Vector3WriteProxy
+    public class Vector2WriteProxy
     {
     /// <summary>
     /// 
     /// </summary>
-        public static void Write(TradeAge.Client.Entity.Common.Vector3 obj, PacketWriter pw)
+        public static void Write(TradeAge.Client.Entity.Common.Vector2 obj, PacketWriter pw)
         {
 
 pw.Write(obj.X);
 pw.Write(obj.Y);
-pw.Write(obj.Z);
 
         }
     }

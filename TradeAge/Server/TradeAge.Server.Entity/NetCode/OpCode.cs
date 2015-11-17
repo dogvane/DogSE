@@ -42,6 +42,11 @@
         CreatePlayerResult = 1003,
 
 
+        /// <summary>
+        /// 数据同步完成
+        /// </summary>
+        SyncInitDataFinish = 1004,
+
         #endregion
 
         #region 1100  - 1199 移动相关的代码

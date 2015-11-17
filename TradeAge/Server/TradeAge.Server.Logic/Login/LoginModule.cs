@@ -15,6 +15,7 @@ using ILogin = TradeAge.Server.Interface.Server.ILogin;
 using System.Linq;
 using DogSE.Server.Core;
 using TradeAge.Server.Entity.GameEvent;
+using TradeAge.Server.Logic.Scene;
 
 namespace TradeAge.Server.Logic.Login
 {
@@ -160,7 +161,12 @@ namespace TradeAge.Server.Logic.Login
         void PlayerEnterGame(Player player)
         {
             WorldEntityManager.OnlinePlayers.SetValue(player.Id, player);
+
+            ClientProxy.Scene.EnterSceneInfo(player.NetState, player.GetSimplePlayer());
+
             PlayerEvents.OnEnterGame(player);
+
+            ClientProxy.Login.SyncInitDataFinish(player.NetState);
         }
 
         /// <summary>
@@ -188,6 +194,8 @@ namespace TradeAge.Server.Logic.Login
                 NetState = netstate
             };
 
+            player.Postion = new Vector2();
+            player.Direction = new Vector2();
 
             DB.GameDB.InsertEntity(player);
 
@@ -196,9 +204,9 @@ namespace TradeAge.Server.Logic.Login
             Logs.Info("角色 {0}({1}) 创建成功", playerName, player.Id);
 
             netstate.Player = player;
-            PlayerEnterGame(player);
-
             ClientProxy.Login.CreatePlayerResult(netstate, CraetePlayerResult.Success);
+
+            PlayerEnterGame(player);
         }
 
         #endregion

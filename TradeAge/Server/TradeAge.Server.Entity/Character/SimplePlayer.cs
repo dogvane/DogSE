@@ -22,16 +22,15 @@ namespace TradeAge.Client.Entity.Character
         /// </summary>
         public string Name { get; set; }
 
-
         /// <summary>
         /// 玩家当前的位置
         /// </summary>
-        public Vector3 Postion { get; set; }
+        public Vector2 Postion { get; set; }
 
         /// <summary>
         /// 方向已经速度
         /// </summary>
-        public Vector3 Direction { get; set; }
+        public Vector2 Direction { get; set; }
 
         /// <summary>
         /// 玩家的id

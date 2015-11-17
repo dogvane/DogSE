@@ -27,5 +27,13 @@ namespace TradeAge.Server.Interface.Client
         /// <param name="result"></param>
         [NetMethod((ushort)OpCode.CreatePlayerResult, NetMethodType.SimpleMethod)]
         void CreatePlayerResult(NetState netstate, CraetePlayerResult result);
+
+        /// <summary>
+        /// 登陆游戏时的基本数据已同步完成
+        /// 客户端可以开始进入游戏了
+        /// </summary>
+        /// <param name="netstate"></param>
+        [NetMethod((ushort)OpCode.SyncInitDataFinish, NetMethodType.SimpleMethod)]
+        void SyncInitDataFinish(NetState netstate);
     }
 }

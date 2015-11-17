@@ -14,8 +14,8 @@ namespace TradeAge.Client.Simulator.Test
     class BaseLoginTest
     {
 
-        private string _userName;
-        private string _pw;
+        protected string _userName;
+        protected string _pw;
 
         public void Start(string userName, string pw)
         {
@@ -26,10 +26,18 @@ namespace TradeAge.Client.Simulator.Test
             controller.Login.LoginServerRet += OnLoginServerRet;
             controller.Login.CreatePlayerRet += OnCreatePlayerRet;
             controller.Net.NetStateConnect += Net_NetStateConnect;
-
+            controller.Login.SyncDataFinish += OnSyncDataFinish;
 
             controller.Net.StartWorld();
             controller.Net.ConnectServer("127.0.0.1", 4530);
+        }
+
+        public bool IsLoginSuccess { get; set; }
+
+        private void OnSyncDataFinish()
+        {
+            IsLoginSuccess = true;
+            Logs.Info("玩家 {0} 进入游戏", controller.Model.Player.Name);
         }
 
         private void OnCreatePlayerRet(CraetePlayerResult result)
@@ -63,7 +71,10 @@ namespace TradeAge.Client.Simulator.Test
             }
         }
 
-        GameController controller = new GameController();
+        readonly GameController controller = new GameController();
+        public GameController Controller {
+            get { return controller; }
+        }
 
         private void Net_NetStateConnect(object sender, NetStateConnectEventArgs e)
         {

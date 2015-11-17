@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DogSE.Client.Core;
 using TradeAge.Client.Controller.Login;
+using TradeAge.Client.Controller.Scene;
 
 namespace TradeAge.Client.Controller
 {
@@ -20,8 +21,13 @@ namespace TradeAge.Client.Controller
             Net = new NetController();
             Net.Tag = this;
 
-            Login = new LoginController(Net);
+            Login = new LoginController(this, Net);
+            Game = new TradeAge.Client.Controller.Game.GameController(Net);
+            Scene = new SceneController(this, Net);
+            Model = new PlayerModel();
         }
+
+        public PlayerModel Model { get; private set; }
 
         /// <summary>
         ///     游戏控制器的网络控制器部分
@@ -33,5 +39,15 @@ namespace TradeAge.Client.Controller
         /// 登陆相关的接口在这里
         /// </summary>
         public LoginController Login { get; private set; }
+
+        /// <summary>
+        /// 游戏的控制器
+        /// </summary>
+        public TradeAge.Client.Controller.Game.GameController Game { get; private set; }
+
+        /// <summary>
+        /// 场景控制器
+        /// </summary>
+        public SceneController Scene { get; private set; }
     }
 }

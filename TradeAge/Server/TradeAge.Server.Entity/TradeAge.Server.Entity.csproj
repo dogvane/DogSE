@@ -38,8 +38,10 @@
     <Compile Include="Character\Account.cs" />
     <Compile Include="Character\Enum.cs" />
     <Compile Include="Character\Player.cs" />
+    <Compile Include="Character\SceneSprite.cs" />
     <Compile Include="Character\SimplePlayer.cs" />
     <Compile Include="Common\SequenceGenerator.cs" />
+    <Compile Include="Common\Vector2.cs" />
     <Compile Include="Common\Vector3.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />
     <Compile Include="GameEvent\PlayerEvents.cs" />
