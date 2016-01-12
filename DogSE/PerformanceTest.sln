@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dogse", "Dogse", "{EA7091F5-295C-4D93-9B73-26B0CE603570}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PreformanceTools", "PreformanceTools", "{05981B0A-93F9-456D-B1DE-6CC0A2F30C70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Library", "DogSE.Library\DogSE.Library.csproj", "{797943E1-DD93-4363-BE95-8A1758D5BAE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Net", "DogSE.Server.Net\DogSE.Server.Net.csproj", "{79E78EEF-5810-4A54-ABFA-901BFFEAB249}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Core", "DogSE.Server.Core\DogSE.Server.Core.csproj", "{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetRecvSendTest", "PerformanceTest\NetRecvSendTest\NetRecvSendTest.csproj", "{819248B3-6455-474B-9846-A2F4A330439A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{83C8E83D-F776-4C7F-B4AC-6FB548F0D035}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79E78EEF-5810-4A54-ABFA-901BFFEAB249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79E78EEF-5810-4A54-ABFA-901BFFEAB249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79E78EEF-5810-4A54-ABFA-901BFFEAB249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79E78EEF-5810-4A54-ABFA-901BFFEAB249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{819248B3-6455-474B-9846-A2F4A330439A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{819248B3-6455-474B-9846-A2F4A330439A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{819248B3-6455-474B-9846-A2F4A330439A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{819248B3-6455-474B-9846-A2F4A330439A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{797943E1-DD93-4363-BE95-8A1758D5BAE1} = {EA7091F5-295C-4D93-9B73-26B0CE603570}
+		{79E78EEF-5810-4A54-ABFA-901BFFEAB249} = {EA7091F5-295C-4D93-9B73-26B0CE603570}
+		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F} = {EA7091F5-295C-4D93-9B73-26B0CE603570}
+		{819248B3-6455-474B-9846-A2F4A330439A} = {05981B0A-93F9-456D-B1DE-6CC0A2F30C70}
+	EndGlobalSection
+EndGlobal

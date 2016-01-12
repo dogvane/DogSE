@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using DogSE.Client.Core;
 using DogSE.Library.Log;
+using DogSE.Library.Maths;
 using TradeAge.Client.Entity.Character;
-using TradeAge.Client.Entity.Common;
+using TradeAge.Client.Entity.Ship;
 
 namespace TradeAge.Client.Controller.Scene
 {
@@ -46,21 +47,6 @@ namespace TradeAge.Client.Controller.Scene
                 SpriteEnter(add.ToArray());
         }
 
-        internal override void OnSpriteMove(int spriteId, DateTime time, Vector2 postion, Vector2 direction)
-        {
-            var sprite = m_sprites.FirstOrDefault(o => o.Id == spriteId);
-            if (sprite == null)
-            {
-                Logs.Error("本地没发现精灵id{0}", spriteId);
-                return;
-            }
-
-            sprite.Postion = postion;
-            sprite.Direction = direction;
-
-            if (SpriteMove != null)
-                SpriteMove(time, sprite);
-        }
 
         internal override void OnSpriteLeave(int[] spriteId)
         {
@@ -74,7 +60,35 @@ namespace TradeAge.Client.Controller.Scene
             }
         }
 
+        internal override void OnSpriteMove(int spriteId, DateTime time, Vector3 postion, Quaternion rotation,
+            float speed, float rotationRate, SpeedUpTypes speedUpType)
+        {
+            var sprite = m_sprites.FirstOrDefault(o => o.Id == spriteId);
+            if (sprite == null)
+            {
+                Logs.Error("本地没发现精灵id{0}", spriteId);
+                return;
+            }
+
+            sprite.Postion = postion;
+            sprite.Rotation = rotation;
+            sprite.Speed = speed;
+            sprite.RotationRate = rotationRate;
+            sprite.SpeedUpTypes = speedUpType;
+
+            if (SpriteMove != null)
+                SpriteMove(time, sprite);
+        }
+
         private List<SceneSprite> m_sprites = new List<SceneSprite>();
+
+        /// <summary>
+        /// 当前场景里的精灵
+        /// </summary>
+        public SceneSprite[] Sprites
+        {
+            get { return m_sprites.ToArray(); }
+        }
 
         /// <summary>
         /// 精灵进入事件

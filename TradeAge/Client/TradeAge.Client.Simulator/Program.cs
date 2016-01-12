@@ -20,8 +20,9 @@ namespace TradeAge.Client.Simulator
             GameServerService.StartTaskThread();
 
             //test1();
-            test2();
-
+            //test2();
+            TestMove();
+            
             while (true)
             {
                 if (Console.ReadKey(false).Key == ConsoleKey.Escape)
@@ -48,6 +49,12 @@ namespace TradeAge.Client.Simulator
             var c = new BaseMoveTest();
             c.Start();
 
+        }
+
+        static void TestMove()
+        {
+            var bm = new BaseMoveTest();
+            bm.Start();
         }
     }
 

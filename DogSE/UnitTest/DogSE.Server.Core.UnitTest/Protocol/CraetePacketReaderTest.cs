@@ -38,15 +38,15 @@ namespace DogSE.Server.Core.UnitTest.Protocol
 
             Assert.IsNotNull(manager.Handlers[1], "方法没注册到消息管理器里");
 
-            manager.Handlers[1].OnReceive(new NetState(), new PacketReader(DogBuffer.GetFromPool32K()));
+            manager.Handlers[1].OnReceive(new NetState(), PacketReader.AcquireContent(DogBuffer.GetFromPool32K()));
             Assert.IsTrue(pr.IsTouchOnReadTest);
 
             Assert.IsNotNull(manager.Handlers[2], "包读取方法没注册到消息管理器");
-            manager.Handlers[2].OnReceive(new NetState(), new PacketReader(DogBuffer.GetFromPool32K()));
+            manager.Handlers[2].OnReceive(new NetState(), PacketReader.AcquireContent(DogBuffer.GetFromPool32K()));
             Assert.IsTrue(pr.IsTouchPackageReader);
 
             Assert.IsNotNull(manager.Handlers[3], "简单读取方法没注册到消息管理器");
-            manager.Handlers[3].OnReceive(new NetState(), new PacketReader(DogBuffer.GetFromPool32K()));
+            manager.Handlers[3].OnReceive(new NetState(), PacketReader.AcquireContent(DogBuffer.GetFromPool32K()));
             Assert.IsTrue(pr.IsTouchSimpleMethod);
         }
 

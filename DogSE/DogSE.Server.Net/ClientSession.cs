@@ -14,6 +14,9 @@ namespace DogSE.Server.Net
     /// </summary>
     public class ClientSession<T>
     {
+        /// <summary>
+        /// 
+        /// </summary>
         ~ClientSession()
         {
             //Console.WriteLine("ClientSession dispone()");
@@ -171,6 +174,9 @@ namespace DogSE.Server.Net
         {
             if (Socket == null || !Socket.Connected)
                 return;
+
+            if (buff.Length == 0)
+                throw new Exception("buff lenght is zero.");
 
             buff.Use();
 

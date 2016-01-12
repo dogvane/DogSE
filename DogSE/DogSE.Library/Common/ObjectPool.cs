@@ -103,7 +103,7 @@ namespace DogSE.Library.Common
         /// 
         /// </summary>
         ~ObjectPool()
-        {            
+        {
             Logs.Info(ToString());
             Console.WriteLine(ToString());
         }
@@ -132,7 +132,7 @@ namespace DogSE.Library.Common
         /// <param name="name">对象池的名字</param>
         /// <param name="iInitialCapacity">初始化内存池对象的数量</param>
         public ObjectPool(string name, long iInitialCapacity = 1024)
-            :this(iInitialCapacity)
+            : this(iInitialCapacity)
         {
             m_Name = name;
         }
@@ -162,7 +162,9 @@ namespace DogSE.Library.Common
                     if (m_FreePool.TryDequeue(out returnT))
                         break;
 
+#if !UNITY_IPHONE
                     lock (m_FreePool)
+#endif
                     {
                         m_Misses++;
                         Extend();
@@ -170,7 +172,12 @@ namespace DogSE.Library.Common
 
                 } while (true);
 
+                //Interlocked.Increment(ref acquireCount);
+#if UNITY_IPHONE
+                acquireCount++;
+#else
                 Interlocked.Increment(ref acquireCount);
+#endif
 
 
 #if NET40 && DEBUG
@@ -180,7 +187,7 @@ namespace DogSE.Library.Common
             }
         }
 
-        
+
         /// <summary>
         /// 内存池释放数据
         /// </summary>
@@ -192,8 +199,11 @@ namespace DogSE.Library.Common
                 if (content == null)
                     throw new ArgumentNullException("content",
                         "MemoryPool.ReleasePoolContent(...) - contentT == null error!");
-                //releaseCount++;
+#if UNITY_IPHONE
+                releaseCount++;
+#else
                 Interlocked.Increment(ref releaseCount);
+#endif
 
                 if (m_FreePool.Count < MaxCapacity)
                     m_FreePool.Enqueue(content);
@@ -229,15 +239,15 @@ namespace DogSE.Library.Common
         {
             // 不需要锁定的，因为只是给出没有修改数据
             return new PoolInfo
-                       {
-                           Name = Name,
-                           FreeCount = m_FreePool.Count,
-                           InitialCapacity = m_InitialCapacity,
-                           CurrentCapacity = m_InitialCapacity + newCount,
-                           AcquireCount = acquireCount,
-                           ReleaseCount = releaseCount,
-                           Misses = m_Misses
-                       };
+            {
+                Name = Name,
+                FreeCount = m_FreePool.Count,
+                InitialCapacity = m_InitialCapacity,
+                CurrentCapacity = m_InitialCapacity + newCount,
+                AcquireCount = acquireCount,
+                ReleaseCount = releaseCount,
+                Misses = m_Misses
+            };
         }
 
         #endregion
@@ -255,7 +265,7 @@ namespace DogSE.Library.Common
             {
                 if (m_Name == null)
                 {
-                    var type = typeof (T);
+                    var type = typeof(T);
                     if (type.IsGenericType)
                     {
                         m_Name = type.Name + type.GetGenericArguments()[0].Name;
@@ -283,7 +293,8 @@ namespace DogSE.Library.Common
         /// <summary>
         /// 单例模式
         /// </summary>
-        public ObjectPool<T> Instatnce {
+        public ObjectPool<T> Instatnce
+        {
             get { return instance; }
         }
     }

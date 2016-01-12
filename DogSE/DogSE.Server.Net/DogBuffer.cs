@@ -36,6 +36,9 @@ namespace DogSE.Server.Net
     /// </summary>
     public class DogBuffer
     {
+        /// <summary>
+        /// 
+        /// </summary>
         ~DogBuffer()
         {
 

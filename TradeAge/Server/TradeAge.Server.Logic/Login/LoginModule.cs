@@ -11,8 +11,8 @@ using TradeAge.Server.Entity.Character;
 using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Entity.Login;
 using TradeAge.Server.Interface.Client;
-using ILogin = TradeAge.Server.Interface.Server.ILogin;
 using System.Linq;
+using DogSE.Library.Maths;
 using DogSE.Server.Core;
 using TradeAge.Server.Entity.GameEvent;
 using TradeAge.Server.Logic.Scene;
@@ -194,8 +194,8 @@ namespace TradeAge.Server.Logic.Login
                 NetState = netstate
             };
 
-            player.Postion = new Vector2();
-            player.Direction = new Vector2();
+            player.Postion = new Vector3();
+            player.Rotation = new Quaternion();
 
             DB.GameDB.InsertEntity(player);
 

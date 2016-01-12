@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using DogSE.Library.Time;
-using TradeAge.Client.Entity.Common;
 
 namespace TradeAge.Client.Simulator.Test
 {
@@ -30,7 +29,30 @@ namespace TradeAge.Client.Simulator.Test
                 Thread.Sleep(10);
             }
 
-            first.Controller.Scene.Move(OneServer.NowTime, new Vector2(10, 10), new Vector2(2, 1));
+            t = new Thread(() =>
+            {
+                DateTime lastTime = OneServer.NowTime;
+
+                while (true)
+                {
+                    var updateTime = (float)(OneServer.NowTime - lastTime).TotalSeconds;
+
+                    var nearSprite = first.FindNearSprite();
+                    if (nearSprite != null)
+                    {
+                        
+                    }
+
+                    //  30fps间隔
+                    Thread.Sleep(33);
+                }
+            });
+
+
+            //first.Controller.Scene.Move(OneServer.NowTime, new Vector2(10, 10), new Vector2(2, 1));
         }
+
+        //  缓存线程T，免得被gc回收
+        private Thread t;
     }
 }

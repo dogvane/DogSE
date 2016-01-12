@@ -58,7 +58,7 @@ namespace DogSE.Library.Serialize
                     {
                         if (
                             !p.PropertyType.InType(typeof(List<int>), typeof(List<float>), typeof(List<double>), typeof(List<long>),
-                                typeof (List<bool>), typeof (List<string>)))
+                                typeof(List<bool>), typeof(List<string>)))
                         {
                             if (!p.PropertyType.IsListEnum())
                                 continue;
@@ -93,7 +93,7 @@ namespace DogSE.Library.Serialize
                     continue;
                 }
 
-                row ++;
+                row++;
                 object obj = Activator.CreateInstance(type);
                 CurrentLine = row;
                 for (int i = 0; i < head.Count; i++)
@@ -112,11 +112,11 @@ namespace DogSE.Library.Serialize
                     if (p.PropertyType.IsGenericType)
                     {
                         if (p.PropertyType.InType(typeof(List<int>), typeof(List<float>), typeof(List<double>), typeof(List<long>),
-                            typeof (List<bool>), typeof (List<string>))
+                            typeof(List<bool>), typeof(List<string>))
                             || p.PropertyType.IsListEnum())
                         {
                             var list = Activator.CreateInstance(p.PropertyType) as IList;
-                            var splits = data[i].Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                            var splits = data[i].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                             var genericType = p.PropertyType.GetGenericArguments()[0];
 
                             foreach (var d in splits)
@@ -142,11 +142,21 @@ namespace DogSE.Library.Serialize
                     }
                     else
                     {
+                        try
+                        {
+
 #if DEBUG
-                        p.SetValue(obj, data[i].ConvertValue(p.PropertyType, head[i]), null);
+                            p.SetValue(obj, data[i].ConvertValue(p.PropertyType, head[i]), null);
 #else
                         p.SetValue(obj, data[i].ConvertValue(p.PropertyType), null);
 #endif
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Logs.Error(string.Format("转换第 {0} 行 第 {1} 列数据发送异常", CurrentLine, i), ex);
+                            throw;
+                        }
                     }
                 }
 
@@ -179,8 +189,8 @@ namespace DogSE.Library.Serialize
         {
             foreach (var p in type.GetProperties())
             {
-                
-                foreach(CSVColumnAttribute c in p.GetCustomAttributes(typeof (CSVColumnAttribute), true) )
+
+                foreach (CSVColumnAttribute c in p.GetCustomAttributes(typeof(CSVColumnAttribute), true))
                 {
                     if (c.Aliases == name)
                     {
@@ -233,7 +243,7 @@ namespace DogSE.Library.Serialize
         /// <returns></returns>
         public static T[] CSVDeserialize<T>(this string csvStr) where T : class, new()
         {
-            return csvStr.CSVDeserialize(typeof (T)) as T[];
+            return csvStr.CSVDeserialize(typeof(T)) as T[];
         }
 
         /// <summary>
@@ -266,7 +276,7 @@ namespace DogSE.Library.Serialize
 
         private static object ConvertValue(this string value, Type type)
         {
-            if (type == typeof (int))
+            if (type == typeof(int))
             {
                 if (string.IsNullOrEmpty(value))
                     return 0;
@@ -275,7 +285,7 @@ namespace DogSE.Library.Serialize
             }
 
 
-            if (type == typeof (long))
+            if (type == typeof(long))
             {
                 if (string.IsNullOrEmpty(value))
                     return 0;
@@ -283,21 +293,21 @@ namespace DogSE.Library.Serialize
                 return Convert.ToInt64(value);
             }
 
-            if (type == typeof (string))
+            if (type == typeof(string))
             {
                 if (string.IsNullOrEmpty(value))
                     return "";
                 return value;
             }
 
-            if (type == typeof (float))
+            if (type == typeof(float))
             {
                 if (string.IsNullOrEmpty(value))
                     return 0.0f;
                 return Convert.ToSingle(value);
             }
 
-            if (type == typeof (double))
+            if (type == typeof(double))
             {
                 if (string.IsNullOrEmpty(value))
                     return 0.0;
@@ -311,7 +321,7 @@ namespace DogSE.Library.Serialize
                 return Convert.ToSingle(value);
             }
 
-            if (type == typeof (DateTime))
+            if (type == typeof(DateTime))
             {
                 if (string.IsNullOrEmpty(value))
                     return new DateTime(0);
@@ -319,7 +329,7 @@ namespace DogSE.Library.Serialize
                 return DateTime.Parse(value);
             }
 
-            if (type == typeof (bool))
+            if (type == typeof(bool))
             {
                 if (string.IsNullOrEmpty(value))
                     return false;
@@ -363,9 +373,9 @@ namespace DogSE.Library.Serialize
             List<string> data = new List<string>();
             foreach (var t in types)
             {
-                var a = t.GetCustomAttributes(typeof (CSVColumnAttribute), true);
+                var a = t.GetCustomAttributes(typeof(CSVColumnAttribute), true);
                 if (a.Length > 0)
-                    data.Add(((CSVColumnAttribute) a[0]).Aliases);
+                    data.Add(((CSVColumnAttribute)a[0]).Aliases);
                 else
                     data.Add(t.Name);
             }

@@ -161,9 +161,12 @@ PacketHandlerManager.Register(1100, OnMove);
 void OnMove(NetState netstate, PacketReader reader){
 if (!netstate.IsVerifyLogin) return;
 var p1 = new DateTime(reader.ReadLong64());
- var p2 = Vector2ReadProxy.Read(reader);
- var p3 = Vector2ReadProxy.Read(reader);
-module.OnMove(netstate,p1,p2,p3);
+ var p2 = Vector3ReadProxy.Read(reader);
+ var p3 = QuaternionReadProxy.Read(reader);
+var p4 = reader.ReadFloat();
+var p5 = reader.ReadFloat();
+var p6 = (TradeAge.Server.Entity.Ship.SpeedUpTypes)reader.ReadByte();
+module.OnMove(netstate,p1,p2,p3,p4,p5,p6);
 }
 
 
@@ -172,19 +175,45 @@ module.OnMove(netstate,p1,p2,p3);
         /// <summary>
         /// 
         /// </summary>
-    public class Vector2ReadProxy
+    public class Vector3ReadProxy
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static TradeAge.Server.Entity.Common.Vector2 Read(PacketReader reader)
+        public static DogSE.Library.Maths.Vector3 Read(PacketReader reader)
         {
-            TradeAge.Server.Entity.Common.Vector2 ret = new TradeAge.Server.Entity.Common.Vector2();
+            DogSE.Library.Maths.Vector3 ret = new DogSE.Library.Maths.Vector3();
 
 ret.X = reader.ReadFloat();
 ret.Y = reader.ReadFloat();
+ret.Z = reader.ReadFloat();
+
+
+            return ret;
+        }
+    }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+    public class QuaternionReadProxy
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static DogSE.Library.Maths.Quaternion Read(PacketReader reader)
+        {
+            DogSE.Library.Maths.Quaternion ret = new DogSE.Library.Maths.Quaternion();
+
+ret.X = reader.ReadFloat();
+ret.Y = reader.ReadFloat();
+ret.Z = reader.ReadFloat();
+ret.W = reader.ReadFloat();
 
 
             return ret;

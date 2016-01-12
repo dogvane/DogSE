@@ -76,21 +76,41 @@ module.OnSpriteLeave(p1);
 void OnSpriteMove(NetState netstate, PacketReader reader){
 var p1 = reader.ReadInt32();
 var p2 = new DateTime(reader.ReadLong64());
- var p3 = Vector2ReadProxy.Read(reader);
- var p4 = Vector2ReadProxy.Read(reader);
-module.OnSpriteMove(p1,p2,p3,p4);
+ var p3 = Vector3ReadProxy.Read(reader);
+ var p4 = QuaternionReadProxy.Read(reader);
+var p5 = reader.ReadFloat();
+var p6 = reader.ReadFloat();
+var p7 = (TradeAge.Client.Entity.Ship.SpeedUpTypes)reader.ReadByte();
+module.OnSpriteMove(p1,p2,p3,p4,p5,p6,p7);
 }
 
 
 
-    class Vector2ReadProxy
+    class Vector3ReadProxy
     {
-        public static TradeAge.Client.Entity.Common.Vector2 Read(PacketReader reader)
+        public static DogSE.Library.Maths.Vector3 Read(PacketReader reader)
         {
-            TradeAge.Client.Entity.Common.Vector2 ret = new TradeAge.Client.Entity.Common.Vector2();
+            DogSE.Library.Maths.Vector3 ret = new DogSE.Library.Maths.Vector3();
 
 ret.X = reader.ReadFloat();
 ret.Y = reader.ReadFloat();
+ret.Z = reader.ReadFloat();
+
+
+            return ret;
+        }
+    }
+
+    class QuaternionReadProxy
+    {
+        public static DogSE.Library.Maths.Quaternion Read(PacketReader reader)
+        {
+            DogSE.Library.Maths.Quaternion ret = new DogSE.Library.Maths.Quaternion();
+
+ret.X = reader.ReadFloat();
+ret.Y = reader.ReadFloat();
+ret.Z = reader.ReadFloat();
+ret.W = reader.ReadFloat();
 
 
             return ret;
@@ -104,8 +124,9 @@ ret.Y = reader.ReadFloat();
             TradeAge.Client.Entity.Character.SimplePlayer ret = new TradeAge.Client.Entity.Character.SimplePlayer();
 
 ret.Name = reader.ReadUTF8String();
- ret.Postion = Vector2ReadProxy.Read(reader);
- ret.Direction = Vector2ReadProxy.Read(reader);
+ ret.Postion = Vector3ReadProxy.Read(reader);
+ ret.Rotation = QuaternionReadProxy.Read(reader);
+ret.Speed = reader.ReadFloat();
 ret.Id = reader.ReadInt32();
 ret.AccountId = reader.ReadInt32();
 ret.Sex = (TradeAge.Client.Entity.Character.Sex)reader.ReadByte();
@@ -124,8 +145,9 @@ ret.Sex = (TradeAge.Client.Entity.Character.Sex)reader.ReadByte();
 ret.Id = reader.ReadInt32();
 ret.SpriteType = (TradeAge.Client.Entity.Character.SpriteType)reader.ReadByte();
 ret.Name = reader.ReadUTF8String();
- ret.Postion = Vector2ReadProxy.Read(reader);
- ret.Direction = Vector2ReadProxy.Read(reader);
+ ret.Postion = Vector3ReadProxy.Read(reader);
+ ret.Rotation = QuaternionReadProxy.Read(reader);
+ret.Speed = reader.ReadFloat();
 
 
             return ret;

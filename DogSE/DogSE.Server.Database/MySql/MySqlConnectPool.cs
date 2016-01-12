@@ -38,6 +38,8 @@ namespace DogSE.Server.Database.MySQL
                     con.Dispose();
                 }
             }
+
+            GC.Collect();
         }
 
         private Dictionary<MySqlConnection, DateTime> timeMap = new Dictionary<MySqlConnection, DateTime>();
@@ -90,6 +92,16 @@ namespace DogSE.Server.Database.MySQL
 
             return con;
         }
+
+        /// <summary>
+        /// 移除一个错误的对象
+        /// </summary>
+        /// <param name="con"></param>
+        public void RemoveContent(MySqlConnection con)
+        {
+            timeMap.Remove(con);
+        }
+
 
         string m_connectStr = "server=localhost;User Id=root;Persist Security Info=True;database=tradeage";
 

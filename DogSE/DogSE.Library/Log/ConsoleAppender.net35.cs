@@ -42,7 +42,9 @@ namespace DogSE.Library.Log
 
             bool bIsLock = false;
 
+#if !UNITY_IPHONE
             lock (s_LockLogInfoQueue)
+#endif
             {
                 s_LogInfoQueue.Enqueue(info);
 
@@ -62,16 +64,18 @@ namespace DogSE.Library.Log
             {
                 logInfoArray = null;
 
-                    lock (s_LockLogInfoQueue)
+#if !UNITY_IPHONE
+                lock (s_LockLogInfoQueue)
+#endif
+                {
+                    if (s_LogInfoQueue.Count > 0)
                     {
-                        if (s_LogInfoQueue.Count > 0)
-                        {
-                            logInfoArray = s_LogInfoQueue.ToArray();
-                            s_LogInfoQueue.Clear();
-                        }
-                        else
-                            s_IsLock = false; // 没有数据需要处理,释放锁定让其它的程序来继续处理
+                        logInfoArray = s_LogInfoQueue.ToArray();
+                        s_LogInfoQueue.Clear();
                     }
+                    else
+                        s_IsLock = false; // 没有数据需要处理,释放锁定让其它的程序来继续处理
+                }
 
                 if (logInfoArray == null)
                     break;
@@ -86,7 +90,7 @@ namespace DogSE.Library.Log
                         InternalWriteLine(logInfo.MessageFlag, logInfo.Format, logInfo.Parameter);
                 }
 
-            } while (true);    
+            } while (true);
         }
 
         #endregion

@@ -16,7 +16,9 @@ namespace DogSE.Library.Common
         /// <param name="p"></param>
         public void Enqueue(T p)
         {
+#if !UNITY_IPHONE
             lock (queue)
+#endif
             {
                 queue.Enqueue(p);
             }
@@ -31,7 +33,9 @@ namespace DogSE.Library.Common
         {
             returnT = default(T);
 
+#if !UNITY_IPHONE
             lock (queue)
+#endif
             {
                 if (queue.Count == 0)
                     return false;
@@ -50,7 +54,7 @@ namespace DogSE.Library.Common
             {
                 return queue.Count;
             }
-            
+
         }
     }
 }

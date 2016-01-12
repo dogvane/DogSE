@@ -48,14 +48,14 @@
     <Compile Include="..\..\Server\TradeAge.Server.Entity\Character\SimplePlayer.cs">
       <Link>Character\SimplePlayer.cs</Link>
     </Compile>
-    <Compile Include="..\..\Server\TradeAge.Server.Entity\Common\Vector2.cs">
-      <Link>Common\Vector2.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Server\TradeAge.Server.Entity\Common\Vector3.cs">
-      <Link>Common\Vector3.cs</Link>
-    </Compile>
     <Compile Include="..\..\Server\TradeAge.Server.Entity\Login\LoginEnum.cs">
       <Link>Login\LoginEnum.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Server\TradeAge.Server.Entity\Ship\SpeedUpTypes.cs">
+      <Link>Ship\SpeedUpTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Server\TradeAge.Server.Entity\Template\ShipTemplate.cs">
+      <Link>Template\ShipTemplate.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -68,6 +68,9 @@
       <Project>{e7fe81a8-ce39-46c1-8eb2-c1f5d0ad130a}</Project>
       <Name>DogSE.Library.net35</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

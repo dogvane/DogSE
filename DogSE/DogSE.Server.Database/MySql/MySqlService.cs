@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DogSE.Common;
+using DogSE.Library.Log;
 using DogSE.Library.Thread;
 using IvyOrm;
 using MySql.Data.MySqlClient;
@@ -23,6 +24,9 @@ namespace DogSE.Server.Database.MySQL
             ConPool.ConnectString = connectStr;
         }
 
+        /// <summary>
+        /// mysql的连接池
+        /// </summary>
         protected readonly MySqlConnectPool ConPool;
 
         /// <summary>
@@ -45,13 +49,13 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<T>.Instance;
             profile.Load.Watch.Restart();
             var proMySql = MySQL.Instance;
-
+            MySqlConnection con = null;
             try
             {
                 profile.Load.TotalCount++;
                 proMySql.Load.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 string sql = string.Format("select * from {0} where id = {1}", GetTableName(typeof(T)), serial);
                 var ret = con.RecordSingleOrDefault<T>(sql);
                 ConPool.ReleaseContent(con);
@@ -61,6 +65,12 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Load.ErrorCount++;
                 proMySql.Load.ErrorCount++;
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
                 throw;
             }
             finally
@@ -83,10 +93,24 @@ namespace DogSE.Server.Database.MySQL
         public T QueryEntity<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1} limit 1", GetTableName(typeof(T)), where);
-            var ret = con.RecordSingleOrDefault<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                string sql = string.Format("select * from {0} where {1} limit 1", GetTableName(typeof(T)), where);
+                var ret = con.RecordSingleOrDefault<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error("Query<{0}> faild.", typeof(T).Name, ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -97,9 +121,23 @@ namespace DogSE.Server.Database.MySQL
         public T QueryValueEntitySQL<T>(string sql) where T : new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            var ret = con.ValueSingleOrDefault<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                var ret = con.ValueSingleOrDefault<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntitySQL<{0}> faild. sql={1}", typeof(T).Name,sql), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -110,9 +148,23 @@ namespace DogSE.Server.Database.MySQL
         public T[] QueryValueEntitysSQL<T>(string sql) 
         {
             MySqlConnection con = ConPool.GetConnection();
-            var ret = con.ValueQuery<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                var ret = con.ValueQuery<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntitysSQL<{0}> faild. sql={1}", typeof (T).Name, sql), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -123,10 +175,24 @@ namespace DogSE.Server.Database.MySQL
         public T QueryValueEntity<T>(string where) where T : new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", GetTableName(typeof(T)), where);
-            var ret = con.ValueSingleOrDefault<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                string sql = string.Format("select * from {0} where {1}", GetTableName(typeof (T)), where);
+                var ret = con.ValueSingleOrDefault<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntity<{0}> faild. sql={1}", typeof (T).Name, where), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -137,9 +203,23 @@ namespace DogSE.Server.Database.MySQL
         public T QueryEntitySQL<T>(string sql) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            var ret = con.RecordSingleOrDefault<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                var ret = con.RecordSingleOrDefault<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntity<{0}> faild. sql={1}", typeof (T).Name, sql), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -185,10 +265,24 @@ namespace DogSE.Server.Database.MySQL
         public T[] QueryEntitys<T>(string where) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            string sql = string.Format("select * from {0} where {1}", GetTableName(typeof(T)), where);
-            T[] ret = con.RecordQuery<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+            try
+            {
+                string sql = string.Format("select * from {0} where {1}", GetTableName(typeof (T)), where);
+                T[] ret = con.RecordQuery<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntity<{0}> faild. sql={1}", typeof (T).Name, where), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -199,9 +293,24 @@ namespace DogSE.Server.Database.MySQL
         public T[] QueryEntitysSQL<T>(string sql) where T : class, new()
         {
             MySqlConnection con = ConPool.GetConnection();
-            T[] ret = con.RecordQuery<T>(sql);
-            ConPool.ReleaseContent(con);
-            return ret;
+
+            try
+            {
+                T[] ret = con.RecordQuery<T>(sql);
+                ConPool.ReleaseContent(con);
+                return ret;
+
+            }
+            catch (Exception ex)
+            {
+                Logs.Error(string.Format("QueryValueEntity<{0}> faild. sql={1}", typeof (T).Name, sql), ex);
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -300,13 +409,13 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<T>.Instance;
             profile.Update.Watch.Restart();
             var proMySql = MySQL.Instance;
-
+            MySqlConnection con = null;
             try
             {
                 profile.Update.TotalCount++;
                 proMySql.Update.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 con.RecordUpdate(entity);
                 ConPool.ReleaseContent(con);
 
@@ -316,6 +425,11 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Update.ErrorCount++;
                 proMySql.Update.ErrorCount++;
+                if (con != null)
+                { 
+                    con.Dispose();
+                    ConPool.RemoveContent(con);    
+                }
                 throw;
             }
             finally
@@ -346,13 +460,14 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<T>.Instance;
             profile.Insert.Watch.Restart();
             var proMySql = MySQL.Instance;
+            MySqlConnection con = null;
 
             try
             {
                 profile.Insert.TotalCount++;
                 proMySql.Insert.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 con.RecordInsert(entity);
                 ConPool.ReleaseContent(con);
                 return entity.Id;
@@ -361,6 +476,12 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Insert.ErrorCount++;
                 proMySql.Insert.ErrorCount++;
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
 
                 throw;
             }
@@ -384,13 +505,14 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<T>.Instance;
             profile.Insert.Watch.Restart();
             var proMySql = MySQL.Instance;
+            MySqlConnection con = null;
 
             try
             {
                 profile.Insert.TotalCount++;
                 proMySql.Insert.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 con.RecordInsert(entity);
                 ConPool.ReleaseContent(con);
             }
@@ -398,6 +520,13 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Insert.ErrorCount++;
                 proMySql.Insert.ErrorCount++;
+
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
 
                 throw;
             }
@@ -421,13 +550,15 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<T>.Instance;
             profile.Delete.Watch.Restart();
             var proMySql = MySQL.Instance;
+            MySqlConnection con = null;
+
 
             try
             {
                 profile.Delete.TotalCount++;
                 proMySql.Delete.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 con.RecordDelete(entity);
                 ConPool.ReleaseContent(con);
 
@@ -437,6 +568,12 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Delete.ErrorCount++;
                 proMySql.Delete.ErrorCount++;
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
 
                 throw;
             }
@@ -457,13 +594,14 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<MySqlService>.Instance;
             profile.Query.Watch.Restart();
             var proMySql = MySQL.Instance;
+            MySqlConnection con = null;
 
             try
             {
                 profile.Query.TotalCount++;
                 proMySql.Query.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 int ret = con.ExecuteNonQuery(sql);
                 ConPool.ReleaseContent(con);
                 return ret;
@@ -472,6 +610,13 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Query.ErrorCount++;
                 proMySql.Query.ErrorCount++;
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+                
                 throw;
             }
             finally
@@ -491,13 +636,14 @@ namespace DogSE.Server.Database.MySQL
             var profile = DBEntityProfile<MySqlService>.Instance;
             profile.Query.Watch.Restart();
             var proMySql = MySQL.Instance;
+            MySqlConnection con = null;
 
             try
             {
                 profile.Query.TotalCount++;
                 proMySql.Query.TotalCount++;
 
-                MySqlConnection con = ConPool.GetConnection();
+                con = ConPool.GetConnection();
                 DataSet ret = MySqlHelper.ExecuteDataset(con, sql);
                 ConPool.ReleaseContent(con);
                 return ret;
@@ -506,6 +652,13 @@ namespace DogSE.Server.Database.MySQL
             {
                 profile.Query.ErrorCount++;
                 proMySql.Query.ErrorCount++;
+                if (con != null)
+                {
+                    con.Dispose();
+                    ConPool.RemoveContent(con);
+                }
+
+
                 throw;
             }
             finally

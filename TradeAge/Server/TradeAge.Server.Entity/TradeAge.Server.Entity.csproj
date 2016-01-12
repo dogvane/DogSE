@@ -41,14 +41,14 @@
     <Compile Include="Character\SceneSprite.cs" />
     <Compile Include="Character\SimplePlayer.cs" />
     <Compile Include="Common\SequenceGenerator.cs" />
-    <Compile Include="Common\Vector2.cs" />
-    <Compile Include="Common\Vector3.cs" />
     <Compile Include="Common\WorldSeqGen.cs" />
     <Compile Include="GameEvent\PlayerEvents.cs" />
     <Compile Include="Login\LoginEnum.cs" />
     <Compile Include="NetCode\OpCode.cs" />
     <Compile Include="NetCode\OpCodeName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ship\SpeedUpTypes.cs" />
+    <Compile Include="Template\ShipTemplate.cs" />
     <Compile Include="WorldEntityManager.cs" />
   </ItemGroup>
   <ItemGroup>

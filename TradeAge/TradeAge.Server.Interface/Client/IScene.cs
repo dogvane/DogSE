@@ -6,9 +6,11 @@ using DogSE.Server.Core.Net;
 using DogSE.Server.Core.Protocol;
 using DogSE.Server.Core.Timer;
 using DogSE.Common;
+using DogSE.Library.Maths;
 using TradeAge.Server.Entity.Character;
 using TradeAge.Server.Entity.Common;
 using TradeAge.Server.Entity.NetCode;
+using TradeAge.Server.Entity.Ship;
 
 namespace TradeAge.Server.Interface.Client
 {
@@ -45,17 +47,22 @@ namespace TradeAge.Server.Interface.Client
         void SpriteLeave(NetState netstate, params int[] spriteId);
 
 
+
         /// <summary>
         /// 通知某个客户端，有精灵在移动
         /// </summary>
         /// <param name="netstate"></param>
         /// <param name="spriteId">精灵id</param>
         /// <param name="time">客户端移动的时间</param>
-        /// <param name="postion">位置</param>
-        /// <param name="direction">朝向</param>
+        /// <param name="postion"></param>
+        /// <param name="rotation"></param>
+        /// <param name="speed"></param>
+        /// <param name="rotationRate"></param>
+        /// <param name="speedUpType"></param>
 
         [NetMethod((ushort)OpCode.SpriteMove, NetMethodType.SimpleMethod)]
-        void SpriteMove(NetState netstate, int spriteId, DateTime time, Vector2 postion, Vector2 direction);
+        void SpriteMove(NetState netstate, int spriteId, DateTime time, Vector3 postion, Quaternion rotation,
+            float speed, float rotationRate, SpeedUpTypes speedUpType);
 
     }
 }

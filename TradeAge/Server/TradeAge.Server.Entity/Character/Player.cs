@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Xml.Serialization;
 using DogSE.Common;
+using DogSE.Library.Maths;
 using DogSE.Server.Core.Net;
-using TradeAge.Server.Entity.Common;
+using TradeAge.Server.Entity.Ship;
 
 
 namespace TradeAge.Server.Entity.Character
@@ -61,12 +62,30 @@ namespace TradeAge.Server.Entity.Character
         /// <summary>
         /// 玩家当前的位置
         /// </summary>
-        public Vector2 Postion { get; set; }
+        public Vector3 Postion { get; set; }
 
         /// <summary>
         /// 方向已经速度
         /// </summary>
-        public Vector2 Direction { get; set; }
+        public Quaternion Rotation { get; set; }
+
+        /// <summary>
+        /// 当前速度
+        /// </summary>
+        [XmlIgnore]
+        public float Speed { get; set; }
+
+        /// <summary>
+        /// 转弯速度
+        /// </summary>
+        [XmlIgnore]
+        public float RotationRate;
+
+        /// <summary>
+        /// 风帆等级
+        /// </summary>
+        [XmlIgnore]
+        public SpeedUpTypes SpeedUpTypes;
 
         /// <summary>
         /// 性别

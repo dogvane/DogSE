@@ -66,7 +66,7 @@ namespace DogSE.Tools.CodeGeneration.Server
             /// 添加一个读取代理类
             /// </summary>
             /// <param name="type"></param>
-            private void AddRdadProxy(Type type)
+            private void AddReadProxy(Type type)
             {
                 if (readProxySet.Contains(type))
                     return;
@@ -121,7 +121,17 @@ namespace DogSE.Tools.CodeGeneration.Server
                     }
                     else if (p.PropertyType.IsLayoutSequential)
                     {
-                        readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
+                        //readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
+
+                        AddReadProxyByStruct(p.PropertyType);
+                        readCode.AppendFormat("ret.{0} = {1}ReadProxy.Read(reader);\r\n",p.Name, p.PropertyType.Name);
+                    }
+                    else if (p.PropertyType.IsClass)
+                    {
+                        //readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.PropertyType.FullName);
+
+                        AddReadProxy(p.PropertyType);
+                        readCode.AppendFormat("ret.{0} = {1}ReadProxy.Read(reader);\r\n", p.Name, p.PropertyType.Name);
                     }
                     else
                     {
@@ -137,7 +147,86 @@ namespace DogSE.Tools.CodeGeneration.Server
                     );
             }
 
-            private string readProxyCodeFormatter = @"
+        /// <summary>
+        /// 添加一个读取代理类
+        /// </summary>
+        /// <param name="type"></param>
+        private void AddReadProxyByStruct(Type type)
+        {
+            if (readProxySet.Contains(type))
+                return;
+
+            readProxySet.Add(type);
+
+            StringBuilder readCode = new StringBuilder();
+
+            foreach (var p in type.GetFields())
+            {
+                if (p.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
+                    continue;
+
+                if (p.FieldType == typeof(int))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadInt32();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(byte))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadByte();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(long))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadLong64();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(float))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(double))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadFloat();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(bool))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadBoolean();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(string))
+                {
+                    readCode.AppendFormat("ret.{0} = reader.ReadUTF8String();\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(DateTime))
+                {
+                    readCode.AppendFormat("ret.{0} = new DateTime(reader.ReadLong64());\r\n", p.Name);
+                }
+                else if (p.FieldType.IsEnum)
+                {
+                    readCode.AppendFormat("ret.{0} = ({1})reader.ReadByte();\r\n", p.Name, p.FieldType.FullName);
+                }
+                else if (p.FieldType.IsLayoutSequential)
+                {
+                    //readCode.AppendFormat("ret.{0} = reader.ReadStruct <{1}>();\r\n", p.Name, p.FieldType.FullName);
+                    AddReadProxyByStruct(p.FieldType);
+                    readCode.AppendFormat("ret.{0} = {1}ReadProxy.Read(reader);\r\n", p.Name, p.FieldType.Name);
+                }
+                else if (p.FieldType.IsClass)
+                {
+                    AddReadProxy(p.FieldType);
+                    readCode.AppendFormat("ret.{0} = {1}ReadProxy.Read(reader);\r\n", p.Name, p.FieldType.Name);
+                }
+                else
+                {
+                    Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
+                        classType.Name, type.Name, p.Name, p.FieldType.Name));
+                }
+            }
+
+            readProxyCode.AppendLine(
+                readProxyCodeFormatter.Replace("#TypeName#", type.Name)
+                .Replace("#TypeFullName#", type.FullName)
+                .Replace("#ReadCode#", readCode.ToString())
+                );
+        }
+
+        private string readProxyCodeFormatter = @"
 
         /// <summary>
         /// 
@@ -231,7 +320,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                     {
                         Logs.Error("{0}.{1} 的第二个参数必须实现 IPacketReader 接口", classType.Name, methodinfo.Name);
                         //  自己实现一个对对象的协议读取类
-                        AddRdadProxy(param[1].ParameterType);
+                        AddReadProxy(param[1].ParameterType);
                         string methodName = methodinfo.Name;
                         initCode.AppendFormat("PacketHandlerManager.Register({0}, {1});",
                                               att.OpCode, methodName);
@@ -326,9 +415,12 @@ namespace DogSE.Tools.CodeGeneration.Server
                         }
                         else if (p.ParameterType.IsLayoutSequential)
                         {
-                            callCode.AppendFormat("var p{0} = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
-                        }
-                        else if (p.ParameterType.IsArray)
+                        AddReadProxyByStruct(p.ParameterType);
+                        callCode.AppendFormat(" var p{1} = {0}ReadProxy.Read(reader);\r\n", p.ParameterType.Name, i);
+
+                        //callCode.AppendFormat("var p{0} = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
+                    }
+                    else if (p.ParameterType.IsArray)
                         {
                             //  数组
                             #region 处理数组的读取
@@ -376,11 +468,13 @@ namespace DogSE.Tools.CodeGeneration.Server
                             }
                             else if (arrayType.IsLayoutSequential)
                             {
-                                callCode.AppendFormat("p{0}[i] = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
-                            }
+                            //callCode.AppendFormat("p{0}[i] = reader.ReadStruct <{1}>();\r\n", i, p.ParameterType.FullName);
+                            AddReadProxyByStruct(arrayType);
+                            callCode.AppendFormat("p{1}[i] = {0}ReadProxy.Read(reader);\r\n", arrayType.Name, i);
+                        }
                             else if (arrayType.IsClass)
                             {
-                                AddRdadProxy(arrayType);
+                                AddReadProxy(arrayType);
                                 callCode.AppendFormat("p{1}[i] = {0}ReadProxy.Read(reader);\r\n", arrayType.Name, i);
                             }
 
@@ -390,7 +484,7 @@ namespace DogSE.Tools.CodeGeneration.Server
                         }
                         else if (p.ParameterType.IsClass)
                         {
-                            AddRdadProxy(p.ParameterType);
+                            AddReadProxy(p.ParameterType);
                             callCode.AppendFormat(" var p{1} = {0}ReadProxy.Read(reader);\r\n", p.ParameterType.Name, i);
                         }
                         else

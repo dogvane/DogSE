@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Core", "DogSE.Server.Core\DogSE.Server.Core.csproj", "{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Common", "DogSE.Server.Common\DogSE.Server.Common.csproj", "{512DD013-E7EE-4D11-BF5A-6ED81304AD05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Library", "DogSE.Library\DogSE.Library.csproj", "{797943E1-DD93-4363-BE95-8A1758D5BAE1}"
 EndProject
@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Net.UnitTest",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.Server.Core.UnitTest", "UnitTest\DogSE.Server.Core.UnitTest\DogSE.Server.Core.UnitTest.csproj", "{B6BEABEE-F80B-48B6-8737-BA677C01022D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogSE.ServerLoader", "DogSE.ServerLoader\DogSE.ServerLoader.csproj", "{BB767C73-291C-448B-B9FE-09E6BCD0D731}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF95170E-0DC6-46B1-B7D3-8D16DD94106F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{512DD013-E7EE-4D11-BF5A-6ED81304AD05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{512DD013-E7EE-4D11-BF5A-6ED81304AD05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{512DD013-E7EE-4D11-BF5A-6ED81304AD05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{512DD013-E7EE-4D11-BF5A-6ED81304AD05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{797943E1-DD93-4363-BE95-8A1758D5BAE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,10 +47,6 @@ Global
 		{B6BEABEE-F80B-48B6-8737-BA677C01022D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6BEABEE-F80B-48B6-8737-BA677C01022D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6BEABEE-F80B-48B6-8737-BA677C01022D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB767C73-291C-448B-B9FE-09E6BCD0D731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB767C73-291C-448B-B9FE-09E6BCD0D731}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB767C73-291C-448B-B9FE-09E6BCD0D731}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB767C73-291C-448B-B9FE-09E6BCD0D731}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

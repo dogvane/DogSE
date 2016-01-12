@@ -31,7 +31,7 @@ namespace TradeAge.Server.Logic.Scene
                 player.RegisterComponent(ss);
             }
 
-            ss.Direction = player.Direction;
+            ss.Rotation = player.Rotation;
             ss.Postion = player.Postion;
 
             return ss;
@@ -45,7 +45,7 @@ namespace TradeAge.Server.Logic.Scene
         public static SimplePlayer GetSimplePlayer(this Player player)
         {
             var ss = player.GetComponent<SimplePlayer>();
-
+            
             if (ss == null)
             {
                 ss = new SimplePlayer
@@ -57,7 +57,7 @@ namespace TradeAge.Server.Logic.Scene
                 player.RegisterComponent(ss);
             }
 
-            ss.Direction = player.Direction;
+            ss.Rotation = player.Rotation;
             ss.Postion = player.Postion;
 
             return ss;

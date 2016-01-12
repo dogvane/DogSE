@@ -1,0 +1,3073 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TradeAge.Client.Core</name>
+    </assembly>
+    <members>
+        <member name="T:DogSE.Client.Core.ServerStateType">
+            <summary>
+             服务器状态类型
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.ServerStateType.Starting">
+            <summary>
+            启动中
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.ServerStateType.Runing">
+            <summary>
+            运行中
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.ServerStateType.Closing">
+            <summary>
+            关闭中
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.GameServerService">
+            <summary>
+                游戏服务器服务
+                这个是整个游戏的入口事件以及基本操作处理流程
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.GameServerService.RunType">
+            <summary>
+            服务器是否处于关闭状态
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.GameServerService.StartTaskThread">
+            <summary>
+            因为在u3d模式下，任务队列的处理线程是不会启动的
+            所以，如果是非u3d模式，则需要在这里启动任务线程
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.ClientSession`1">
+            <summary>
+            客户端的Session
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.SendEventArgs">
+            <summary>
+            发送数据上下文对象
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.ReceiveEventArgs">
+            <summary>
+            接收数据上下文对象
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.ConnectEventArgs">
+            <summary>
+            接收数据上下文对象
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.Data">
+            <summary>
+            和Session关联的对象
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.Socket">
+            <summary>
+            客户端对应的Socket
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.ConnectTime">
+            <summary>
+            连接上的时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.OnlineTime">
+            <summary>
+            在线时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.RecvBuffer">
+            <summary>
+            接收的缓冲区数据，仅用于同底层数据交换时用
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.SyncRecvData">
+            <summary>
+            重新异步开始接受数据
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.CloseSocket">
+            <summary>
+            只关闭socket
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.Close">
+            <summary>
+            关闭连接
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ClientSession`1.m_PendingBuffer">
+            <summary>
+            等待需要发出的数据
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.SendPackage(DogSE.Client.Core.Net.DogBuffer)">
+            <summary>
+            向客户端发送数据
+            </summary>
+            <param name="buff"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.PeekSend">
+            <summary>
+            检查队列里是否有要发送的数据，如果有则进行发送处理
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.RemoteOnlyIP">
+            <summary>
+            远程的地址
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ClientSession`1.RemotePort">
+            <summary>
+            远程关联的端口
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ClientSession`1.BeginConnect(System.String,System.Int32)">
+            <summary>
+            先服务器发起一个连接
+            这是一个异步方法
+            </summary>
+            <param name="ip"></param>
+            <param name="port"></param>
+        </member>
+        <member name="E:DogSE.Client.Core.Net.ClientSession`1.SocketConnect">
+            <summary>
+            当有客户端socket连接上服务器时，触发当前事件
+            </summary>
+        </member>
+        <member name="E:DogSE.Client.Core.Net.ClientSession`1.SocketDisconnect">
+            <summary>
+            socket发生关闭连接事件
+            </summary>
+            <remarks>
+            不管是客户端主动关闭，还是客户端关闭，事件都是会触发到的
+            </remarks>
+        </member>
+        <member name="E:DogSE.Client.Core.Net.ClientSession`1.SocketRecv">
+            <summary>
+            socket有数据送达
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.SocketConnectEventArgs`1">
+            <summary>
+            sokcet连接事件
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.SocketConnectEventArgs`1.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketConnectEventArgs`1.Session">
+            <summary>
+            客户端连接的Session
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketConnectEventArgs`1.IsConnected">
+            <summary>
+            是否连接成功
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketConnectEventArgs`1.SocketError">
+            <summary>
+            如果出错，出错的原因
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.SocketDisconnectEventArgs`1">
+            <summary>
+            客户端发生关闭连接事件
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketDisconnectEventArgs`1.Session">
+            <summary>
+            客户端连接的Session
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.SocketRecvEventArgs`1">
+            <summary>
+            数据受到事件
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketRecvEventArgs`1.Session">
+            <summary>
+            客户端Session
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.SocketRecvEventArgs`1.Buffer">
+            <summary>
+            缓冲区数据
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.DogBuffer32K">
+            <summary>
+            Dog引擎专属缓冲区
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer32K.#ctor">
+            <summary>
+            Dog引擎专属缓冲区
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.DogBufferType">
+            <summary>
+            缓冲区的长度尺寸
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.DogBuffer">
+            <summary>
+            Dog引擎专属缓冲区
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.DogBuffer.m_buffer">
+            <summary>
+            字节的数组
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.DogBuffer.Bytes">
+            <summary>
+            缓冲区对应的字节数组长度
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.DogBuffer.Length">
+            <summary>
+            当前使用的数据长度
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.UpdateCapacity(System.Int32)">
+            <summary>
+            扩大缓冲数据的大小(注意，扩大后，Byte返回的数组的引用将不同)
+            </summary>
+            <param name="minSize">扩大的最小尺寸</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.FixSize(System.Int32)">
+            <summary>
+            按照4K对齐
+            </summary>
+            <param name="minSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.Use">
+            <summary>
+            标记使用
+            如果对象是通过 DogBufferPool 获得对象，则不用调用该方法
+            如果是参数传入，并且需要使用它的byte数组，则需要先Use，再Release
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.Release">
+            <summary>
+            当不再使用缓冲区时，需要手动释放，对象会自动返回对象池里
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.DogBuffer.s_pools">
+            <summary>
+            对象池 客户端的默认对象池不用太大
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.DogBuffer.s_pools32K">
+            <summary>
+            对象池
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.GetFromPool4K">
+            <summary>
+            从缓冲池里获得数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.GetFromPool32K">
+            <summary>
+            从缓冲池里获得数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.DogBuffer.ReleaseAll">
+            <summary>
+            释放所有资源
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.NetProfile">
+            <summary>
+            网络层的性能
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.SendCount">
+            <summary>
+            发送的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.SendLength">
+            <summary>
+            发送包的长度
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.RecvCount">
+            <summary>
+            接收的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.RecvLength">
+            <summary>
+            接收的长度
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.AcceptCount">
+            <summary>
+            连接上来的数量
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.DisconnectCount">
+            <summary>
+            断开的数量
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetProfile.Instatnce">
+            <summary>
+            单例
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.NetState">
+            <summary>
+            
+            </summary>
+            <summary>
+            网络的主状态,每个连接都会产生新的NetState
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.RegisterComponent``1(System.String,``0)">
+            <summary>
+            注册一个组件数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="componentId">组件ID</param>
+            <param name="component">组件实例（非空）</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.GetComponent``1(System.String)">
+            <summary>
+            获得一个组件数据
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="componentId">组件ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.ReleaseComponent``1">
+            <summary>
+            释放组件的资源
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.Player">
+            <summary>
+            和网络连接关联的对象
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.GetIP">
+            <summary>
+            获得网络连接的ip地址
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.#ctor(DogSE.Client.Core.Net.ClientSession{DogSE.Client.Core.Net.NetState})">
+            <summary>
+            有实例产生时调用
+            </summary>
+            <param name="clientSocket"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.#ctor">
+            <summary>
+            无效实例产生时调用
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_Serial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.Serial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.ConnectedOn">
+            <summary>
+            客户开始连接的时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.ConnectedFor">
+            <summary>
+            客户总共连接的时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_NetAddress">
+            <summary>
+            客户的地址
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.NetAddress">
+            <summary>
+            客户的地址
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_Running">
+            <summary>
+            客户是否在运行
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.Running">
+            <summary>
+            客户是否在运行, 如果没有表示已经断开了连接
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_Socket">
+            <summary>
+            网络句柄
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.NetSocket">
+            <summary>
+            客户端连接的句柄
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.ReceiveBuffer">
+            <summary>
+            接收到的环形缓冲区
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_bCheckAlive">
+            <summary>
+            是否检查网络活动
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.IsCheckActivity">
+            <summary>
+            是否检查网络活动
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.IsVerifyLogin">
+            <summary>
+            是否验证过账户
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.BizId">
+            <summary>
+            业务逻辑id（通常是和连接绑定的账户/玩家 id，这个需要由业务逻辑层来进行修改）
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.Start">
+            <summary>
+            开始运行客户端的处理
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.ExitWorld">
+            <summary>
+            退出World集合,在BaseWorld中调用
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_NextCheckActivity">
+            <summary>
+            检查是否在线的时间段
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.CheckAlive">
+            <summary>
+            检查用户是否在线,根据用户传输数据包的时间来判定
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.Send(DogSE.Client.Core.Net.Packet)">
+            <summary>
+            发送数据(在多线程中主要实现了顺序的发送)
+            </summary>
+            <param name="packet">需要发送的数据包</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.Send(DogSE.Client.Core.Net.PacketWriter)">
+            <summary>
+            根据输出流来写数据
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.DISCONNECT_SECOND">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.Dispose">
+            <summary>
+            清理当前的网络数据,并断开连接(Flush == true 则默认5秒以后断开)
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_Disposed">
+            <summary>
+            是否已经处理过断开
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.InsideDispose">
+            <summary>
+            断开连接
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.Dispose(System.Boolean,System.Int64)">
+            <summary>
+            清理当前的网络数据,并断开连接
+            </summary>
+            <param name="bFlush"></param>
+            <param name="waitSeconds"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetState.m_IPToString">
+            <summary>
+            当前实例的IP地址字符串
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetState.ToString">
+            <summary>
+            当前实例的IP地址字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetState.Empty">
+            <summary>
+            NetState 的空对象，用来做默认填充物使用的
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.NetStateManager">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.HANDLER_CAPACITY_SIZE">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetStateManager.Count">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.m_ExclusiveSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetStateManager.ExclusiveSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.s_SendMaxSize1Sec">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetStateManager.SendMaxSize1Sec">
+            <summary>
+            Ã¿Ãë×î´óµÄ´«ÊäÂÊ
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.s_SendCachedMaxSize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetStateManager.SendCachedMaxSize">
+            <summary>
+            ÔÊÐí×î´óµÄ´«ÊäÂÊ¶Ñ»ýÂÊ
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.s_ReceiveCachedMaxSize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.NetStateManager.ReceiveCachedMaxSize">
+            <summary>
+            ÔÊÐí×î´óµÄ½ÓÊÕ¶Ñ»ýÂÊ
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.NetStateManager.m_NetStates">
+            <summary>
+            ÍøÂç¿Í»§¶ËµÄ¼¯ºÏ
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetStateManager.InternalAddNetState(System.Int64,DogSE.Client.Core.Net.NetState)">
+            <summary>
+            Ìí¼Ó¿Í»§¶Ëµ½¼¯ºÏ
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetStateManager.InternalRemoveNetState(System.Int64)">
+            <summary>
+            ÔÚ¿Í»§¶ËµÄ¼¯ºÏÄÚÉ¾³ýÄ³¿Í»§¶Ë
+            </summary>
+            <param name="netStateId"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetStateManager.GetNetState(System.Int64)">
+            <summary>
+            ÔÚ¿Í»§¶ËµÄ¼¯ºÏÄÚÉ¾³ýÄ³¿Í»§¶Ë
+            </summary>
+            <param name="netStateId"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.NetStateManager.ToArray">
+            <summary>
+            È«²¿ÍøÂç¿Í»§¶ËµÄÊý×é
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.PacketProfile">
+            <summary>
+            数据包的详细信息
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_Count">
+            <summary>
+            计算了的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_Constructed">
+            <summary>
+            构造的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_TotalByteLength">
+            <summary>
+            总共的处理字节
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_Outgoing">
+            <summary>
+            是Outgoing还是Incoming
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_TotalProcTime">
+            <summary>
+            总共的处理时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.m_PeakProcTime">
+            <summary>
+            最高的处理时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketProfile.#ctor(System.Boolean)">
+            <summary>
+            包的信息
+            </summary>
+            <param name="bOutgoing">是输入包还是输出包</param>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.Outgoing">
+            <summary>
+            输入还是输出包
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.Constructed">
+            <summary>
+            构造的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.TotalByteLength">
+            <summary>
+            总共的处理字节
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.TotalProcTime">
+            <summary>
+            总共的处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.PeakProcTime">
+            <summary>
+            最高的处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.Count">
+            <summary>
+            计算了的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.AverageByteLength">
+            <summary>
+            平均的处理字节
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketProfile.AverageProcTime">
+            <summary>
+            平均的处理时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketProfile.Record(System.Int64,System.TimeSpan)">
+            <summary>
+            计算
+            </summary>
+            <param name="iByteLength"></param>
+            <param name="processTime"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketProfile.RegConstruct">
+            <summary>
+            该类的构造了的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.s_OutgoingProfiles">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketProfile.GetOutgoingProfile(System.Int64)">
+            <summary>
+            给出当前输出包ID的包属性
+            </summary>
+            <param name="iPacketID">数据包的ID</param>
+            <returns>返回当前包ID的包属性</returns>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketProfile.s_IncomingProfiles">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketProfile.GetIncomingProfile(System.Int64)">
+            <summary>
+            给出当前输入包ID的包属性
+            </summary>
+            <param name="iPacketID">数据包的ID</param>
+            <returns>返回当前包ID的包属性</returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.Endian">
+            <summary>
+            计算机如何存储大数值的体系结构
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.Endian.LITTLE_ENDIAN">
+            <summary>
+             Intel x86，AMD64，DEC VAX
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.Endian.BIG_ENDIAN">
+            <summary>
+            Sun SPARC, Motorola 68000，Java Virtual Machine
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.PacketReader">
+            <summary>
+            数据包的数据读取
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.SetBuffer(DogSE.Client.Core.Net.DogBuffer)">
+            <summary>
+            
+            </summary>
+            <param name="buffer"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.#ctor">
+            <summary>
+            写入留包
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.AcquireContent(DogSE.Client.Core.Net.DogBuffer)">
+            <summary>
+            从缓冲池里分配一个消息包
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReleaseContent(DogSE.Client.Core.Net.PacketReader)">
+            <summary>
+            回收一个写留包
+            </summary>
+            <param name="packat"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketReader.m_Data">
+            <summary>
+            数据缓存
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketReader.Buffer">
+            <summary>
+            数据缓存
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketReader.m_Size">
+            <summary>
+            数据缓存内的实际数据的大小
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketReader.Size">
+            <summary>
+            数据缓存内的实际数据的大小
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketReader.m_Index">
+            <summary>
+            数据缓存的实际数据的索引
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketReader.Position">
+            <summary>
+            数据缓存的实际数据的索引
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketReader.m_Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketReader.Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            
+            </summary>
+            <param name="iOffset"></param>
+            <param name="seekOrigin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadLong64">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadInt32">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadInt16">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadByte">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadULong64">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUInt32">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUInt16">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadSByte">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadBoolean">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketReader.m_ConvertFloat">
+            <summary>
+            同上
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadFloat">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadBuffer(System.Byte[]@,System.Int64,System.Int64)">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUnicodeStringLE">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUnicodeStringLESafe">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUnicodeString">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUnicodeStringSafe">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadUTF8String">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.ReadString">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.IsSafeChar(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="cChar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.GetPacketID">
+            <summary>
+            获得消息包id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketReader.Dispose">
+            <summary>
+            释放资源
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.Packet">
+            <summary>
+            需发送的数据包的基类
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.Packet.#ctor(System.UInt16)">
+            <summary>
+            通过调用EnsureCapacity(...)来产生m_Stream
+            </summary>
+            <param name="iPacketID"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.Packet.#ctor(System.UInt16,System.Int32)">
+            <summary>
+            通过调用EnsureCapacity(...)来产生m_Stream
+            </summary>
+            <param name="iPacketID"></param>
+            <param name="len"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.Packet.m_PacketID">
+            <summary>
+            输出包的ID
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.Packet.PacketID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.Packet.m_Stream">
+            <summary>
+            输出包的输出流
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.Packet.WriterStream">
+            <summary>
+            输出包的输出流
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.Packet.Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.Packet.m_bIsRelease">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.Packet.Release">
+            <summary>
+            表示数据已发送完成,释放请求过的加解压缩的内存
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.PacketWriter">
+            <summary>
+            Provides functionality for writing primitive binary data.
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketWriter.m_ConvertFloat">
+            <summary>
+            float转换器
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketWriter.m_ConvertDouble">
+            <summary>
+            double转换器
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.#ctor(System.UInt16)">
+            <summary>
+            数据包写入器
+            </summary>
+            <param name="codeId">消息报的id</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.#ctor">
+            <summary>
+            写入留包
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.SetNetCode(System.UInt16)">
+            <summary>
+            设置网络消息码
+            </summary>
+            <param name="codeId"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.AcquireContent(System.UInt16)">
+            <summary>
+            从缓冲池里分配一个消息包
+            </summary>
+            <param name="codeId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.ReleaseContent(DogSE.Client.Core.Net.PacketWriter)">
+            <summary>
+            回收一个写留包
+            </summary>
+            <param name="packat"></param>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketWriter.Length">
+            <summary>
+            Gets the total stream length.
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.PacketWriter.m_Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.PacketWriter.Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.FixBuffer(System.Int32)">
+            <summary>
+            判断并调整缓冲区的大小
+            </summary>
+            <param name="size"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Boolean)">
+            <summary>
+            Writes a 1-byte boolean value to the underlying stream. False is represented by 0, true by 1.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Byte)">
+            <summary>
+            Writes a 1-byte unsigned integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.SByte)">
+            <summary>
+            Writes a 1-byte signed integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Int16)">
+            <summary>
+            Writes a 2-byte signed integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.UInt16)">
+            <summary>
+            Writes a 2-byte unsigned integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Int32)">
+            <summary>
+            Writes a 4-byte signed integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.UInt32)">
+            <summary>
+            Writes a 4-byte unsigned integer value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Single)">
+            <summary>
+            Writes a 4-byte float value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Int64)">
+            <summary>
+            Writes a 8-byte long value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.UInt64)">
+            <summary>
+            Writes a 8-byte unsigned long value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Double)">
+            <summary>
+            Writes a 8-byte double value to the underlying stream.
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a sequence of bytes to the underlying stream
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.WriteLittleUniNull(System.String)">
+            <summary>
+            Writes a dynamic-length little-endian unicode string value to the underlying stream, followed by a 2-byte null character.
+            </summary>
+            <param name="strValue"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.WriteBigUniNull(System.String)">
+            <summary>
+            Writes a dynamic-length big-endian unicode string value to the underlying stream, followed by a 2-byte null character.
+            </summary>
+            <param name="strValue"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.WriteUTF8Null(System.String)">
+            <summary>
+            Writes a dynamic-length UTF8 string value to the underlying stream, followed by a 2-byte null character.
+            </summary>
+            <param name="strValue"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.GetBuffer">
+            <summary>
+            获得缓冲区数据
+            在获得的时候，会根据当前缓冲区的长度，把长度编入首字节的4位
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.PacketWriter.Release">
+            <summary>
+            资源释放
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Net.ReceiveQueue">
+            <summary>
+            接受到的数据,使用环绕缓冲区来解决粘包和半包的处理
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.BUFFER_SIZE">
+            <summary>
+            字节默认的大小
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_Head">
+            <summary>
+            字节的头位置
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_Tail">
+            <summary>
+            字节的尾位置
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_Buffer">
+            <summary>
+            字节的数组
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_LockBuffer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_Size">
+            <summary>
+            字节的大小
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Net.ReceiveQueue.Length">
+            <summary>
+            环绕缓冲区内的数据大小
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ReceiveQueue.Dequeue(System.Byte[],System.Int64,System.Int64)">
+            <summary>
+            给出使用环绕缓冲区内的数据
+            </summary>
+            <param name="byteBuffer">要复制到的数据的数组</param>
+            <param name="iOffset">要复制到数组的长度偏移量</param>
+            <param name="iSize">要复制多少长度的数据</param>
+            <returns>返回实际读取到的字节数</returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ReceiveQueue.Enqueue(System.Byte[],System.Int64,System.Int64)">
+            <summary>
+            压入数据至环绕缓冲区内
+            </summary>
+            <param name="byteBuffer"></param>
+            <param name="iOffset"></param>
+            <param name="iSize"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ReceiveQueue.Clear">
+            <summary>
+            清除数据的信息,不清除数据缓冲,用于下次使用
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.m_Endian">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Net.ReceiveQueue.PacketLengthSize">
+            <summary>
+            包的长度
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ReceiveQueue.GetPacketLength">
+            <summary>
+            给出数据包的长度
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Net.ReceiveQueue.SetCapacityInLock(System.Int64)">
+            <summary>
+            扩大缓冲数据的大小(当前都在锁中操作，因此不需要锁定的)
+            </summary>
+            <param name="iCapacity"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Protocol.NetReturnDescription">
+            <summary>
+            网络返回的描叙信息
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Protocol.NetReturnDescription.#ctor(System.String)">
+            <summary>
+            网络返回的描叙信息
+            </summary>
+            <param name="description"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Protocol.ClientInterfaceAttribute">
+            <summary>
+            客户端的接口定义标签
+            只用来标记，给协议生成工具找到对应的接口
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Protocol.NetMethodAttribute">
+            <summary>
+            网络回调方法的参数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Protocol.NetMethodAttribute.#ctor(System.UInt16,DogSE.Client.Core.Protocol.NetMethodType,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="opcode"></param>
+            <param name="type">消息的处理方法</param>
+            <param name="isVerifyLogin">是否进行登录验证，默认是进行的，只有登录等极少数的消息是不需要验证的</param>
+        </member>
+        <member name="P:DogSE.Client.Core.Protocol.NetMethodAttribute.OpCode">
+            <summary>
+            消息码
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Protocol.NetMethodAttribute.MethodType">
+            <summary>
+            方法类型
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Protocol.NetMethodAttribute.IsVerifyLogin">
+            <summary>
+            是否进行登录验证
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Protocol.NetMethodType">
+            <summary>
+            网络方法的生成类型
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Protocol.NetMethodType.PacketReader">
+            <summary>
+            方法里一共2个参数
+            第二个参数为使用的是数据流，需要自己来解析数据流内容
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Protocol.NetMethodType.ProtocolStruct">
+            <summary>
+            方法里一共2个参数
+            第二个参数为已经定义过解析协议的数据包流对象
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Protocol.NetMethodType.SimpleMethod">
+            <summary>
+            简单方法，由系统自动帮忙负责解析协议
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.ActionTask">
+            <summary>
+            非网络消息包的任务
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTask.Action">
+            <summary>
+            任务函数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTask.ActionName">
+            <summary>
+            任务名称
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTask.Execute">
+            <summary>
+            执行任务
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.ActionTask.TaskPool">
+            <summary>
+            任务的对象池
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTask.Release">
+            <summary>
+            释放资源
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTask.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTask.WriteLog(System.Int64,System.Boolean)">
+            <summary>
+            写日志
+            </summary>
+            <param name="runTick"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTask.AcquireContent(System.String)">
+            <summary>
+            从缓冲池里获得一个对象
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.ParamActionTask`1">
+            <summary>
+            带参数的任务
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ParamActionTask`1.ActionName">
+            <summary>
+            任务名称
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ParamActionTask`1.Obj">
+            <summary>
+            关联对象
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ParamActionTask`1.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ParamActionTask`1.Execute">
+            <summary>
+            执行任务
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.ParamActionTask`1.TaskPool">
+            <summary>
+            任务的对象池
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ParamActionTask`1.Release">
+            <summary>
+            释放资源
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ParamActionTask`1.WriteLog(System.Int64,System.Boolean)">
+            <summary>
+            写日志
+            </summary>
+            <param name="runTick"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ParamActionTask`1.AcquireContent(System.String)">
+            <summary>
+            从缓冲池里获得一个对象
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.ActionTaskProfile">
+            <summary>
+            非网络消息任务的消息执行
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTaskProfile.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="actionName"></param>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.ActionName">
+            <summary>
+            执行的方法名
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.Count">
+            <summary>
+            调用次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.ElapsedTicks">
+            <summary>
+            总调用时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.MaxElapsedTicks">
+            <summary>
+            最大执行时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.Error">
+            <summary>
+            调用次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ActionTaskProfile.AverageProcTime">
+            <summary>
+            平均的处理时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTaskProfile.Append(System.Int64,System.Boolean)">
+            <summary>
+            添加一次调用记录
+            </summary>
+            <param name="ticks"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ActionTaskProfile.GetNetTaskProfile(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="actionName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.ITask">
+            <summary>
+            一个用于执行的任务接口
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ITask.Execute">
+            <summary>
+            执行一个任务
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ITask.TaskProfile">
+            <summary>
+            和任务相关的线程性能对象
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ITask.Release">
+            <summary>
+            释放和任务相关的资源
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ITask.WriteLog(System.Int64,System.Boolean)">
+            <summary>
+            写操作日志
+            </summary>
+            <param name="runTick"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.ITaskProfile">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ITaskProfile.Count">
+            <summary>
+            调用次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ITaskProfile.ElapsedTicks">
+            <summary>
+            执行时间的ticks，注意，不是ms，转换为ms需要除1000
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.ITaskProfile.Error">
+            <summary>
+            执行的错误次数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.ITaskProfile.Append(System.Int64,System.Boolean)">
+            <summary>
+            追加一次记录
+            </summary>
+            <param name="ticks"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.NetTask">
+            <summary>
+            网络消息调用任务
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTask.PacketHandler">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTask.PacketReader">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTask.NetState">
+            <summary>
+            执行的客户端
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTask.Execute">
+            <summary>
+            执行网络消息包指令
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTask.Release">
+            <summary>
+            释放资源
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.NetTask.TaskPool">
+            <summary>
+            任务的对象池
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTask.AcquireContent(System.UInt16)">
+            <summary>
+            从缓冲池里获得一个对象
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTask.RecvTime">
+            <summary>
+            消息包的接收时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTask.WriteLog(System.Int64,System.Boolean)">
+            <summary>
+            写操作日志
+            </summary>
+            <param name="runTick"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.NetTaskProfile">
+            <summary>
+            网络消息报的任务性能计数器
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTaskProfile.#ctor(System.UInt16)">
+            <summary>
+            
+            </summary>
+            <param name="packageId"></param>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.PackageId">
+            <summary>
+            消息包Id
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.Count">
+            <summary>
+            调用次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.ElapsedTicks">
+            <summary>
+            总调用时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.MaxElapsedTicks">
+            <summary>
+            最大执行时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.AverageProcTime">
+            <summary>
+            平均的处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.NetTaskProfile.Error">
+            <summary>
+            调用次数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTaskProfile.Append(System.Int64,System.Boolean)">
+            <summary>
+            添加一次调用记录
+            </summary>
+            <param name="ticks"></param>
+            <param name="isError"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.NetTaskProfile.GetNetTaskProfile(System.UInt16)">
+            <summary>
+            
+            </summary>
+            <param name="packageId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.PacketHandler">
+            <summary>
+            数据包的主处理者
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandler.#ctor(System.UInt16,DogSE.Client.Core.Task.PacketPriority,DogSE.Client.Core.Task.PacketReceiveCallback)">
+            <summary>
+            
+            </summary>
+            <param name="iPacketID"></param>
+            <param name="priority"></param>
+            <param name="onPacketReceive"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketHandler.m_PacketID">
+            <summary>
+            数据包的ID
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.PacketHandler.PacketID">
+            <summary>
+            数据包的ID
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketHandler.m_PacketPriority">
+            <summary>
+            数据包的优先级
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.PacketHandler.PacketPriority">
+            <summary>
+            数据包的优先级
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketHandler.m_OnReceive">
+            <summary>
+            数据实际处理的回调
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.PacketHandler.OnReceive">
+            <summary>
+            数据实际处理的回调
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.PacketPriority">
+            <summary>
+            指定 NetState 的发送优先级。
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketPriority.Lowest">
+            <summary>
+            可以将 NetState 安排在具有任何其他优先级的线程之后。
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketPriority.BelowNormal">
+            <summary>
+            可以将 System.Threading.Thread 安排在具有 Normal 优先级的线程之后，在具有 Lowest 优先级的线程之前。
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketPriority.Normal">
+            <summary>
+            可以将 NetState 安排在具有 AboveNormal 优先级的线程之后，在具有 BelowNormal 优先级的线程之前。默认情况下，线程具有 Normal 优先级。
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketPriority.AboveNormal">
+            <summary>
+            可以将 System.Threading.Thread 安排在具有 Highest 优先级的线程之后，在具有 Normal 优先级的线程之前。
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.PacketPriority.Highest">
+            <summary>
+            可以将 NetState 安排在具有任何其他优先级的线程之前。
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.PacketReceiveCallback">
+            <summary>
+            消息调用委托
+            </summary>
+            <param name="netState"></param>
+            <param name="reader"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.PacketHandlersBase">
+            <summary>
+            管理全部数据包的调用者
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.PacketHandlersBase.Handlers">
+            <summary>
+            仅用于测试
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandlersBase.Register(System.UInt16,DogSE.Client.Core.Task.PacketReceiveCallback)">
+            <summary>
+            注册数据包的处理调用者
+            注意，如果存在相同的消息id，会进行调用方法的替换操作
+            </summary>
+            <param name="iPacketID"></param>
+            <param name="onPacketReceive"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandlersBase.Register(System.UInt16,DogSE.Client.Core.Task.PacketPriority,DogSE.Client.Core.Task.PacketReceiveCallback)">
+            <summary>
+            
+            </summary>
+            <param name="iPacketID"></param>
+            <param name="priority"></param>
+            <param name="onPacketReceive"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandlersBase.GetHandler(System.UInt16)">
+            <summary>
+            获取数据包的处理调用者
+            </summary>
+            <param name="iPacketID"></param>
+            <returns>
+            如果消息id对应的消息不存在，则会返回null
+            </returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandlersBase.RemoveHandler(System.UInt16)">
+            <summary>
+            移去数据包的处理调用者
+            </summary>
+            <param name="iPacketID"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.PacketHandlersBase.Clean">
+            <summary>
+            清理所有的消息处理句柄
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Task.Unity3DTaskManager">
+            <summary>
+            任务管理
+            </summary>
+            <remarks>
+            整个游戏的业务逻辑在这里开辟的线程里执行
+            </remarks>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.#ctor(System.String)">
+            <summary>
+            任务管理器
+            </summary>
+            <param name="taskName"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppendTask(DogSE.Client.Core.Task.ITask)">
+            <summary>
+            添加一个任务
+            </summary>
+            <param name="task"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppendTask(System.Action)">
+            <summary>
+            增加一个独立任务
+            推荐使用 public void AppendTask(string name, Action action) 方法，方便记录任务的时间
+            </summary>
+            <param name="action"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppendTask(System.String,System.Action)">
+            <summary>
+            添加一个任务
+            </summary>
+            <param name="name"></param>
+            <param name="action"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppentdTask``1(System.Action{``0},``0)">
+            <summary>
+            添加一个带参数的任务
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="action"></param>
+            <param name="obj">参数</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppentdTask``1(System.String,System.Action{``0},``0)">
+            <summary>
+            添加一个带参数的任务
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="action"></param>
+            <param name="obj"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.AppendTask(DogSE.Client.Core.Net.NetState,DogSE.Client.Core.Task.PacketHandler,DogSE.Client.Core.Net.PacketReader)">
+            <summary>
+            添加一个网络消息任务
+            </summary>
+            <param name="netState"></param>
+            <param name="handler"></param>
+            <param name="packetreader"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Task.Unity3DTaskManager.taskList">
+            <summary>
+            任务队列
+            </summary>
+            <remarks>
+            这里可以进行优化，用多队列的方式进行优先级划分
+            </remarks>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.StartThread">
+            <summary>
+            开启任务线程
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.Unity3DTaskManager.Runing">
+            <summary>
+            当前的任务线程状态
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Task.Unity3DTaskManager.IsDebug">
+            <summary>
+            是否处于Debug模式
+            如果是debug模式，就不吞掉异常，由外面来捕捉异常
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.RunAllTask">
+            <summary>
+            执行所有任务
+            </summary>
+            <remarks>
+            该方法需要在u3d的主线程里执行
+            </remarks>
+        </member>
+        <member name="M:DogSE.Client.Core.Task.Unity3DTaskManager.RestartThread">
+            <summary>
+            重启线程
+            在实际运营中，会碰上任务线程进入死循环，或者在等待某些操作的情况
+            这时游戏可能进入假死状态，只有中断当前的线程，并重启业务逻辑线程
+            才能让游戏继续下去
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.DelayCallTimer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.DelayCallTimer.m_Callback">
+            <summary>
+            委托
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayCallTimer.#ctor(System.TimeSpan,System.TimeSpan,System.Int64,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            延迟调用的时间
+            </summary>
+            <param name="delayTimeSpan">延迟的时间</param>
+            <param name="intervalTimeSpan">间隔的时间</param>
+            <param name="iTimes">调用的次数</param>
+            <param name="timeLeft">剩余时间</param>
+            <param name="timerCallback">委托</param>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.DelayCallTimer.Callback">
+            <summary>
+            委托
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayCallTimer.OnTick">
+            <summary>
+            调用
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.DelayCallTimer.TimeSliceName">
+            <summary>
+            时间回调名字
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayCallTimer.ToString">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.DelayStateCallTimer`1">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.DelayStateCallTimer`1.m_Callback">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.DelayStateCallTimer`1.m_State">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayStateCallTimer`1.#ctor(System.TimeSpan,System.TimeSpan,System.Int64,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceStateCallback{`0},`0)">
+            <summary>
+            延迟调用的时间有状态类
+            </summary>
+            <param name="iTimes">调用的次数</param>
+            <param name="delayTimeSpan">延迟的时间</param>
+            <param name="intervalTimeSpan">间隔的时间</param>
+            <param name="timerStateCallback">委托</param>
+            <param name="timeLeft">剩余时间</param>
+            <param name="tState">回调的状态类</param>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.DelayStateCallTimer`1.Callback">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayStateCallTimer`1.OnTick">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.DelayStateCallTimer`1.TimeSliceName">
+            <summary>
+            时间回调名字
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.DelayStateCallTimer`1.ToString">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimeSliceCallback">
+            <summary>
+            Ê±¼äÆ¬µÄÎ¯ÍÐ
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimeSliceStateCallback`1">
+            <summary>
+            °üº¬Ö¸¶¨·ºÐÐ¶ÔÏóµÄÊ±¼äÆ¬µÄÎ¯ÍÐ
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tState"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.StopTimeSliceEventArgs">
+            <summary>
+            AuraµÄÊÂ¼þÊý¾ÝÀà
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.StopTimeSliceEventArgs.#ctor(DogSE.Client.Core.Timer.TimeSlice)">
+            <summary>
+            ³õÊ¼»¯¹¹Ôì
+            </summary>
+            <param name="timeSlice"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.StopTimeSliceEventArgs.m_TimeSlice">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.StopTimeSliceEventArgs.TimeSlice">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimerFrequency">
+            <summary>
+            Ê±¼äÆ¬ÓÅÏÈ¼¶µÄÃ¶¾Ù¶¨Òå
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerFrequency.EveryTick">
+            <summary>
+            ÊµÊ±µÄÊ±¼äÆ¬
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerFrequency.Second">
+            <summary>
+            Ãë¼¶±ð
+            ÔÚÃë¼¶¶ÓÁÐ£¬100ms¼ì²éÒ»´Î
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerFrequency.Minute">
+            <summary>
+            ·ÖÖÓ¼¶±ð
+            ¼ì²é°´ÕÕ1sÒ»´Î£¬¼ì²éÃë¼¶±ðµÄÊý¾Ý
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerFrequency.LongTime">
+            <summary>
+            ´óÓÚ·ÖÖÓ¼¶±ðµÄ
+            ÏÈ·ÅÈëµÈ´ý¶ÓÁÐ£¬1·ÖÖÓ¼ì²éÒ»´Î£¬½«ËûÒÆÈëÃë¼¶±ðµÈ´ý¶ÓÁÐ
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimeSliceRunType">
+            <summary>
+            Ê±¼äÆ¬¼ä¸ôÖ´ÐÐµÄÀàÐÍ
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSliceRunType.None">
+            <summary>
+            ÄÚ²¿Ïß³Ì
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSliceRunType.LogicTask">
+            <summary>
+            ÒµÎñÂß¼­Ïß³ÌÖ´ÐÐ
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimerChangeEntry">
+            <summary>
+            时间片的属性改变
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerChangeEntry.#ctor(DogSE.Client.Core.Timer.TimeSlice,System.Int64,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="tTimer"></param>
+            <param name="newIndex"></param>
+            <param name="isAdd"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerChangeEntry.m_TimerSlice">
+            <summary>
+            添加或修改或移去的时间片
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerChangeEntry.TimerSlice">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerChangeEntry.m_NewPriority">
+            <summary>
+            新时间片的属性
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerChangeEntry.TimerPriority">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerChangeEntry.m_IsAddTimerSlice">
+            <summary>
+            是否是添加还是移去时间片
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerChangeEntry.AddTimerSlice">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimerProfile">
+            <summary>
+            当前某种Timer(如: Timer, DelayCallTimer, DelayStateCallTimer, DelayStateCallTimer &lt; T &gt; )类型定义的时间片的处理信息
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_Created">
+            <summary>
+            创建调用的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_Started">
+            <summary>
+            开始调用的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_Stopped">
+            <summary>
+            停止调用的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_Ticked">
+            <summary>
+            调用的次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_TotalProcTime">
+            <summary>
+            总共调用的处理时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.m_PeakProcTime">
+            <summary>
+            调用的最高处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.Created">
+            <summary>
+            创建调用的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.Started">
+            <summary>
+            开始调用的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.Stopped">
+            <summary>
+            停止调用的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.Ticked">
+            <summary>
+            调用的次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.TotalProcTime">
+            <summary>
+            总共调用的处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.PeakProcTime">
+            <summary>
+            调用的最高处理时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.AverageProcTime">
+            <summary>
+            平均调用的处理时间
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerProfile.RegCreation">
+            <summary>
+            计算创建调用的次数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerProfile.RegStart">
+            <summary>
+            计算开始调用的次数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerProfile.RegStopped">
+            <summary>
+            计算停止调用的次数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerProfile.RegTicked(System.TimeSpan)">
+            <summary>
+            计算运行的次数,最高的处理时间,总共调用的处理时间
+            </summary>
+            <param name="procTime">当前的处理时间</param>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerProfile.s_Profiles">
+            <summary>
+            TimerProfile处理信息定义,以类型名为关键字共有8种
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerProfile.Profiles">
+            <summary>
+            时间片的处理信息定义,以类型名为关键字共有8种
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerProfile.GetProfile(System.String)">
+            <summary>
+            给出某种时间片的处理信息
+            </summary>
+            <returns></returns>
+            <param name="name"></param>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimerThread">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimerThread.TaskManager">
+            <summary>
+            任务管理器
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_NextPriorities">
+            <summary>
+            下一次调用的时间片
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_PriorityDelays">
+            <summary>
+            延迟调用的时间片
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_Timers">
+            <summary>
+            4种时间片的列表
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_TimerThread">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.StartTimerThread">
+            <summary>
+            如果有实例TimeSlice的时候就开始初始化线程
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.AddTimer(DogSE.Client.Core.Timer.TimeSlice)">
+            <summary>
+            添加或修改或移去时间片
+            </summary>
+            <param name="tTimer"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.RemoveTimer(DogSE.Client.Core.Timer.TimeSlice)">
+            <summary>
+            移去时间片
+            </summary>
+            <param name="tTimer"></param>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_Signal">
+            <summary>
+            当有新的时间片改动或添加或移去的时候事件发生
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.RunTimerThread">
+            <summary>
+            Timer的时间检测函数，这里是独立线程
+            但只负责检查时间片，不负责任务执行
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_TimerChangeEntryChangeQueue">
+            <summary>
+            改变或添加或移去的时间片
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimerThread.s_LockTimerChangeEntryChangeQueue">
+            <summary>
+            锁
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.Change(DogSE.Client.Core.Timer.TimeSlice,System.Int64,System.Boolean)">
+            <summary>
+            添加或修改或移去的时间片
+            </summary>
+            <param name="tTimer"></param>
+            <param name="newIndex"></param>
+            <param name="isAdd"></param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimerThread.ProcessChangeQueue">
+            <summary>
+            处理添加或修改或移去的时间片
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimeSlice">
+            <summary>
+            时间片的处理(具有均衡负载的时间片处理)
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.#ctor(System.TimeSpan)">
+            <summary>
+            初始化时间片
+            </summary>
+            <param name="delayTimeSpan">延迟的时间</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.#ctor(System.TimeSpan,System.TimeSpan)">
+            <summary>
+            初始化时间片
+            </summary>
+            <param name="delayTimeSpan">延迟的时间</param>
+            <param name="intervalTimeSpan">间隔的时间</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.#ctor(System.TimeSpan,System.TimeSpan,System.Int64)">
+            <summary>
+            初始化时间片
+            </summary>
+            <param name="delayTimeSpan">延迟的时间</param>
+            <param name="intervalTimeSpan">间隔的时间</param>
+            <param name="iTimes">调用的次数</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            
+            </summary>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="timeLeft">剩余时间</param>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.#ctor(System.TimeSpan,System.TimeSpan,System.Int64,System.TimeSpan)">
+            <summary>
+            
+            </summary>
+            <param name="delayTimeSpan">第一次启动间隔</param>
+            <param name="intervalTimeSpan">每次调用间隔</param>
+            <param name="iTimes">累计调用次数</param>
+            <param name="timeLeft">剩余时间</param>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_NumberOfTimes">
+            <summary>
+            调用次数的累计数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.NumberOfTimes">
+            <summary>
+            调用次数的累计数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.RunType">
+            <summary>
+            时间片在哪里执行
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_Times">
+            <summary>
+            调用的总次数
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.Times">
+            <summary>
+            调用的总次数
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_TimeLeft">
+            <summary>
+            剩余时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.TimeLeft">
+            <summary>
+            剩余时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_StopTime">
+            <summary>
+            剩余时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.StopTime">
+            <summary>
+            停止时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_RunFrequency">
+            <summary>
+            时间片的优先级
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.Frequency">
+            <summary>
+            时间片的优先级
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_NextTime">
+            <summary>
+            下一次调用的时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.NextTime">
+            <summary>
+            下一次的调用时间
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_DelayTime">
+            <summary>
+            延迟调用的时间(只在加入集合时计算一次)
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.DelayTime">
+            <summary>
+            延迟调用的时间间隔(只在加入集合时计算一次)
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_IntervalTime">
+            <summary>
+            间隔调用的时间
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.IntervalTime">
+            <summary>
+            间隔调用的时间间隔
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSlice.m_Running">
+            <summary>
+            调用是否在运行(volatile 用于多线程)
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.IsRunning">
+            <summary>
+            调用是否运行
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.TimeSliceHashSet">
+            <summary>
+            TimerThread.m_Timers当前某种时间片的引用
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.Start">
+            <summary>
+            开始时间片的处理
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.Stop">
+            <summary>
+            停止时间片的处理
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.ToString">
+            <summary>
+            给出时间片的定义字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSlice.OnTick">
+            <summary>
+            时间片的处理函数
+            </summary>
+        </member>
+        <member name="E:DogSE.Client.Core.Timer.TimeSlice.StopTimeSlice">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.Timer.TimeSlice.TimeSliceName">
+            <summary>
+            时间回调方法的名称
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.Timer.TimeSliceUtil">
+            <summary>
+            时间间隔辅助类
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSliceUtil.s_LongTimeCheck">
+            <summary>
+            超过3分钟等待的放入长时间等待队列
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSliceUtil.s_MinuteCheck">
+            <summary>
+            1分钟以内的100ms检查一次
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.Timer.TimeSliceUtil.s_SecondCheck">
+            <summary>
+            1s以内的，即时检查
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.ComputePriority(System.TimeSpan)">
+            <summary>
+            获取时间片的优先级
+            </summary>
+            <param name="timeSpan"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice(System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            在 delayTimeSpan 时间结束后调用一次回调函数
+            </summary>
+            <param name="delayTimeSpan"></param>
+            <param name="timerCallback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice(System.TimeSpan,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
+            </summary>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="timerCallback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice(System.TimeSpan,System.TimeSpan,System.Int64,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
+            </summary>
+            <remarks>
+            如果 iTimes == 1则表示调用一次后就结束
+            </remarks>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="iTimes">调用的次数</param>
+            <param name="timerCallback">回调方法</param>
+            <param name="timeLeft">剩余时间</param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice(System.TimeSpan,System.TimeSpan,System.Int64,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
+            </summary>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="iTimes"></param>
+            <param name="timerStateCallback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice(System.TimeSpan,System.TimeSpan,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceCallback)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
+            </summary>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="timeLeft"></param>
+            <param name="timerStateCallback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice``1(System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceStateCallback{``0},``0)">
+            <summary>
+            在 delayTimeSpan 时间结束后调用一次回调函数
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="delayTimeSpan"></param>
+            <param name="timerStateCallback"></param>
+            <param name="tState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice``1(System.TimeSpan,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceStateCallback{``0},``0)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到游戏退出
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="timerStateCallback"></param>
+            <param name="tState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice``1(System.TimeSpan,System.TimeSpan,System.Int64,DogSE.Client.Core.Timer.TimeSliceStateCallback{``0},``0)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到 iTimes 次回调后结束。
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="iTimes"></param>
+            <param name="timerStateCallback"></param>
+            <param name="tState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice``1(System.TimeSpan,System.TimeSpan,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceStateCallback{``0},``0)">
+            <summary>
+            从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间。
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="timeLeft"></param>
+            <param name="timerStateCallback"></param>
+            <param name="tState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Client.Core.Timer.TimeSliceUtil.StartTimeSlice``1(System.TimeSpan,System.TimeSpan,System.Int64,System.TimeSpan,DogSE.Client.Core.Timer.TimeSliceStateCallback{``0},``0)">
+            <summary>
+            带优先级从 delayTimeSpan 后开始，每隔 intervalTimeSpan 调用一次回调函数，直到超过 timeLeft 的时间或者回调次数达到 iTimes。
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="delayTimeSpan"></param>
+            <param name="intervalTimeSpan"></param>
+            <param name="iTimes"></param>
+            <param name="timeLeft"></param>
+            <param name="timerStateCallback"></param>
+            <param name="tState"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Client.Core.NetController">
+            <summary>
+            网络连接的控制器
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.CloseThread">
+            <summary>
+            关闭所有的线程
+            </summary>
+        </member>
+        <member name="F:DogSE.Client.Core.NetController.s_taskManager">
+            <summary>
+            
+            </summary>
+            <remarks>
+            这里任务管理器做成静态的
+            除了因为时间管理器也是静态的原因外
+            客户端的Controller将来会变为测试工具（压力测试工具）用的Controller
+            控制器不会是唯一的，所以，用静态的比较好，可以少开一些线程
+            </remarks>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.TaskManager">
+            <summary>
+            对外公开的任务管理器
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.#ctor">
+            <summary>
+            默认构造函数
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.NewNetState">
+            <summary>
+            新建一个NetSatte 为了断线重练，重新初始化数据
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.IsWaitCheckOnline">
+            <summary>
+            是否处于等待心跳包回执的状态
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.StartWorld">
+            <summary>
+            开启游戏世界
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.StopWorld">
+            <summary>
+            游戏世界停止
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.NetState">
+            <summary>
+            网络连接对象
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.ConnectServer(System.String,System.Int32)">
+            <summary>
+            连接服务器
+            </summary>
+            <param name="host">服务器地址(ip)</param>
+            <param name="port">服务器端口号</param>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.Host">
+            <summary>
+            服务器地址
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.Port">
+            <summary>
+            端口号
+            </summary>
+        </member>
+        <member name="M:DogSE.Client.Core.NetController.ReConnectServer">
+            <summary>
+            重新连服务器
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.Connected">
+            <summary>
+            客户端对服务器的连接状态
+            </summary>
+        </member>
+        <member name="E:DogSE.Client.Core.NetController.NetStateConnect">
+            <summary>
+            网络连接事件
+            </summary>
+        </member>
+        <member name="E:DogSE.Client.Core.NetController.NetStateDisconnect">
+            <summary>
+            网络连接关闭事件
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.PacketHandlers">
+            <summary>
+            包句柄管理器
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetController.Tag">
+            <summary>
+            和netcontroller 关联的对象
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.NetStateDisconnectEventArgs">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetStateDisconnectEventArgs.NetState">
+            <summary>
+            网络连接
+            </summary>
+        </member>
+        <member name="T:DogSE.Client.Core.NetStateConnectEventArgs">
+            <summary>
+            网络连接事件
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetStateConnectEventArgs.NetState">
+            <summary>
+            网络连接
+            </summary>
+        </member>
+        <member name="P:DogSE.Client.Core.NetStateConnectEventArgs.IsConnected">
+            <summary>
+            是否连接成功
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.ISerial">
+            <summary>
+            具备唯一标示的接口
+            </summary>
+        </member>
+        <member name="P:DogSE.Common.ISerial.Serial">
+            <summary>
+            唯一标示Id
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.IDataEntity">
+            <summary>
+            用于保存数据的实体类
+            </summary>
+        </member>
+        <member name="P:DogSE.Common.IDataEntity.Id">
+            <summary>
+            数据实体类的唯一id标示
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.IInitialize">
+            <summary>
+            当前脚本类需初始化实例
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.IConfigure">
+            <summary>
+            当前脚本类需配置化实例
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.IRelease">
+            <summary>
+            当前类的有内存池,可释放自己入内存池
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.IRelease.Release">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.ILock">
+            <summary>
+            当前类实例的在多线程中需锁定
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.ILock.Lock">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.ILock.Free">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:DogSE.Common.Serial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.Serial.MinusOne">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.Serial.Zero">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.Serial.#ctor(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="lSerial"></param>
+        </member>
+        <member name="F:DogSE.Common.Serial.m_Serial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Common.Serial.Value">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Equality(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Inequality(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_GreaterThan(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_LessThan(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_GreaterThanOrEqual(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_LessThanOrEqual(DogSE.Common.Serial,DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serialA"></param>
+            <param name="serialB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Implicit(DogSE.Common.Serial)~System.Int64">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.UInt64">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.Int32">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.UInt32">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.Int16">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.UInt16">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.Byte">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(DogSE.Common.Serial)~System.SByte">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Implicit(System.Int64)~DogSE.Common.Serial">
+            <summary>
+            
+            </summary>
+            <param name="lSerial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.op_Explicit(System.UInt64)~DogSE.Common.Serial">
+            <summary>
+            
+            </summary>
+            <param name="ulSerial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.ToString">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.GetHashCode">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.Equals(System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="xObject"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.Equals(DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="M:DogSE.Common.Serial.CompareTo(DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="otherSerial"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DogSE.Common.Serial.CompareTo(System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="otherObject"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DogSE.Common.ExclusiveSerial">
+            <summary>
+            给出唯一的Serial
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.ExclusiveSerial.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.ExclusiveSerial.#ctor(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="lMinSerial"></param>
+        </member>
+        <member name="M:DogSE.Common.ExclusiveSerial.#ctor(System.Int64,System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="lMaxSerial"></param>
+            <param name="lMinSerial"></param>
+        </member>
+        <member name="F:DogSE.Common.ExclusiveSerial.m_MinSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Common.ExclusiveSerial.MinSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.ExclusiveSerial.m_MaxSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:DogSE.Common.ExclusiveSerial.MaxSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.ExclusiveSerial.m_ExclusiveSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.ExclusiveSerial.m_LockExclusiveSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:DogSE.Common.ExclusiveSerial.m_ExclusiveSerialIndex">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.ExclusiveSerial.NextExclusiveSerial">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DogSE.Common.ExclusiveSerial.ReleaseSerial(DogSE.Common.Serial)">
+            <summary>
+            
+            </summary>
+            <param name="serial"></param>
+        </member>
+        <member name="T:TradeAge.Client.Core.Net.ConcurrentDictionary`2">
+            <summary>
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.#ctor(System.Int32,System.Int32)">
+            <summary>
+            </summary>
+            <param name="i"></param>
+            <param name="handlerCapacitySize"></param>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.#ctor">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:TradeAge.Client.Core.Net.ConcurrentDictionary`2.Count">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:TradeAge.Client.Core.Net.ConcurrentDictionary`2.Values">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.GetOrAdd(`0,`1)">
+            <summary>
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.TryRemove(`0,`1@)">
+            <summary>
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.TryGetValue(`0,`1@)">
+            <summary>
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TradeAge.Client.Core.Net.ConcurrentDictionary`2.TryAdd(`0,`1)">
+            <summary>
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

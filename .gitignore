@@ -1,0 +1,9 @@
+Debug
+Release
+*.v12.suo
+*.vspx
+*.suo
+*.user
+*.press
+/TradeAge/.vs/config
+/DogSE/Doc

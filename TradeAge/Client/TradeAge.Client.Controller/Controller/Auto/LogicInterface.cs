@@ -42,7 +42,7 @@ internal abstract void OnSyncInitDataFinish();
 internal abstract void OnEnterSceneInfo(TradeAge.Client.Entity.Character.SimplePlayer player);
 internal abstract void OnSpriteEnter(TradeAge.Client.Entity.Character.SceneSprite[] sprite);
 internal abstract void OnSpriteLeave(System.Int32[] spriteId);
-internal abstract void OnSpriteMove(int spriteId,DateTime time,TradeAge.Client.Entity.Common.Vector2 postion,TradeAge.Client.Entity.Common.Vector2 direction);
+internal abstract void OnSpriteMove(int spriteId,DateTime time,DogSE.Library.Maths.Vector3 postion,DogSE.Library.Maths.Quaternion rotation,float speed,float rotationRate,TradeAge.Client.Entity.Ship.SpeedUpTypes speedUpType);
         
     }
 

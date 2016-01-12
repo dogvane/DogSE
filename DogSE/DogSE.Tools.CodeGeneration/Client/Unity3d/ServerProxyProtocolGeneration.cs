@@ -107,7 +107,9 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 }
                 else if (p.PropertyType.IsLayoutSequential)
                 {
-                    writeCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                    //writeCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                    AddWriteProxyByStruct(p.PropertyType);
+                    writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}, pw);\r\n", p.PropertyType.Name, p.Name);
                 }
                 else if (p.PropertyType.IsArray)
                 {
@@ -158,7 +160,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     }
                     else if (arrayType.IsLayoutSequential)
                     {
-                        writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+                        //writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+                        AddWriteProxyByStruct(p.PropertyType);
+                        writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}[i], pw);\r\n", p.PropertyType.Name, p.Name);
+
                     }
 
                     writeCode.AppendLine("}");
@@ -181,6 +186,142 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                 );
         }
 
+        /// <summary>
+        /// 添加一个读取代理类
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="doc">文档注解</param>
+        private void AddWriteProxyByStruct(Type type, string doc = null)
+        {
+            if (writerProxySet.Contains(type))
+                return;
+
+            writerProxySet.Add(type);
+
+            StringBuilder writeCode = new StringBuilder();
+            var typeName = type.Name;
+
+            foreach (var p in type.GetFields())
+            {
+                if (p.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
+                    continue;
+
+                if (p.FieldType == typeof(int))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(byte))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(long))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(float))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(double))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(bool))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(string))
+                {
+                    writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType == typeof(DateTime))
+                {
+                    writeCode.AppendFormat("pw.Write(obj.{0}.Ticks);\r\n", p.Name);
+                }
+                else if (p.FieldType.IsEnum)
+                {
+                    writeCode.AppendFormat("pw.Write((byte)obj.{0});\r\n", p.Name);
+                }
+                else if (p.FieldType.IsLayoutSequential)
+                {
+                    //writeCode.AppendFormat("pw.WriteStruct(obj.{0});\r\n", p.Name);
+                    AddWriteProxyByStruct(p.FieldType);
+                    writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}, pw);\r\n", p.FieldType.Name, p.Name);
+                }
+                else if (p.FieldType.IsArray)
+                {
+                    //  数组
+                    #region 数组的处理
+
+                    var arrayType = p.FieldType.GetElementType();
+
+                    //  先写入长度
+                    writeCode.AppendFormat("pw.Write((int)obj.{0}.Length);\r\n", p.Name);
+                    writeCode.AppendFormat("for(int i = 0;i < obj.{0}.Length){{\r\n", p.Name);
+
+                    if (arrayType == typeof(int))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(byte))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(long))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(float))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(double))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(bool))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType == typeof(string))
+                    {
+                        writeCode.AppendFormat("pw.WriteUTF8Null(obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (p.FieldType == typeof(DateTime))
+                    {
+                        writeCode.AppendFormat("pw.Write(obj.{0}.Ticks);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsEnum)
+                    {
+                        writeCode.AppendFormat("pw.Write((byte)obj.{0}[i]);\r\n", p.Name);
+                    }
+                    else if (arrayType.IsLayoutSequential)
+                    {
+                        //writeCode.AppendFormat("pw.WriteStruct(obj.{0}[i]);\r\n", p.Name);
+
+                        AddWriteProxyByStruct(p.FieldType);
+                        writeCode.AppendFormat("{0}WriteProxy.Write(obj.{1}[i], pw);\r\n", p.FieldType.Name, p.Name);
+                    }
+
+                    writeCode.AppendLine("}");
+
+                    #endregion
+                }
+                else
+                {
+                    Logs.Error(string.Format("{0}.{1} 存在不支持的参数 {2}，类型未：{3}",
+                        classType.Name, type.Name, p.Name, p.FieldType.Name));
+                }
+
+            }
+
+            writerProxyCode.AppendLine(
+                readProxyCodeFormatter.Replace("#TypeName#", typeName)
+                .Replace("#TypeFullName#", Utils.GetFixFullTypeName(type.FullName))
+                .Replace("#ReadCode#", writeCode.ToString())
+                .Replace("#doc#", doc)
+                );
+        }
         private string readProxyCodeFormatter = @"
 
     /// <summary>
@@ -393,10 +534,12 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                     }
                     else if (p.ParameterType.IsLayoutSequential)
                     {
+                        AddWriteProxyByStruct(p.ParameterType, doc.GetParamSummary(p.Name));
+
                         commentCode.AppendFormat("/// <param name=`{0}`>{1}</param>\r\n", p.Name, doc.GetParamSummary(p.Name));
                         methonNameCode.AppendFormat("{0} {1},", Utils.GetFixFullTypeName(p.ParameterType.FullName), p.Name);
-                        streamWriterCode.AppendFormat("pw.WriteStruct({0});\r\n", p.Name);
-
+                        //streamWriterCode.AppendFormat("pw.WriteStruct({0});\r\n", p.Name);
+                        streamWriterCode.AppendFormat("{0}WriteProxy.Write({1}, pw);\r\n", p.ParameterType.Name, p.Name);
                     }
                     else if (p.ParameterType.IsArray)
                     {
@@ -449,7 +592,10 @@ namespace DogSE.Tools.CodeGeneration.Client.Unity3d
                         }
                         else if (arrayType.IsLayoutSequential)
                         {
-                            streamWriterCode.AppendFormat("pw.WriteStruct({0}[i]);\r\n", p.Name);
+                            //streamWriterCode.AppendFormat("pw.WriteStruct({0}[i]);\r\n", p.Name);
+
+                            AddWriteProxyByStruct(p.ParameterType);
+                            streamWriterCode.AppendFormat("{0}WriteProxy.Write({1}[i], pw);\r\n", p.ParameterType.Name, p.Name);
                         }
 
                         streamWriterCode.AppendLine("}");

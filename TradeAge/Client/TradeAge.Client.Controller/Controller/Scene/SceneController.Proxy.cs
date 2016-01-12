@@ -19,14 +19,20 @@ namespace TradeAge.Client.Controller.Scene
         /// </summary>
 /// <param name="time"></param>
 /// <param name="postion"></param>
-/// <param name="direction"></param>
+/// <param name="rotation"></param>
+/// <param name="speed"></param>
+/// <param name="rotationRate"></param>
+/// <param name="speedUpType"></param>
 
-public void Move(DateTime time,TradeAge.Client.Entity.Common.Vector2 postion,TradeAge.Client.Entity.Common.Vector2 direction)
+public void Move(DateTime time,DogSE.Library.Maths.Vector3 postion,DogSE.Library.Maths.Quaternion rotation,float speed,float rotationRate,TradeAge.Client.Entity.Ship.SpeedUpTypes speedUpType)
 {
 var pw = PacketWriter.AcquireContent(1100);
 pw.Write(time.Ticks);
-Vector2WriteProxy.Write(postion, pw);
-Vector2WriteProxy.Write(direction, pw);
+Vector3WriteProxy.Write(postion, pw);
+QuaternionWriteProxy.Write(rotation, pw);
+pw.Write(speed);
+pw.Write(rotationRate);
+pw.Write((byte)speedUpType);
 NetState.Send(pw);PacketWriter.ReleaseContent(pw);
 }
 
@@ -37,16 +43,37 @@ NetState.Send(pw);PacketWriter.ReleaseContent(pw);
     /// <summary>
     /// 
     /// </summary>
-    public class Vector2WriteProxy
+    public class Vector3WriteProxy
     {
     /// <summary>
     /// 
     /// </summary>
-        public static void Write(TradeAge.Client.Entity.Common.Vector2 obj, PacketWriter pw)
+        public static void Write(DogSE.Library.Maths.Vector3 obj, PacketWriter pw)
         {
 
 pw.Write(obj.X);
 pw.Write(obj.Y);
+pw.Write(obj.Z);
+
+        }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class QuaternionWriteProxy
+    {
+    /// <summary>
+    /// 
+    /// </summary>
+        public static void Write(DogSE.Library.Maths.Quaternion obj, PacketWriter pw)
+        {
+
+pw.Write(obj.X);
+pw.Write(obj.Y);
+pw.Write(obj.Z);
+pw.Write(obj.W);
 
         }
     }

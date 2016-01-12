@@ -135,7 +135,7 @@ netstate.Send(pw);
 PacketWriter.ReleaseContent(pw);
 }
 
-public void SpriteMove(NetState netstate,int spriteId,DateTime time,TradeAge.Server.Entity.Common.Vector2 postion,TradeAge.Server.Entity.Common.Vector2 direction)
+public void SpriteMove(NetState netstate,int spriteId,DateTime time,DogSE.Library.Maths.Vector3 postion,DogSE.Library.Maths.Quaternion rotation,float speed,float rotationRate,TradeAge.Server.Entity.Ship.SpeedUpTypes speedUpType)
 {
 var pw = PacketWriter.AcquireContent(1103);
             PacketProfile packetProfile = PacketProfile.GetOutgoingProfile( 1103 );
@@ -143,8 +143,11 @@ var pw = PacketWriter.AcquireContent(1103);
                 packetProfile.RegConstruct();
                 pw.Write(spriteId);
 pw.Write(time.Ticks);
-Vector2WriteProxy.Write(postion, pw);
-Vector2WriteProxy.Write(direction, pw);
+Vector3WriteProxy.Write(postion, pw);
+QuaternionWriteProxy.Write(rotation, pw);
+pw.Write(speed);
+pw.Write(rotationRate);
+pw.Write((byte)speedUpType);
 netstate.Send(pw);
  if ( packetProfile != null ) packetProfile.Record(pw.Length);
 PacketWriter.ReleaseContent(pw);
@@ -153,13 +156,27 @@ PacketWriter.ReleaseContent(pw);
 
 
 
-    public class Vector2WriteProxy
+    public class Vector3WriteProxy
     {
-        public static void Write(TradeAge.Server.Entity.Common.Vector2 obj, PacketWriter pw)
+        public static void Write(DogSE.Library.Maths.Vector3 obj, PacketWriter pw)
         {
 
 pw.Write(obj.X);
 pw.Write(obj.Y);
+pw.Write(obj.Z);
+
+        }
+    }
+
+    public class QuaternionWriteProxy
+    {
+        public static void Write(DogSE.Library.Maths.Quaternion obj, PacketWriter pw)
+        {
+
+pw.Write(obj.X);
+pw.Write(obj.Y);
+pw.Write(obj.Z);
+pw.Write(obj.W);
 
         }
     }
@@ -170,8 +187,9 @@ pw.Write(obj.Y);
         {
 
 pw.WriteUTF8Null(obj.Name);
-Vector2WriteProxy.Write(obj.Postion, pw);
-Vector2WriteProxy.Write(obj.Direction, pw);
+Vector3WriteProxy.Write(obj.Postion, pw);
+QuaternionWriteProxy.Write(obj.Rotation, pw);
+pw.Write(obj.Speed);
 pw.Write(obj.Id);
 pw.Write(obj.AccountId);
 pw.Write((byte)obj.Sex);
@@ -187,8 +205,9 @@ pw.Write((byte)obj.Sex);
 pw.Write(obj.Id);
 pw.Write((byte)obj.SpriteType);
 pw.WriteUTF8Null(obj.Name);
-Vector2WriteProxy.Write(obj.Postion, pw);
-Vector2WriteProxy.Write(obj.Direction, pw);
+Vector3WriteProxy.Write(obj.Postion, pw);
+QuaternionWriteProxy.Write(obj.Rotation, pw);
+pw.Write(obj.Speed);
 
         }
     }
